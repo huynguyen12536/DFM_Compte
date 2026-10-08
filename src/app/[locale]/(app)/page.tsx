@@ -12,12 +12,12 @@ import { PaymentsDonut, ReceivablesDonut } from "@/components/dashboard/overview
 import { KpiStrip } from "@/components/dashboard/overview/kpi-strip";
 import { DashboardPeriodProvider } from "@/components/dashboard/overview/period-context";
 import { QuotePipeline } from "@/components/dashboard/overview/quote-pipeline";
-import { QuoteStatusFilters } from "@/components/dashboard/overview/quote-status-filters";
+import { HeroCompanyBadge } from "@/components/dashboard/hero-company-badge";
 import { ReceivableSummary } from "@/components/dashboard/overview/receivable-summary";
 import { RevenueChart } from "@/components/dashboard/overview/revenue-chart";
-import { RecentQuotesTable } from "@/components/dashboard/recent-quotes-table";
+import { DashboardQuotesLive } from "@/components/dashboard/dashboard-quotes-live";
 import { StatusBadge } from "@/components/dashboard/tone";
-import { actionItems, invoicesToFollow, recentQuotes } from "@/mocks/dashboard";
+import { actionItems, invoicesToFollow } from "@/mocks/dashboard";
 
 export default async function Home() {
   const t = await getTranslations();
@@ -41,9 +41,7 @@ export default async function Home() {
                     <StatusBadge size="sm" tone="green">
                       {t("hero.active")}
                     </StatusBadge>
-                    <StatusBadge size="sm" tone="blue">
-                      DFM-Europe
-                    </StatusBadge>
+                    <HeroCompanyBadge />
                   </div>
                   <h2
                     className="hero-piece mt-1.5 max-w-[450px] text-[22px] leading-[1.12] font-bold tracking-[-0.025em] text-balance"
@@ -120,19 +118,7 @@ export default async function Home() {
               id="dashboard-quotes"
               style={enterStyle(7)}
             >
-              <div className="dashboard-list__header">
-                <CardHeader action={t("quotes.openList")} title={t("quotes.title")} titleId="recent-quotes-title" />
-                <QuoteStatusFilters
-                  labels={[
-                    t("quotes.all"),
-                    t("status.draft"),
-                    t("status.sent"),
-                    t("status.review"),
-                    t("status.accepted"),
-                  ]}
-                />
-              </div>
-              <RecentQuotesTable quotes={recentQuotes} />
+              <DashboardQuotesLive />
             </section>
 
             <QuotePipeline style={enterStyle(7.5)} />

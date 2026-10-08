@@ -1,14 +1,15 @@
 import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
 
-import { QuotesRegister } from "@/features/quotes/quotes-register";
+import { ContentLoading } from "@/components/shell/content-loading";
+import { RouteContentGate } from "@/components/shell/route-content-gate";
+import { QuotesWorkspace } from "@/features/quotes/quotes-workspace";
 
-export default async function QuotesPage() {
-  const t = await getTranslations("register");
-
+export default function QuotesPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-[#728097]">{t("loading")}</p>}>
-      <QuotesRegister />
-    </Suspense>
+    <RouteContentGate>
+      <Suspense fallback={<ContentLoading />}>
+        <QuotesWorkspace />
+      </Suspense>
+    </RouteContentGate>
   );
 }

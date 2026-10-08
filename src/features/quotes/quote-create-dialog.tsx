@@ -1,45 +1,66 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
+import { FormSheet } from "@/components/forms/form-sheet";
 import { TextField } from "@/components/forms/text-field";
 import { demoAccess } from "@/lib/session";
 import { owners } from "@/features/quotes/seed";
 import { addCustomer, addQuote } from "@/features/quotes/store";
-import type { CustomerRecord } from "@/features/quotes/model";
+import { ledgerToday, type CustomerRecord } from "@/features/quotes/model";
 import { useTranslations } from "next-intl";
+import { addMonthsToIso } from "@/lib/iso-date";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 export function QuoteCreateDialog({
   customers,
   forceNewCustomer,
+  initialCustomerId,
   onClose,
+  onCreated,
 }: {
   customers: CustomerRecord[];
   forceNewCustomer: boolean;
+  initialCustomerId?: string | null;
   onClose: () => void;
+  onCreated?: (quote: import("./model").QuoteRecord, customer: CustomerRecord) => void;
 }) {
   const t = useTranslations("register.create");
   const shell = useTranslations("register");
   const router = useRouter();
   const listId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [query, setQuery] = useState("");
-  const [customerId, setCustomerId] = useState("");
-  const [validUntil, setValidUntil] = useState("");
+  const preset = initialCustomerId
+    ? customers.find((customer) => customer.id === initialCustomerId)
+    : undefined;
+  const [query, setQuery] = useState(preset?.name ?? "");
+  const [customerId, setCustomerId] = useState(preset?.id ?? "");
+  const [boundCustomerId, setBoundCustomerId] = useState(preset?.id ?? "");
+  const [validUntil, setValidUntil] = useState(() => addMonthsToIso(ledgerToday, 2));
   const [ownerId, setOwnerId] = useState(owners[0]?.id ?? "");
-  const [openList, setOpenList] = useState(forceNewCustomer);
+  const [openList, setOpenList] = useState(forceNewCustomer && !preset);
   const [errors, setErrors] = useState<{ customer?: string; validity?: string; owner?: string }>({});
+
+  if (preset && preset.id !== boundCustomerId) {
+    setBoundCustomerId(preset.id);
+    setCustomerId(preset.id);
+    setQuery(preset.name);
+    setOpenList(false);
+  }
 
   const matches = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return customers.filter((customer) => customer.name.toLowerCase().includes(needle)).slice(0, 6);
   }, [customers, query]);
 
-  const canCreate = demoAccess.canCreateCustomer && query.trim().length > 1 && !matches.some((customer) => customer.name.toLowerCase() === query.trim().toLowerCase());
+  const canCreate =
+    demoAccess.canCreateCustomer &&
+    query.trim().length > 1 &&
+    !matches.some((customer) => customer.name.toLowerCase() === query.trim().toLowerCase());
 
   useEffect(() => {
+    if (preset) return;
     inputRef.current?.focus();
-  }, []);
+  }, [preset]);
 
   function submit() {
     const nextErrors: typeof errors = {};
@@ -61,24 +82,47 @@ export function QuoteCreateDialog({
       ownerId,
       validUntil,
     });
-    router.push(`/devis/${quote.id}`);
+    onCreated?.(quote, customer);
+    onClose();
+    if (!onCreated) {
+      router.push(`/devis/${quote.id}`);
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-start justify-center bg-[#063586]/30 px-4 pt-[14vh]">
-      <button className="absolute inset-0 cursor-default" type="button" aria-label={t("title")} onClick={onClose} />
-      <form
-        className="relative z-10 w-full max-w-[440px] rounded-[18px] bg-white p-5 shadow-[0_22px_70px_rgb(29_43_68/0.16)] ring-1 ring-[#e1e7f1]"
-        onSubmit={(event) => {
-          event.preventDefault();
-          submit();
-        }}
-      >
-        <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#063586]">{t("title")}</h2>
-        <p className="mt-1 text-sm text-[#728097]">{t("body")}</p>
-        <div className="mt-5 space-y-4">
+    <FormSheet
+      closeLabel={shell("cancel")}
+      description={t("body")}
+      open
+      title={t("title")}
+      widthClassName="sm:max-w-[440px]"
+      onClose={onClose}
+      footer={
+        <div className="flex justify-end gap-2">
+          <button
+            className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
+            type="button"
+            onClick={onClose}
+          >
+            {shell("cancel")}
+          </button>
+          <button
+            className="soft-primary min-h-10 rounded-[10px] px-3 text-sm font-semibold text-white"
+            type="button"
+            onClick={submit}
+          >
+            {t("submit")}
+          </button>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        <section className="space-y-3">
+          <h3 className="text-[12px] font-semibold tracking-[0.06em] text-[#7a899e] uppercase">
+            {t("customer")}
+          </h3>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#405069]" htmlFor="quote-customer">
+            <label className="mb-1.5 block text-[11px] font-medium text-[#5f6f88]" htmlFor="quote-customer">
               {t("customer")}
               <span className="text-[#8e2a26]"> *</span>
             </label>
@@ -90,7 +134,7 @@ export function QuoteCreateDialog({
               aria-controls={listId}
               aria-invalid={errors.customer ? true : undefined}
               aria-describedby={errors.customer ? "quote-customer-error" : undefined}
-              className={`h-10 w-full rounded-[12px] border bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/35 ${
+              className={`h-10 w-full rounded-[10px] border bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30 ${
                 errors.customer ? "border-[#c9564f]" : "border-[#dfe6f1]"
               }`}
               placeholder={t("customerPlaceholder")}
@@ -103,7 +147,11 @@ export function QuoteCreateDialog({
               }}
             />
             {openList ? (
-              <ul id={listId} role="listbox" className="mt-1 overflow-hidden rounded-[12px] border border-[#e1e7f1] bg-white">
+              <ul
+                id={listId}
+                role="listbox"
+                className="mt-1 overflow-hidden rounded-[12px] border border-[#e1e7f1] bg-white"
+              >
                 {matches.map((customer) => (
                   <li key={customer.id}>
                     <button
@@ -138,6 +186,12 @@ export function QuoteCreateDialog({
               </span>
             ) : null}
           </div>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-[12px] font-semibold tracking-[0.06em] text-[#7a899e] uppercase">
+            {t("validity")}
+          </h3>
           <TextField
             id="quote-validity"
             label={t("validity")}
@@ -148,13 +202,13 @@ export function QuoteCreateDialog({
             onChange={setValidUntil}
           />
           <label className="block" htmlFor="quote-owner">
-            <span className="mb-1.5 block text-xs font-medium text-[#405069]">
+            <span className="mb-1.5 block text-[11px] font-medium text-[#5f6f88]">
               {t("owner")}
               <span className="text-[#8e2a26]"> *</span>
             </span>
             <select
               id="quote-owner"
-              className="h-10 w-full rounded-[12px] border border-[#dfe6f1] bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/35"
+              className="h-10 w-full rounded-[10px] border border-[#dfe6f1] bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30"
               value={ownerId}
               onChange={(event) => setOwnerId(event.target.value)}
             >
@@ -165,16 +219,8 @@ export function QuoteCreateDialog({
               ))}
             </select>
           </label>
-        </div>
-        <div className="mt-5 flex justify-end gap-2">
-          <button className="min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]" type="button" onClick={onClose}>
-            {shell("cancel")}
-          </button>
-          <button className="min-h-10 rounded-[10px] bg-[#044ce2] px-3 text-sm font-semibold text-white hover:bg-[#063586]" type="submit">
-            {t("submit")}
-          </button>
-        </div>
-      </form>
-    </div>
+        </section>
+      </div>
+    </FormSheet>
   );
 }

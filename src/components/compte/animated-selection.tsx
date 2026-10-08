@@ -42,6 +42,8 @@ type AnimatedActiveIndicatorProps = {
   layoutId: string;
   variant?: ActiveIndicatorVariant;
   className?: string;
+  /** Override layout border radius (defaults: sidebar 14, soft-pill 9999). */
+  borderRadius?: number;
 };
 
 /**
@@ -52,8 +54,13 @@ export function AnimatedActiveIndicator({
   layoutId,
   variant = "sidebar",
   className,
+  borderRadius,
 }: AnimatedActiveIndicatorProps) {
   const reduceMotion = useReducedMotion();
+  const radius = borderRadius ?? (variant === "sidebar" ? 14 : 9999);
+  // useReducedMotion() is null on the server and boolean after mount — keep the
+  // first paint identical to SSR to avoid a hydration mismatch.
+  const transition = reduceMotion === true ? selectionReduced : selectionSpring;
 
   return (
     <motion.div
@@ -64,8 +71,8 @@ export function AnimatedActiveIndicator({
         className,
       )}
       layoutId={layoutId}
-      style={{ borderRadius: variant === "sidebar" ? 14 : 9999 }}
-      transition={reduceMotion ? selectionReduced : selectionSpring}
+      style={{ borderRadius: radius }}
+      transition={transition}
     />
   );
 }

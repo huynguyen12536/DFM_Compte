@@ -15,7 +15,6 @@ import {
   WalletCards,
   type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
 
 import {
   AnimatedActiveIndicator,
@@ -50,10 +49,10 @@ type SidebarNavItem = {
 
 const mainNav: SidebarNavItem[] = [
   { labelKey: "nav.overview", icon: LayoutDashboard, href: "/" },
-  { labelKey: "nav.customers", icon: UsersRound },
+  { labelKey: "nav.customers", icon: UsersRound, href: "/customers" },
   { labelKey: "nav.quotes", icon: FileText, href: "/devis", count: "6" },
-  { labelKey: "nav.invoices", icon: ReceiptText },
-  { labelKey: "nav.payments", icon: WalletCards, count: "3" },
+  { labelKey: "nav.invoices", icon: ReceiptText, href: "/factures" },
+  { labelKey: "nav.payments", icon: WalletCards, href: "/paiements", count: "3" },
   { labelKey: "nav.products", icon: Package },
   { labelKey: "nav.reports", icon: Gauge },
 ];
@@ -107,13 +106,13 @@ function SidebarNavButton({
   label,
   active,
   pathname,
-  onSelect,
+  comingSoon,
 }: {
   item: SidebarNavItem;
   label: string;
   active: boolean;
   pathname: string;
-  onSelect: () => void;
+  comingSoon: string;
 }) {
   const Icon = item.icon;
 
@@ -158,9 +157,6 @@ function SidebarNavButton({
         className={className}
         href={item.href}
         onClick={(event) => {
-          // Always move the shared pill first (including Overview ← Customers).
-          onSelect();
-          // Already on this link target — keep pill motion, skip redundant push.
           if (isExactHref(pathname, item)) {
             event.preventDefault();
           }
@@ -173,9 +169,10 @@ function SidebarNavButton({
 
   return (
     <button
-      aria-current={active ? "page" : undefined}
+      aria-disabled="true"
       className={className}
-      onClick={onSelect}
+      disabled
+      title={comingSoon}
       type="button"
     >
       {content}
@@ -186,23 +183,14 @@ function SidebarNavButton({
 export function SidebarNav({
   labels,
   opsLabel,
+  comingSoon,
 }: {
   labels: Record<NavKey, string>;
   opsLabel: string;
+  comingSoon: string;
 }) {
   const pathname = usePathname();
-  const routeKey = matchRouteKey(pathname);
-  const [localSelection, setLocalSelection] = useState<{
-    path: string;
-    key: NavKey;
-  } | null>(null);
-
-  const activeKey =
-    localSelection?.path === pathname ? localSelection.key : routeKey;
-
-  const selectItem = (key: NavKey) => {
-    setLocalSelection({ path: pathname, key });
-  };
+  const activeKey = matchRouteKey(pathname);
 
   return (
     <AnimatedSelectionGroup id="compte-sidebar-nav">
@@ -210,10 +198,10 @@ export function SidebarNav({
         {mainNav.map((item) => (
           <SidebarNavButton
             active={activeKey === item.labelKey}
+            comingSoon={comingSoon}
             item={item}
             key={item.labelKey}
             label={labels[item.labelKey]}
-            onSelect={() => selectItem(item.labelKey)}
             pathname={pathname}
           />
         ))}
@@ -227,10 +215,10 @@ export function SidebarNav({
           {opsNav.map((item) => (
             <SidebarNavButton
               active={activeKey === item.labelKey}
+              comingSoon={comingSoon}
               item={item}
               key={item.labelKey}
               label={labels[item.labelKey]}
-              onSelect={() => selectItem(item.labelKey)}
               pathname={pathname}
             />
           ))}

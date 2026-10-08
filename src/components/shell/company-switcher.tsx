@@ -5,10 +5,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { IconTile } from "@/components/dashboard/tone";
-import {
-  DEFAULT_COMPANY_ID,
-  mockCompanies,
-} from "@/features/settings/mocks/companies";
+import { useCurrentCompany } from "@/features/settings/company-store";
+import { getActiveCompanies } from "@/features/settings/mocks/companies";
 import { cn } from "@/lib/utils";
 
 export function CompanySwitcher() {
@@ -16,9 +14,10 @@ export function CompanySwitcher() {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [activeId, setActiveId] = useState(DEFAULT_COMPANY_ID);
+  const { company, setCompanyId } = useCurrentCompany();
+  const companies = getActiveCompanies();
 
-  const active = mockCompanies.find((company) => company.id === activeId) ?? mockCompanies[0];
+  const active = company ?? companies[0];
 
   useEffect(() => {
     if (!open) return;
@@ -42,7 +41,13 @@ export function CompanySwitcher() {
   }, [open]);
 
   return (
-    <div className="sidebar-surface relative z-20 shrink-0 rounded-[14px] p-3" ref={rootRef}>
+    <div
+      className={cn(
+        "company-switcher sidebar-surface relative shrink-0 rounded-[14px] p-3",
+        open && "company-switcher--open",
+      )}
+      ref={rootRef}
+    >
       <div className="flex items-center gap-3">
         <IconTile tone="blue" icon={Building2} />
         <div className="min-w-0">
@@ -70,11 +75,11 @@ export function CompanySwitcher() {
       {open ? (
         <div
           aria-label={t("companyList")}
-          className="company-switcher-menu absolute top-[calc(100%-6px)] right-2 left-2 z-30 max-h-52 space-y-0.5 overflow-y-auto rounded-[12px] border border-[#dce5f0] bg-[rgb(255_255_255/0.96)] p-1.5 shadow-[0_14px_32px_rgb(29_43_68/0.16),0_2px_6px_rgb(29_43_68/0.06)] backdrop-blur-md"
+          className="company-switcher-menu absolute top-full right-2 left-2 z-[1] mt-1.5 max-h-52 space-y-0.5 overflow-y-auto rounded-[12px] border border-[#dce5f0] bg-[rgb(255_255_255/0.98)] p-1.5 shadow-[0_14px_32px_rgb(29_43_68/0.18),0_2px_6px_rgb(29_43_68/0.08)] backdrop-blur-md"
           id={listId}
           role="listbox"
         >
-          {mockCompanies.map((company) => {
+          {companies.map((company) => {
             const selected = company.id === active.id;
             return (
               <button
@@ -87,7 +92,7 @@ export function CompanySwitcher() {
                 )}
                 key={company.id}
                 onClick={() => {
-                  setActiveId(company.id);
+                  setCompanyId(company.id);
                   setOpen(false);
                 }}
                 role="option"

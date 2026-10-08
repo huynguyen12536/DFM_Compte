@@ -2,6 +2,9 @@ import type { PermissionId, Role } from "../types";
 
 const tenantAdminPermissions: PermissionId[] = [
   "company.read",
+  "company.create",
+  "company.update",
+  "company.archive",
   "company.manage",
   "user.read",
   "user.invite",
@@ -100,6 +103,7 @@ export const systemRoles: Role[] = [
     id: "tenant-admin",
     nameKey: "roles.tenantAdmin.name",
     descriptionKey: "roles.tenantAdmin.description",
+    cardDescriptionKey: "roles.tenantAdmin.card",
     defaultScope: "TENANT",
     permissions: tenantAdminPermissions,
     system: true,
@@ -108,6 +112,7 @@ export const systemRoles: Role[] = [
     id: "business-owner",
     nameKey: "roles.businessOwner.name",
     descriptionKey: "roles.businessOwner.description",
+    cardDescriptionKey: "roles.businessOwner.card",
     defaultScope: "COMPANY",
     permissions: businessOwnerPermissions,
     system: true,
@@ -116,6 +121,7 @@ export const systemRoles: Role[] = [
     id: "accountant",
     nameKey: "roles.accountant.name",
     descriptionKey: "roles.accountant.description",
+    cardDescriptionKey: "roles.accountant.card",
     defaultScope: "COMPANY",
     permissions: accountantPermissions,
     system: true,
@@ -124,6 +130,7 @@ export const systemRoles: Role[] = [
     id: "sales",
     nameKey: "roles.sales.name",
     descriptionKey: "roles.sales.description",
+    cardDescriptionKey: "roles.sales.card",
     defaultScope: "OWN",
     permissions: salesPermissions,
     system: true,
@@ -132,6 +139,7 @@ export const systemRoles: Role[] = [
     id: "viewer",
     nameKey: "roles.viewer.name",
     descriptionKey: "roles.viewer.description",
+    cardDescriptionKey: "roles.viewer.card",
     defaultScope: "COMPANY",
     permissions: viewerPermissions,
     system: true,
@@ -143,6 +151,7 @@ export const platformSuperAdminRole: Role = {
   id: "super-admin",
   nameKey: "roles.superAdmin.name",
   descriptionKey: "roles.superAdmin.description",
+  cardDescriptionKey: "roles.superAdmin.card",
   defaultScope: "TENANT",
   permissions: [],
   system: true,
@@ -155,4 +164,10 @@ export function getTenantRoles(roles: Role[] = systemRoles): Role[] {
 
 export function getRoleById(roleId: string, roles: Role[] = systemRoles): Role | undefined {
   return roles.find((role) => role.id === roleId);
+}
+
+/** Mock-only default scope suggestion when assigning a role in the edit form. */
+export function suggestedScopeForRole(roleId: string): Role["defaultScope"] {
+  const role = getRoleById(roleId);
+  return role?.defaultScope ?? "COMPANY";
 }

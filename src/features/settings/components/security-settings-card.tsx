@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { StatusBadge } from "@/components/dashboard/tone";
+import { FormSheet } from "@/components/forms/form-sheet";
 
 import type { SecuritySettingsConfig } from "../types";
 
@@ -113,58 +114,49 @@ export function SecuritySettingsCard({ initial }: { initial: SecuritySettingsCon
         </button>
       </div>
 
-      {sessionsOpen ? (
-        <div className="fixed inset-0 z-40 flex items-start justify-center bg-[#063586]/30 px-4 pt-[16vh]">
-          <button
-            aria-label={t("dialogs.close")}
-            className="absolute inset-0 cursor-default"
-            type="button"
-            onClick={() => setSessionsOpen(false)}
-          />
-          <div
-            aria-labelledby="sessions-title"
-            className="relative z-10 w-full max-w-[420px] rounded-[18px] bg-white p-5 shadow-[0_22px_70px_rgb(29_43_68/0.16)] ring-1 ring-[#e1e7f1]"
-            role="dialog"
-          >
-            <h4 className="text-base font-semibold text-[#063586]" id="sessions-title">
-              {t("security.sessionsTitle")}
-            </h4>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li className="flex items-center justify-between gap-3 rounded-[12px] border border-[#e8eef6] px-3 py-2.5">
-                <span>
-                  <span className="block font-semibold text-[#1b2d47]">
-                    {t("security.currentDevice")}
-                  </span>
-                  <span className="text-[12px] text-[#7a899e]">{t("security.now")}</span>
-                </span>
-                <StatusBadge size="xs" tone="green">
-                  {t("security.active")}
-                </StatusBadge>
-              </li>
-              <li className="flex items-center justify-between gap-3 rounded-[12px] border border-[#e8eef6] px-3 py-2.5">
-                <span>
-                  <span className="block font-semibold text-[#1b2d47]">
-                    {t("security.otherSession")}
-                  </span>
-                  <span className="text-[12px] text-[#7a899e]">Paris · 2 d ago</span>
-                </span>
-                <button className="text-sm font-semibold text-[#c9564f]" type="button">
-                  {t("security.revoke")}
-                </button>
-              </li>
-            </ul>
-            <div className="mt-4 flex justify-end">
-              <button
-                className="min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
-                type="button"
-                onClick={() => setSessionsOpen(false)}
-              >
-                {t("dialogs.close")}
-              </button>
-            </div>
+      <FormSheet
+        closeLabel={t("dialogs.close")}
+        open={sessionsOpen}
+        title={t("security.sessionsTitle")}
+        widthClassName="sm:max-w-[420px]"
+        onClose={() => setSessionsOpen(false)}
+        footer={
+          <div className="flex justify-end">
+            <button
+              className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
+              type="button"
+              onClick={() => setSessionsOpen(false)}
+            >
+              {t("dialogs.close")}
+            </button>
           </div>
-        </div>
-      ) : null}
+        }
+      >
+        <ul className="space-y-2 text-sm">
+          <li className="flex items-center justify-between gap-3 rounded-[12px] border border-[#e8eef6] px-3 py-2.5">
+            <span>
+              <span className="block font-semibold text-[#1b2d47]">
+                {t("security.currentDevice")}
+              </span>
+              <span className="text-[12px] text-[#7a899e]">{t("security.now")}</span>
+            </span>
+            <StatusBadge size="xs" tone="green">
+              {t("security.active")}
+            </StatusBadge>
+          </li>
+          <li className="flex items-center justify-between gap-3 rounded-[12px] border border-[#e8eef6] px-3 py-2.5">
+            <span>
+              <span className="block font-semibold text-[#1b2d47]">
+                {t("security.otherSession")}
+              </span>
+              <span className="text-[12px] text-[#7a899e]">Paris · 2 d ago</span>
+            </span>
+            <button className="text-sm font-semibold text-[#c9564f]" type="button">
+              {t("security.revoke")}
+            </button>
+          </li>
+        </ul>
+      </FormSheet>
     </section>
   );
 }

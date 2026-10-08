@@ -1,15 +1,31 @@
+"use client";
+
 import type { CSSProperties } from "react";
-import { getTranslations } from "next-intl/server";
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 import { DashboardScroll } from "@/components/dashboard/dashboard-scroll";
 import { StatusBadge } from "@/components/dashboard/tone";
+import {
+  buildPipelineSummary,
+  buildQuotePipeline,
+} from "@/features/quotes/dashboard-source";
+import { useLedger } from "@/features/quotes/store";
 import { formatPercent, parseAmount } from "@/lib/money";
-import { pipelineSummary, quotePipeline } from "@/mocks/dashboard";
 
 import { CardHeader } from "./dashboard-card";
 
-export async function QuotePipeline({ style }: { style?: CSSProperties }) {
-  const t = await getTranslations();
+export function QuotePipeline({ style }: { style?: CSSProperties }) {
+  const t = useTranslations();
+  const ledger = useLedger();
+  const quotePipeline = useMemo(
+    () => buildQuotePipeline(ledger.quotes),
+    [ledger.quotes],
+  );
+  const pipelineSummary = useMemo(
+    () => buildPipelineSummary(ledger.quotes),
+    [ledger.quotes],
+  );
   const total = quotePipeline.reduce((sum, stage) => sum + parseAmount(stage.value), 0);
 
   return (

@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 
 import type { Quote } from "@/mocks/dashboard/types";
 
@@ -8,8 +10,8 @@ import { StatusBadge } from "./tone";
 const columnWidths: Array<number | undefined> = [undefined, 240, 64, undefined, undefined];
 const cell = "min-w-0 overflow-hidden";
 
-export async function RecentQuotesTable({ quotes }: { quotes: Quote[] }) {
-  const t = await getTranslations();
+export function RecentQuotesTable({ quotes }: { quotes: Quote[] }) {
+  const t = useTranslations();
 
   return (
     <DashboardScroll scrollClassName="overflow-x-auto overflow-y-auto">

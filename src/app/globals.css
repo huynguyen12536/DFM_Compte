@@ -261,7 +261,58 @@ html::-webkit-scrollbar {
   background: transparent;
 }
 
+.notifications-scroll,
+.soft-select-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(143 160 184 / 0.55) transparent;
+}
+
+.notifications-scroll::-webkit-scrollbar,
+.soft-select-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.notifications-scroll::-webkit-scrollbar-track,
+.soft-select-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb,
+.soft-select-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(143 160 184 / 0.55);
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb:hover,
+.soft-select-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(120 138 164 / 0.7);
+}
+
 .dashboard-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(143 160 184 / 0.55);
+}
+
+.customer-table-scroll,
+.customer-detail-scroll {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(143 160 184 / 0.55) transparent;
+}
+
+.customer-table-scroll::-webkit-scrollbar,
+.customer-detail-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 0;
+}
+
+.customer-table-scroll::-webkit-scrollbar-track,
+.customer-detail-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.customer-table-scroll::-webkit-scrollbar-thumb,
+.customer-detail-scroll::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: rgb(143 160 184 / 0.55);
 }
@@ -275,6 +326,11 @@ html::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
+}
+
+.users-row--selected {
+  background: rgb(232 241 255 / 0.65) !important;
+  box-shadow: inset 2px 0 0 #044ce2;
 }
 
 .company-switcher-menu {
@@ -525,6 +581,15 @@ html::-webkit-scrollbar {
   z-index: 1;
 }
 
+/* Must beat `.nav-rail > *` so the company menu overlays Overview/Customers/… */
+.nav-rail > .company-switcher {
+  z-index: 2;
+}
+
+.nav-rail > .company-switcher.company-switcher--open {
+  z-index: 30;
+}
+
 .workspace-pane {
   position: relative;
   isolation: isolate;
@@ -669,6 +734,52 @@ html::-webkit-scrollbar {
   animation: gentle-pulse 1.55s ease-in-out infinite;
 }
 
+@keyframes activity-dot-blink {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgb(34 133 103 / 0.45);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 8px rgb(34 133 103 / 0);
+    opacity: 0.85;
+  }
+}
+
+@keyframes activity-card-glow {
+  0%,
+  100% {
+    background-color: rgb(232 247 240 / 0.55);
+  }
+
+  50% {
+    background-color: rgb(232 247 240 / 0.95);
+  }
+}
+
+.invoice-activity-dot {
+  background: #238567;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.invoice-activity-dot--live {
+  animation: activity-dot-blink 1.35s ease-in-out infinite;
+}
+
+.invoice-activity-card--live {
+  animation: activity-card-glow 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invoice-activity-dot--live,
+  .invoice-activity-card--live {
+    animation: none;
+  }
+}
+
 .loading-spinner {
   position: relative;
   width: 46px;
@@ -749,6 +860,103 @@ html::-webkit-scrollbar {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes customer-sheet-in {
+  from {
+    opacity: 0.92;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes compte-tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes form-sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes form-sheet-backdrop-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes form-sheet-panel-in {
+  from {
+    opacity: 0.96;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes form-sheet-panel-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0.96;
+    transform: translateX(100%);
+  }
+}
+
+.form-sheet-backdrop-enter {
+  animation: form-sheet-backdrop-in 220ms var(--soft-ease) both;
+}
+
+.form-sheet-backdrop-exit {
+  animation: form-sheet-backdrop-out 180ms var(--soft-ease) both;
+  pointer-events: none;
+}
+
+.form-sheet-panel-enter {
+  animation: form-sheet-panel-in 280ms var(--soft-ease) both;
+  will-change: transform, opacity;
+}
+
+.form-sheet-panel-exit {
+  animation: form-sheet-panel-out 200ms var(--soft-ease) both;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-sheet-backdrop-enter,
+  .form-sheet-backdrop-exit,
+  .form-sheet-panel-enter,
+  .form-sheet-panel-exit {
+    animation-duration: 1ms;
   }
 }
 
@@ -1381,6 +1589,13 @@ html::-webkit-scrollbar {
     opacity 160ms ease-out;
 }
 
+/* Clockwise ink stroke that peels away to reveal colored segments. */
+.donut-ink {
+  transition:
+    stroke-dashoffset 720ms var(--ease-out-expo),
+    opacity 280ms ease-out;
+}
+
 .radar-shape {
   transform: scale(0.94);
   transform-box: view-box;
@@ -1440,6 +1655,31 @@ html::-webkit-scrollbar {
 
 .settings-nav {
   position: relative;
+  /* Keep nav items above dashboard-card ::before/::after overlays. */
+  isolation: isolate;
+}
+
+.settings-nav > * {
+  position: relative;
+  /* Above .dashboard-card::after (z-index: 2) inset overlay. */
+  z-index: 3;
+}
+
+.settings-nav__item {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  line-height: 1;
+}
+
+.settings-nav__label {
+  display: block;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .series-switch:hover,
@@ -1784,6 +2024,10 @@ li.dashboard-list__row {
   white-space: nowrap;
 }
 
+.dashboard-list tbody tr:last-child > td {
+  border-bottom: none;
+}
+
 .dashboard-list__head th:first-child,
 .dashboard-list__row > td:first-child {
   padding-left: var(--list-padding-x);
@@ -1877,6 +2121,11 @@ li.dashboard-list__row {
   .radar-point {
     transform: none !important;
     opacity: 1 !important;
+  }
+
+  .donut-ink,
+  .donut-segment {
+    transition: none !important;
   }
 
   .hero-ambient::before,

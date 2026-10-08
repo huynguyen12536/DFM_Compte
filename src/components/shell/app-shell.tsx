@@ -1,19 +1,18 @@
 import {
-  Bell,
   Bot,
   CalendarDays,
   Menu,
-  Plus,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "@/components/brand-logo";
 import { CommandSearchIconTrigger, CommandSearchTrigger } from "@/components/command/command-palette";
 import { CompanySwitcher } from "@/components/shell/company-switcher";
+import { HeaderNotifications } from "@/components/shell/header-notifications";
 import { NavDrawer, NavDrawerProvider, NavDrawerSearch, NavDrawerTrigger } from "@/components/shell/nav-drawer";
 import { ShellTitle } from "@/components/shell/shell-title";
 import { SidebarNav } from "@/components/shell/sidebar-nav";
-import { Link } from "@/i18n/navigation";
+import { UserAccountMenu } from "@/components/shell/user-account-menu";
 
 /** Persistent COMPTE chrome — sidebar stays mounted across route changes. */
 export async function AppShell({ children }: { children: React.ReactNode }) {
@@ -39,6 +38,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="sidebar-scroll mt-6 min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
             <SidebarNav
+              comingSoon={t("nav.comingSoon")}
               labels={{
                 "nav.overview": t("nav.overview"),
                 "nav.customers": t("nav.customers"),
@@ -98,30 +98,19 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             <CommandSearchIconTrigger className="hidden min-[480px]:grid xl:hidden" label={t("header.search")} />
 
             <button
+              aria-disabled="true"
               className="action-motion soft-button hidden min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-semibold text-[#405069] xl:inline-flex"
+              disabled
+              title={t("header.periodUnavailable")}
               type="button"
             >
               <CalendarDays className="h-4 w-4 text-[#044ce2]" />
               {t("header.month")}
             </button>
 
-            <button
-              aria-label={t("header.notifications")}
-              className="action-motion soft-button relative grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-[#506078] hover:text-[#044ce2]"
-              type="button"
-            >
-              <Bell aria-hidden="true" className="h-5 w-5" />
-              <span className="pulse-dot absolute top-2 right-2 h-2 w-2 rounded-full bg-[#e9764f] ring-2 ring-white" />
-            </button>
+            <HeaderNotifications label={t("header.notifications")} />
 
-            <Link
-              aria-label={t("header.newQuote")}
-              className="action-motion soft-primary inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-[10px] px-2.5 text-sm font-semibold text-white sm:px-3"
-              href="/devis?create=1"
-            >
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("header.newQuote")}</span>
-            </Link>
+            <UserAccountMenu />
           </header>
 
           <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">

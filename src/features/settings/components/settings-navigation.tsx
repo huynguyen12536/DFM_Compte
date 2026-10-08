@@ -44,7 +44,7 @@ export function SettingsNavigation({ className }: { className?: string }) {
                 return (
                   <li key={item.id}>
                     <span
-                      className="flex min-h-10 items-center rounded-[12px] px-3 text-sm text-[#98a4b5]"
+                      className="flex h-10 items-center rounded-[12px] px-3 text-sm leading-none text-[#98a4b5]"
                       title={t("nav.comingSoon")}
                     >
                       {label}
@@ -58,7 +58,7 @@ export function SettingsNavigation({ className }: { className?: string }) {
                   <Link
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex min-h-10 items-center rounded-[12px] px-3 text-sm transition-colors duration-150",
+                      "settings-nav__item relative flex h-10 items-center rounded-[12px] px-3 text-sm leading-none transition-colors duration-150",
                       active
                         ? "font-semibold text-[#044ce2]"
                         : "text-[#5f6f88] hover:text-[#24334c]",
@@ -67,11 +67,13 @@ export function SettingsNavigation({ className }: { className?: string }) {
                   >
                     {active ? (
                       <AnimatedActiveIndicator
+                        borderRadius={12}
+                        className="rounded-[12px]"
                         layoutId={SETTINGS_NAV_ACTIVE_LAYOUT_ID}
                         variant="sidebar"
                       />
                     ) : null}
-                    <span className="relative z-[1] truncate">{label}</span>
+                    <span className="settings-nav__label relative z-[1]">{label}</span>
                   </Link>
                 </li>
               );

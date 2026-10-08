@@ -1,0 +1,94 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
+
+import { StatusBadge } from "@/components/dashboard/tone";
+import { ledgerToday } from "@/features/quotes/model";
+import { formatMoneyFromCents } from "@/lib/money";
+
+import {
+  invoiceDisplayNumber,
+  invoiceListStatus,
+  invoiceTotals,
+  nextInvoiceAction,
+  type InvoicePayment,
+  type InvoiceRecord,
+} from "../model";
+import { invoiceListStatusTone } from "../status";
+import { InvoiceRowMenu, type InvoiceMenuAction } from "./invoice-row-menu";
+
+export function InvoiceMobileList({
+  invoices,
+  payments,
+  canUpdate,
+  onOpen,
+  onNextAction,
+  onMenuAction,
+}: {
+  invoices: InvoiceRecord[];
+  payments: InvoicePayment[];
+  canUpdate: boolean;
+  onOpen: (id: string) => void;
+  onNextAction: (id: string) => void;
+  onMenuAction: (id: string, action: InvoiceMenuAction) => void;
+}) {
+  const t = useTranslations("invoices");
+  const locale = useLocale();
+  const dateFmt = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
+
+  return (
+    <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 py-3 lg:hidden">
+      {invoices.map((invoice) => {
+        const amount = formatMoneyFromCents(invoiceTotals(invoice).ttcCents);
+        const listStatus = invoiceListStatus(invoice, payments, ledgerToday);
+        const next = nextInvoiceAction(invoice, payments, ledgerToday);
+
+        return (
+          <li className="dashboard-card px-3 py-3" key={invoice.id}>
+            <div className="flex items-start justify-between gap-2">
+              <button
+                className="dashboard-list__primary dashboard-list__link text-left tabular-nums"
+                onClick={() => onOpen(invoice.id)}
+                type="button"
+              >
+                {invoiceDisplayNumber(invoice)}
+              </button>
+              <StatusBadge
+                size="xs"
+                tone={invoiceListStatusTone[listStatus === "all" ? "draft" : listStatus]}
+              >
+                {t(`listStatus.${listStatus}`)}
+              </StatusBadge>
+            </div>
+            <p className="dashboard-list__primary mt-1.5 truncate">{invoice.customerName}</p>
+            <strong className="dashboard-list__amount mt-1 block">{amount}</strong>
+            <p className="dashboard-list__secondary mt-1">
+              {t("mobileIssued", {
+                date: dateFmt.format(new Date(`${invoice.issueDate}T00:00:00`)),
+              })}
+              <span className="mx-1.5 text-[#c5ceda]">·</span>
+              {t("mobileDue", {
+                date: dateFmt.format(new Date(`${invoice.dueDate}T00:00:00`)),
+              })}
+            </p>
+            <p className="dashboard-list__secondary mt-0.5 tabular-nums">{invoice.quoteId}</p>
+            <div className="mt-2 flex items-center justify-end gap-1.5">
+              <button
+                className="action-motion soft-button h-8 rounded-[8px] px-2.5 text-xs font-semibold text-[#044ce2]"
+                onClick={() => onNextAction(invoice.id)}
+                type="button"
+              >
+                {t(`actions.${next}`)}
+              </button>
+              <InvoiceRowMenu
+                canUpdate={canUpdate}
+                invoice={invoice}
+                onAction={(action) => onMenuAction(invoice.id, action)}
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

@@ -25,15 +25,14 @@
   "usersPermissions": {
     "page": {
       "title": "Utilisateurs et permissions",
-      "description": "Gérez les membres, les rôles, le périmètre de données et la sécurité."
+      "description": "Gerez les membres, les roles et l'acces aux donnees. Assignez les utilisateurs aux societes et controlez ce que chaque role peut faire."
     },
     "nav": {
       "label": "Sections des paramètres",
       "section": "Paramètres",
       "comingSoon": "Bientôt",
       "general": "Général",
-      "company": "Profil société",
-      "users": "Utilisateurs et permissions",
+      "users": "Utilisateurs",
       "billing": "Facturation et abonnement",
       "documents": "Paramètres devis et factures",
       "payments": "Paiement et recouvrement",
@@ -42,11 +41,13 @@
       "templates": "Modèles",
       "notifications": "Notifications",
       "security": "Sécurité",
-      "audit": "Journal d'audit"
+      "audit": "Journal d'audit",
+      "companies": "Societes",
+      "roles": "Roles et permissions"
     },
     "team": {
       "title": "Membres de l'équipe",
-      "subtitle": "Gérez votre équipe, assignez des rôles et définissez l'accès aux données.",
+      "subtitle": "Invitez des utilisateurs, assignez des roles et gerez l'acces aux societes.",
       "invite": "Inviter un utilisateur",
       "createRole": "Créer un rôle",
       "allCompanies": "Toutes les sociétés",
@@ -58,7 +59,19 @@
         "status": "Statut",
         "activity": "Dernière activité",
         "actions": "Actions"
-      }
+      },
+      "moreActions": "Plus d'actions",
+      "search": "Rechercher par nom ou e-mail...",
+      "filter": "Filtrer",
+      "allCompaniesFilter": "Toutes les societes",
+      "allStatuses": "Tous les statuts",
+      "select": "Selection",
+      "selectUser": "Selectionner {name}",
+      "moreCompanies": "+{count} de plus",
+      "showing": "Affichage {from}-{to} sur {total} utilisateurs",
+      "prevPage": "Page precedente",
+      "nextPage": "Page suivante",
+      "rowsPerPage": "{count} / page"
     },
     "status": {
       "ACTIVE": "Actif",
@@ -81,28 +94,39 @@
       "summarySubtitle": "Sélectionnez un rôle pour consulter sa matrice de permissions.",
       "tenantAdmin": {
         "name": "Admin tenant",
-        "description": "Gère les sociétés, utilisateurs, rôles, paramètres et modèles."
+        "description": "Gère les sociétés, utilisateurs, rôles, paramètres et modèles.",
+        "card": "Acces complet pour gerer le tenant."
       },
       "businessOwner": {
         "name": "Dirigeant",
-        "description": "Voit les KPI de la société, approuve les devis et valide les factures."
+        "description": "Voit les KPI de la société, approuve les devis et valide les factures.",
+        "card": "Gere les donnees societe et approuve."
       },
       "accountant": {
         "name": "Comptable",
-        "description": "Gère factures, avoirs, paiements et opérations comptables."
+        "description": "Gère factures, avoirs, paiements et opérations comptables.",
+        "card": "Gere factures et paiements."
       },
       "sales": {
         "name": "Commercial",
-        "description": "Gère ses clients assignés et ses propres devis."
+        "description": "Gère ses clients assignés et ses propres devis.",
+        "card": "Gere ses clients et devis."
       },
       "viewer": {
         "name": "Lecteur",
-        "description": "Accès en lecture seule selon le périmètre assigné."
+        "description": "Accès en lecture seule selon le périmètre assigné.",
+        "card": "Acces en lecture seule."
       },
       "superAdmin": {
         "name": "Super admin",
-        "description": "Administration plateforme, hors paramètres tenant."
-      }
+        "description": "Administration plateforme, hors paramètres tenant.",
+        "card": "Administration plateforme."
+      },
+      "panelTitle": "Roles et permissions",
+      "panelSubtitle": "Configurez uniquement les permissions de chaque role. Pour assigner un role a un utilisateur, utilisez l'onglet Utilisateurs.",
+      "createCustom": "Creer un role personnalise",
+      "systemBadge": "Role systeme",
+      "customBadge": "Personnalise"
     },
     "scope": {
       "title": "Règles de périmètre",
@@ -111,9 +135,9 @@
       "COMPANY": "COMPANY",
       "TENANT": "TENANT",
       "desc": {
-        "OWN": "Accès uniquement aux clients assignés et aux dossiers détenus.",
-        "COMPANY": "Accès aux données des entités juridiques sélectionnées.",
-        "TENANT": "Accès aux données du tenant sur l'ensemble des entités."
+        "OWN": "Acces uniquement aux clients assignes et dossiers detenus.",
+        "COMPANY": "Acces aux donnees des societes selectionnees.",
+        "TENANT": "Acces aux donnees du tenant."
       }
     },
     "matrix": {
@@ -123,7 +147,7 @@
       "module": "Module",
       "phase2": "Phase 2",
       "sensitive": "Sensible",
-      "immutableNote": "invoice.validate autorise uniquement la validation. Une facture validée reste immuable — même pour l'admin tenant."
+      "immutableNote": "La permission de validation autorise uniquement la validation. Les factures validees restent immuables."
     },
     "capabilities": {
       "read": "Lire",
@@ -139,19 +163,19 @@
       "export": "Exporter"
     },
     "modules": {
-      "company": "Société / entités juridiques",
-      "users": "Utilisateurs et invitations",
-      "roles": "Rôles et permissions",
+      "company": "Societe et entites juridiques",
+      "users": "Utilisateurs et acces",
+      "roles": "Utilisateurs et acces",
       "customers": "Clients",
       "products": "Produits",
       "quotes": "Devis",
       "invoices": "Factures",
       "payments": "Paiements",
-      "emailTemplates": "Modèles e-mail",
-      "pdfTemplates": "Modèles PDF",
+      "emailTemplates": "Modeles",
+      "pdfTemplates": "Modeles",
       "reports": "Rapports",
-      "security": "Sécurité et sessions",
-      "audit": "Journal d'audit",
+      "security": "Securite",
+      "audit": "Securite",
       "bank": "Connexions bancaires"
     },
     "approval": {
@@ -232,6 +256,175 @@
     "dialogs": {
       "close": "Fermer",
       "cancel": "Annuler"
+    },
+    "workspaceTabs": {
+      "label": "Sections espace utilisateurs",
+      "users": "Utilisateurs",
+      "roles": "Permissions",
+      "companies": "Acces societes",
+      "security": "Securite"
+    },
+    "editUser": {
+      "title": "Modifier l'utilisateur",
+      "empty": "Selectionnez un membre pour modifier son acces.",
+      "reset": "Reinitialiser",
+      "role": "Role",
+      "companies": "Acces societes",
+      "allCompanies": "Toutes les societes (perimetre tenant)",
+      "scope": "Perimetre de donnees",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "roleTabs": {
+      "matrix": "Matrice des permissions",
+      "settings": "Parametres du role",
+      "description": "Description"
+    },
+    "roleSettings": {
+      "name": "Nom du role",
+      "description": "Description",
+      "scope": "Perimetre par defaut",
+      "type": "Type",
+      "locked": "Verrouille",
+      "note": "Les permissions se modifient dans l'onglet Matrice, avec enregistrement explicite."
+    },
+    "permissions": {
+      "compare": "Comparer avec le role",
+      "reset": "Reinitialiser",
+      "search": "Rechercher des permissions...",
+      "expandAll": "Tout ouvrir",
+      "collapseAll": "Tout fermer",
+      "edit": "Modifier les permissions",
+      "save": "Enregistrer le role",
+      "unsaved": "Modifications non enregistrees",
+      "discardConfirm": "Abandonner les modifications de permissions non enregistrees ?",
+      "emptySearch": "Aucune permission ne correspond a la recherche.",
+      "columnPermission": "Permission",
+      "columnCurrent": "Actuel",
+      "columnCompare": "Compare",
+      "extra": "Autres",
+      "crudHint": "Chaque module affiche Creer / Lire / Modifier / Supprimer en un coup d'oeil.",
+      "crudShort": {
+        "create": "C",
+        "read": "R",
+        "update": "U",
+        "delete": "D"
+      }
+    },
+    "companyAccess": {
+      "title": "Acces societes",
+      "subtitle": "Voyez quels utilisateurs appartiennent a chaque entite, avec role et perimetre.",
+      "memberCount": "{count} membres",
+      "viewUser": "Voir"
+    },
+    "groups": {
+      "company": {
+        "label": "Societe et entites juridiques",
+        "description": "Profils societes et entites legales"
+      },
+      "users": {
+        "label": "Utilisateurs et acces",
+        "description": "Invitations et gestion des roles"
+      },
+      "customers": {
+        "label": "Clients",
+        "description": "Fiches clients et assignation"
+      },
+      "products": {
+        "label": "Produits",
+        "description": "Catalogue et donnees produits"
+      },
+      "quotes": {
+        "label": "Devis",
+        "description": "Creer, envoyer et approuver des devis"
+      },
+      "invoices": {
+        "label": "Factures",
+        "description": "Cycle de vie et validation"
+      },
+      "payments": {
+        "label": "Paiements",
+        "description": "Paiements, rapprochement et banques"
+      },
+      "reports": {
+        "label": "Rapports",
+        "description": "KPI et exports"
+      },
+      "templates": {
+        "label": "Modeles",
+        "description": "Modeles e-mail et PDF"
+      },
+      "security": {
+        "label": "Securite",
+        "description": "Sessions et acces audit"
+      },
+      "bank": {
+        "label": "Connexions bancaires",
+        "description": "Liens bancaires pour le rapprochement"
+      }
+    },
+    "actions": {
+      "company": {
+        "view": "Voir les informations societe",
+        "create": "Creer une societe",
+        "edit": "Modifier la societe",
+        "archive": "Archiver la societe",
+        "legal": "Gerer les entites juridiques"
+      },
+      "users": {
+        "view": "Voir les utilisateurs",
+        "invite": "Inviter des utilisateurs",
+        "edit": "Modifier les utilisateurs",
+        "disable": "Desactiver des utilisateurs",
+        "roles": "Gerer roles et permissions"
+      },
+      "customers": {
+        "view": "Voir les clients",
+        "create": "Creer des clients",
+        "edit": "Modifier des clients",
+        "delete": "Supprimer des clients"
+      },
+      "products": {
+        "view": "Voir les produits",
+        "create": "Creer des produits",
+        "edit": "Modifier des produits"
+      },
+      "quotes": {
+        "view": "Voir les devis",
+        "create": "Creer des devis",
+        "edit": "Modifier des devis",
+        "send": "Envoyer des devis",
+        "approve": "Approuver des devis"
+      },
+      "invoices": {
+        "view": "Voir les factures",
+        "create": "Creer des factures",
+        "validate": "Valider des factures",
+        "validateNote": "La permission de validation autorise uniquement la validation. Les factures validees restent immuables.",
+        "export": "Exporter des factures"
+      },
+      "payments": {
+        "view": "Voir les paiements",
+        "record": "Enregistrer des paiements",
+        "reconcile": "Gerer le rapprochement",
+        "bank": "Gerer les connexions bancaires"
+      },
+      "reports": {
+        "view": "Voir les rapports",
+        "export": "Exporter des rapports"
+      },
+      "templates": {
+        "email": "Gerer les modeles e-mail",
+        "pdf": "Gerer les modeles PDF"
+      },
+      "security": {
+        "sessions": "Gerer les sessions",
+        "audit": "Voir le journal d'audit"
+      },
+      "bank": {
+        "view": "Voir les connexions bancaires",
+        "manage": "Gerer les connexions bancaires"
+      }
     }
   },
   "loading": {
@@ -252,7 +445,8 @@
     "templates": "Modèles",
     "integrations": "Intégrations",
     "settings": "Paramètres",
-    "operations": "EXPLOITATION"
+    "operations": "EXPLOITATION",
+    "comingSoon": "Bientôt disponible"
   },
   "sidebar": {
     "switchCompany": "Changer de société",
@@ -271,7 +465,30 @@
     "search": "Rechercher un client, un devis, une facture...",
     "month": "Octobre",
     "notifications": "Notifications",
-    "newQuote": "Créer un devis"
+    "newQuote": "Créer un devis",
+    "accountMenu": "Menu compte de {name}",
+    "accountSettings": "Paramètres",
+    "accountProfile": "Mon profil",
+    "signOut": "Se déconnecter",
+    "periodUnavailable": "Le sélecteur de période n'est pas disponible dans cette démo",
+    "notificationsPanel": {
+      "title": "Notifications",
+      "options": "Options des notifications",
+      "tabAll": "Tout",
+      "tabUnread": "Non lues",
+      "earlier": "Plus tôt",
+      "new": "Nouveau",
+      "seeAll": "Tout voir",
+      "markAllRead": "Tout marquer comme lu",
+      "dismiss": "Ignorer",
+      "emptyAll": "Vous êtes à jour",
+      "emptyUnread": "Aucune notification non lue",
+      "unreadBadge": "{count} non lues",
+      "timeMinutes": "{count} min",
+      "timeHours": "{count} h",
+      "timeDays": "{count} j",
+      "timeWeeks": "{count} sem"
+    }
   },
   "hero": {
     "active": "Système actif",
@@ -371,7 +588,398 @@
     "title": "Factures à suivre",
     "open": "Ouvrir",
     "due": "Échéance {date}",
-    "empty": "Aucune facture à suivre"
+    "empty": "Aucune facture à suivre",
+    "workspaceTitle": "Factures",
+    "subtitle": "Gérez vos factures, suivez les paiements et surveillez les encours.",
+    "emptyTitle": "Aucune facture",
+    "emptyBody": "Les devis acceptés peuvent être convertis en factures.",
+    "emptyFilteredTitle": "Aucune facture ne correspond à vos filtres.",
+    "emptyFilteredBody": "Essayez un autre statut, client ou période.",
+    "emptyClear": "Effacer les filtres",
+    "emptyCreate": "Créer une facture",
+    "back": "Retour aux factures",
+    "missing": "Cette facture est introuvable.",
+    "forbidden": "Vous n'avez pas l'autorisation de consulter les factures.",
+    "quoteRef": "Issu du devis {id}",
+    "search": "Rechercher une facture, un client, un devis ou une référence...",
+    "filters": "Plus de filtres",
+    "apply": "Appliquer",
+    "clear": "Effacer",
+    "owner": "Responsable",
+    "customer": "Client",
+    "anyOwner": "Tous les responsables",
+    "anyCustomer": "Tous les clients",
+    "statusLabel": "Statut",
+    "number": "N° facture",
+    "quotePo": "Devis / PO",
+    "total": "Total TTC",
+    "next": "Action suivante",
+    "newInvoice": "Nouvelle facture",
+    "relatedQuote": "Devis lié",
+    "reference": "Référence / Description",
+    "currency": "Devise",
+    "paymentTerms": "Conditions de paiement",
+    "changeCustomer": "Changer",
+    "lines": "Lignes",
+    "description": "Désignation",
+    "qty": "Qté",
+    "unit": "PU HT",
+    "lineTotal": "Total",
+    "ht": "Sous-total (HT)",
+    "vat": "TVA ({rate} %)",
+    "ttc": "Total (TTC)",
+    "issueDate": "Date d'émission",
+    "dueDate": "Date d'échéance",
+    "poNumber": "N° de commande",
+    "draftNumber": "Facture brouillon · {id}",
+    "close": "Fermer",
+    "saveDraft": "Enregistrer le brouillon",
+    "sendEmail": "Envoyer par e-mail",
+    "footerValue": "{amount} de valeur",
+    "mobileIssued": "Émise le {date}",
+    "mobileDue": "Échéance {date}",
+    "status": {
+      "draft": "Brouillon",
+      "validated": "Validée"
+    },
+    "listStatus": {
+      "all": "Toutes",
+      "draft": "Brouillon",
+      "to_validate": "À valider",
+      "validated": "Validée",
+      "sent": "Envoyée",
+      "unpaid": "Impayée",
+      "partial": "Partiellement payée",
+      "paid": "Payée",
+      "overdue": "En retard"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "validate": "Valider",
+      "view": "Voir",
+      "followUp": "Relancer"
+    },
+    "terms": {
+      "upon_receipt": "À réception",
+      "net_15": "Net 15",
+      "net_30": "Net 30",
+      "net_45": "Net 45",
+      "net_60": "Net 60"
+    },
+    "dates": {
+      "any": "Toutes les périodes",
+      "month": "Ce mois",
+      "quarter": "Ce trimestre",
+      "overdue": "En retard"
+    },
+    "sort": {
+      "label": "Trier",
+      "newest": "Plus récentes",
+      "oldest": "Plus anciennes",
+      "dueSoon": "Échéance proche",
+      "highest": "Montant le plus élevé",
+      "lowest": "Montant le plus faible"
+    },
+    "kpis": {
+      "invoiced": "Facturé ce mois",
+      "invoicedHint": "Factures validées émises ce mois",
+      "outstanding": "Encours",
+      "outstandingHint": "Factures validées encore impayées",
+      "overdue": "En retard",
+      "overdueHint": "Échues et encore ouvertes",
+      "paid": "Encaissé ce mois",
+      "paidHint": "Paiements enregistrés ce mois"
+    },
+    "tabs": {
+      "details": "Détails",
+      "items": "Lignes",
+      "payments": "Paiements",
+      "activity": "Activité"
+    },
+    "panel": {
+      "title": "Facture {number}",
+      "tabsLabel": "Sections de la facture"
+    },
+    "sections": {
+      "customer": "Client",
+      "information": "Informations facture"
+    },
+    "table": {
+      "selectAll": "Sélectionner toutes les factures",
+      "selectRow": "Sélectionner {id}"
+    },
+    "pagination": {
+      "summary": "{from}–{to} sur {total}",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Précédent",
+      "next": "Suivant"
+    },
+    "menu": {
+      "trigger": "Actions de la facture",
+      "open": "Ouvrir",
+      "edit": "Modifier",
+      "send": "Envoyer par e-mail",
+      "history": "Voir l'activité",
+      "delete": "Supprimer"
+    },
+    "payments": {
+      "empty": "Aucun paiement enregistré sur cette facture.",
+      "paidTitle": "Cette facture a été soldée.",
+      "paidOn": "Payée le {date}",
+      "paid": "Payé",
+      "remaining": "Reste dû",
+      "date": "Date",
+      "reference": "Référence",
+      "amount": "Montant",
+      "method": "Moyen",
+      "status": "Statut",
+      "methods": {
+        "transfer": "Virement",
+        "check": "Chèque",
+        "card": "Carte",
+        "direct_debit": "Prélèvement",
+        "cash": "Espèces"
+      },
+      "states": {
+        "completed": "Terminé",
+        "pending": "En attente",
+        "failed": "Échoué"
+      }
+    },
+    "activity": {
+      "created": "Facture créée depuis {quote}",
+      "updated": "Brouillon de facture mis à jour",
+      "validated": "Facture validée",
+      "sent": "Facture envoyée par e-mail",
+      "payment": "Paiement enregistré",
+      "latest": "Dernière"
+    },
+    "selectQuote": {
+      "title": "Créer une facture",
+      "body": "Sélectionnez un devis accepté à convertir.",
+      "search": "Rechercher un devis accepté...",
+      "continue": "Continuer",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "emptyTitle": "Aucun devis accepté disponible.",
+      "emptyBody": "Une facture peut être créée dès qu'un devis a été accepté.",
+      "goToQuotes": "Aller aux devis"
+    },
+    "validate": "Valider la facture",
+    "validateTitle": "Valider la facture ?",
+    "validateConfirm": "La validation attribuera le numéro officiel et verrouillera cette facture. Elle ne pourra plus être modifiée ni supprimée. Les corrections devront passer par un avoir.",
+    "validated": "Facture validée et verrouillée.",
+    "locked": "Une facture validée ne peut pas être modifiée.",
+    "delete": "Supprimer",
+    "deleted": "Brouillon de facture supprimé.",
+    "cancel": "Annuler",
+    "deleteConfirm": {
+      "title": "Supprimer le brouillon ?",
+      "body": "Ce brouillon sera retiré de la session en cours."
+    },
+    "discard": {
+      "title": "Modifications non enregistrées",
+      "body": "Vos modifications de brouillon seront perdues.",
+      "keep": "Continuer l'édition",
+      "leave": "Abandonner"
+    },
+    "notices": {
+      "saved": "Brouillon de facture enregistré",
+      "created": "Brouillon de facture créé depuis le devis accepté.",
+      "sent": "Demande d'envoi enregistrée pour cette facture.",
+      "followUp": "Relance ouverte sur cette facture.",
+      "convertBlocked": "Seul un devis accepté avec un montant encore facturable peut être converti."
+    }
+  },
+  "payments": {
+    "title": "Paiements",
+    "subtitle": "Suivez les encaissements, rapprochez les opérations et surveillez les encours.",
+    "forbidden": "Vous n'avez pas l'autorisation de consulter les paiements.",
+    "search": "Rechercher un paiement, client, facture ou référence...",
+    "filters": "Plus de filtres",
+    "apply": "Appliquer",
+    "clear": "Effacer",
+    "customer": "Client",
+    "invoice": "Facture",
+    "anyCustomer": "Tous les clients",
+    "anyInvoice": "Toutes les factures",
+    "statusLabel": "Statut",
+    "methodLabel": "Moyen",
+    "reconciliationLabel": "Rapprochement",
+    "recordAction": "Enregistrer un paiement",
+    "close": "Fermer",
+    "emptyTitle": "Aucun paiement enregistré",
+    "emptyBody": "Les paiements enregistrés sur les factures apparaîtront ici.",
+    "emptyFilteredTitle": "Aucun paiement ne correspond à vos filtres.",
+    "emptyFilteredBody": "Essayez un autre statut, moyen, client ou période.",
+    "emptyClear": "Effacer les filtres",
+    "footerValue": "{amount} enregistrés",
+    "listStatus": {
+      "all": "Tous les statuts",
+      "paid": "Payé",
+      "partial": "Partiel",
+      "to_match": "À rapprocher",
+      "failed": "Échoué"
+    },
+    "methods": {
+      "all": "Tous les moyens",
+      "transfer": "Virement",
+      "card": "Carte",
+      "direct_debit": "Prélèvement",
+      "cash": "Espèces",
+      "check": "Chèque"
+    },
+    "reconciliation": {
+      "all": "Tout rapprochement",
+      "matched": "Rapproché",
+      "to_match": "À rapprocher",
+      "needs_review": "À revoir"
+    },
+    "dates": {
+      "any": "Toutes les dates",
+      "month": "Ce mois",
+      "quarter": "Ce trimestre"
+    },
+    "columns": {
+      "reference": "Réf. paiement",
+      "customer": "Client",
+      "invoice": "Facture",
+      "method": "Moyen",
+      "date": "Date",
+      "amount": "Montant",
+      "reconciliation": "Rapprochement",
+      "status": "Statut",
+      "next": "Action suivante"
+    },
+    "actions": {
+      "view": "Voir",
+      "match": "Rapprocher",
+      "review": "Revoir",
+      "none": "—"
+    },
+    "table": {
+      "selectAll": "Sélectionner tous les paiements",
+      "selectRow": "Sélectionner {id}"
+    },
+    "pagination": {
+      "summary": "{from}–{to} sur {total}",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Précédent",
+      "next": "Suivant"
+    },
+    "kpis": {
+      "collected": "Encaissé ce mois",
+      "collectedHint": "Paiements terminés du mois en cours",
+      "outstanding": "Créances en cours",
+      "outstandingHint": "Sur {count} factures ouvertes",
+      "partial": "Partiellement payé",
+      "partialHint": "Solde restant sur {count} factures partielles",
+      "overdue": "En retard",
+      "overdueHint": "{count} factures en retard encore ouvertes"
+    },
+    "tabs": {
+      "details": "Détails",
+      "invoice": "Facture",
+      "reconciliation": "Rapprochement",
+      "activity": "Activité"
+    },
+    "panel": {
+      "title": "Paiement {reference}",
+      "tabsLabel": "Sections du paiement"
+    },
+    "sections": {
+      "information": "Informations du paiement"
+    },
+    "menu": {
+      "trigger": "Actions du paiement",
+      "open": "Voir le paiement",
+      "invoice": "Ouvrir la facture",
+      "customer": "Ouvrir le client",
+      "activity": "Voir l'activité",
+      "match": "Rapprocher l'opération"
+    },
+    "record": {
+      "title": "Enregistrer un paiement",
+      "invoice": "Facture",
+      "amount": "Montant",
+      "date": "Date de paiement",
+      "method": "Moyen",
+      "reference": "Référence",
+      "bankReference": "Réf. bancaire",
+      "notes": "Notes",
+      "remaining": "Reste dû : {amount}",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "noInvoicesTitle": "Aucune facture en attente de paiement",
+      "noInvoices": "Aucune facture en attente de paiement.",
+      "invalidAmount": "Saisissez un montant valide.",
+      "overpayment": "Le montant ne peut pas dépasser le reste dû.",
+      "failed": "Le paiement n'a pas pu être enregistré."
+    },
+    "match": {
+      "title": "Confirmer le rapprochement",
+      "body": "Opération bancaire : {amount}. Facture suggérée : {invoice}. Solde de la facture : {remaining}.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "review": {
+      "title": "Revoir l'opération",
+      "bank": "Opération bancaire : {amount}",
+      "invoice": "Facture",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "saving": "Rapprochement…",
+      "noInvoices": "Aucune facture en attente de paiement."
+    },
+    "queue": {
+      "title": "File de rapprochement",
+      "match": "Rapprocher",
+      "review": "Revoir",
+      "possible": "Correspondance possible : {invoice} · reste {remaining}",
+      "noSuggestion": "Aucune correspondance certaine — choisissez une facture.",
+      "emptyTitle": "Toutes les opérations sont rapprochées",
+      "emptyBody": "Aucune opération bancaire à revoir.",
+      "alreadyMatched": "Cette opération est déjà rapprochée."
+    },
+    "methodsCard": {
+      "title": "Moyens de paiement",
+      "center": "encaissé"
+    },
+    "health": {
+      "title": "Santé du recouvrement",
+      "onTime": "Paiements à l'heure",
+      "partial": "Partiellement payé",
+      "overdue": "En retard"
+    },
+    "activity": {
+      "title": "Activité récente des paiements",
+      "empty": "Aucune activité de paiement récente.",
+      "recorded": "Paiement de {amount} enregistré",
+      "matched": "Opération bancaire rapprochée de {invoice}",
+      "invoice_paid": "Facture {invoice} marquée payée",
+      "reviewed": "Paiement revu"
+    },
+    "invoiceTab": {
+      "total": "Total facture",
+      "paidBefore": "Payé avant",
+      "thisPayment": "Ce paiement",
+      "remaining": "Reste dû",
+      "open": "Ouvrir la facture",
+      "missing": "La facture liée est introuvable."
+    },
+    "recon": {
+      "invoice": "Facture rapprochée",
+      "bank": "Opération bancaire",
+      "matchedOn": "Rapproché le",
+      "source": "Source",
+      "manual": "Manuel"
+    },
+    "notices": {
+      "recorded": "Paiement enregistré."
+    }
   },
   "activity": {
     "title": "Activité",
@@ -472,7 +1080,9 @@
   },
   "register": {
     "title": "Devis",
-    "search": "Rechercher un devis ou un client",
+    "subtitle": "Créez, gérez et suivez vos devis du brouillon à la conversion.",
+    "search": "Rechercher un devis ou un client...",
+    "statusAll": "Tous",
     "filters": "Filtres",
     "view": "Vue",
     "more": "Plus d'actions",
@@ -546,9 +1156,86 @@
       "clear": "Effacer les filtres"
     },
     "footer": "{count, plural, one {# devis} other {# devis}} · {amount}",
-    "page": "{from}–{to} sur {total}",
-    "previous": "Page précédente",
-    "nextPage": "Page suivante",
+    "footerValue": "{amount} de valeur totale",
+    "page": "{from}–{to} sur {total} devis",
+    "previous": "Précédent",
+    "nextPage": "Suivant",
+    "pagination": {
+      "summary": "{from}–{to} sur {total}",
+      "prev": "Précédent",
+      "next": "Suivant",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page"
+    },
+    "table": {
+      "selectAll": "Sélectionner tous les devis de cette page",
+      "selectRow": "Sélectionner le devis {id}"
+    },
+    "sort": {
+      "label": "Trier les devis",
+      "newest": "Plus récents",
+      "oldest": "Plus anciens",
+      "highest": "Montant décroissant",
+      "lowest": "Montant croissant",
+      "expiry": "Expiration proche"
+    },
+    "kpis": {
+      "open": "Devis ouverts",
+      "openHint": "vs mois dernier",
+      "awaiting": "En attente d'approbation",
+      "awaitingHint": "vs période précédente",
+      "accepted": "Acceptés ce mois",
+      "acceptedHint": "vs mois dernier",
+      "value": "Valeur des devis",
+      "valueHint": "pipeline ouvert"
+    },
+    "analytics": {
+      "pipeline": "Pipeline devis",
+      "valueByStatus": "Valeur par statut",
+      "insight": "Insight",
+      "quotesLabel": "devis",
+      "documents": "{count, plural, one {# devis} other {# devis}}",
+      "insightAcceptedUp": "Les devis acceptés ont augmenté de {percent} % par rapport au mois dernier.",
+      "insightAcceptedDown": "Les devis acceptés ont diminué de {percent} % par rapport au mois dernier."
+    },
+    "sheet": {
+      "title": "Détail du devis",
+      "body": "Consultez l'identité, les lignes, les totaux et la prochaine action.",
+      "work": "Prestation",
+      "lineQty": "Qté {qty}"
+    },
+    "menu": {
+      "trigger": "Actions du devis",
+      "open": "Ouvrir",
+      "duplicate": "Dupliquer",
+      "download": "Télécharger PDF",
+      "email": "Envoyer un email",
+      "history": "Voir l'historique",
+      "send": "Envoyer",
+      "approve": "Approuver",
+      "followUp": "Relancer",
+      "convert": "Convertir",
+      "delete": "Supprimer"
+    },
+    "deleteConfirm": {
+      "title": "Supprimer ce devis ?",
+      "body": "Cette action est irréversible. Le devis sera définitivement supprimé.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "notices": {
+      "sent": "Devis {id} envoyé.",
+      "approved": "Devis {id} approuvé.",
+      "followUp": "Relance préparée pour {id}.",
+      "convert": "Brouillon de facture préparé depuis {id}.",
+      "convertBlocked": "Ce devis ne peut pas être converti. Seul un devis accepté avec un montant encore facturable peut créer une facture.",
+      "duplicated": "Devis dupliqué sous {id}.",
+      "download": "Téléchargement PDF préparé pour {id}.",
+      "email": "Brouillon d'email préparé pour {id}.",
+      "history": "Historique ouvert pour {id}.",
+      "deleted": "Devis {id} supprimé.",
+      "exported": "{count, plural, one {# devis exporté} other {# devis exportés}}."
+    },
     "preview": {
       "ht": "Total HT",
       "vat": "TVA {rate} %",
@@ -579,7 +1266,11 @@
       "qty": "Qté",
       "unit": "PU HT",
       "missing": "Ce devis est introuvable.",
-      "emptyLines": "Aucune ligne. Ajoutez la première prestation."
+      "emptyLines": "Aucune ligne. Ajoutez la première prestation.",
+      "saveDraft": "Enregistrer le brouillon",
+      "send": "Envoyer",
+      "sent": "Devis envoyé.",
+      "saved": "Brouillon enregistré."
     },
     "loading": "Chargement des devis"
   },
@@ -685,5 +1376,469 @@
       "row": "{year} : {realized} réalisé sur un objectif de {target}"
     },
     "chartSummary": "{label} : {amount} ({share})"
+  },
+  "customers": {
+    "title": "Clients",
+    "subtitle": "Gérez vos clients, consultez leur activité et l'historique de la relation.",
+    "add": "Ajouter un client",
+    "export": "Exporter",
+    "exportMock": "L'export est uniquement UI en phase mock. Aucun fichier n'a été généré.",
+    "importCsv": "Importer CSV",
+    "editMock": "L'édition inline ouvrira le formulaire complet dans une itération suivante.",
+    "created": "Client ajoute pour cette session.",
+    "updated": "Client mis a jour pour cette session.",
+    "createdAnyway": "Client ajoute pour cette session malgre un doublon possible.",
+    "list": {
+      "title": "Liste des clients",
+      "subtitle": "Consultez et gérez vos clients. Cliquez pour voir les détails.",
+      "more": "Plus d'actions"
+    },
+    "empty": {
+      "title": "Aucun client",
+      "body": "Créez votre premier client ou importez un fichier CSV."
+    },
+    "kpis": {
+      "total": "Clients totaux",
+      "active": "Clients actifs",
+      "revenue": "Chiffre d'affaires",
+      "quotes": "Devis ouverts",
+      "overdue": "Factures en retard",
+      "deltaUp": "↑ {value} %",
+      "vsLastMonth": "vs mois dernier",
+      "openAmount": "Montant ouvert",
+      "overdueAmount": "Montant en retard"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par nom, email, SIRET ou TVA...",
+      "open": "Ouvrir les filtres de colonnes",
+      "title": "Filtrer par colonne",
+      "type": "Type",
+      "owner": "Commercial",
+      "tags": "Tags",
+      "country": "Pays",
+      "status": "Statut",
+      "all": "Tous",
+      "company": "Société",
+      "individual": "Particulier",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "clear": "Effacer les filtres"
+    },
+    "table": {
+      "selectAll": "Sélectionner tous les clients",
+      "selectRow": "Sélectionner {name}",
+      "customer": "Client",
+      "legal": "Informations légales",
+      "country": "Pays",
+      "owner": "Commercial",
+      "terms": "Conditions",
+      "status": "Statut",
+      "activity": "Dernière activité",
+      "open": "Actions pour {name}"
+    },
+    "type": {
+      "company": "Société",
+      "individual": "Particulier"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "terms": {
+      "net_15": "Net 15",
+      "net_30": "Net 30",
+      "net_45": "Net 45",
+      "net_60": "Net 60",
+      "upon_receipt": "À réception"
+    },
+    "methods": {
+      "transfer": "Virement",
+      "check": "Chèque",
+      "card": "Carte",
+      "direct_debit": "Prélèvement",
+      "cash": "Espèces"
+    },
+    "templates": {
+      "standard": "Standard",
+      "premium": "Premium"
+    },
+    "relative": {
+      "today": "Aujourd'hui",
+      "days": "{count, plural, one {il y a # jour} other {il y a # jours}}",
+      "weeks": "{count, plural, one {il y a # semaine} other {il y a # semaines}}",
+      "months": "{count, plural, one {il y a # mois} other {il y a # mois}}"
+    },
+    "tabs": {
+      "details": "Client",
+      "activity": "Activité",
+      "quotes": "Devis",
+      "invoices": "Factures",
+      "payments": "Paiements"
+    },
+    "sections": {
+      "identity": "Identité",
+      "individualIdentity": "Identité",
+      "companyInformation": "Informations société",
+      "commercial": "Paramètres commerciaux",
+      "contacts": "Contacts ({count})",
+      "addresses": "Adresses ({count})",
+      "notes": "Notes ({count})"
+    },
+    "fields": {
+      "legalName": "Raison sociale",
+      "displayName": "Nom client",
+      "fullName": "Nom complet",
+      "siret": "SIRET",
+      "vat": "N° TVA",
+      "email": "Email",
+      "phone": "Téléphone",
+      "website": "Site web",
+      "paymentTerms": "Conditions de paiement",
+      "paymentMethod": "Mode de paiement",
+      "quoteTemplate": "Modèle de devis",
+      "owner": "Commercial",
+      "contactName": "Nom du contact",
+      "contactEmail": "Email du contact",
+      "contactPhone": "Téléphone du contact",
+      "line1": "Adresse",
+      "postalCode": "Code postal",
+      "city": "Ville",
+      "country": "Pays",
+      "tags": "Tags"
+    },
+    "address": {
+      "billing": "Adresse de facturation",
+      "delivery": "Adresse de livraison"
+    },
+    "actions": {
+      "newQuote": "Nouveau devis",
+      "newInvoice": "Nouvelle facture",
+      "recordPayment": "Enregistrer un paiement",
+      "email": "Envoyer un email",
+      "more": "Plus",
+      "invoiceHint": "Les factures suivent les devis acceptés dans le flux COMPTE actuel.",
+      "invoiceAcceptedRequired": "Un devis accepté est requis avant de créer une facture.",
+      "paymentHint": "L'enregistrement de paiement s'ouvre lorsqu'une facture éligible est disponible."
+    },
+    "historyTabs": {
+      "activityTitle": "Timeline d'activité",
+      "activityFilter": "Filtrer les activités",
+      "activityEmptyTitle": "Aucune activité",
+      "activityEmptyBody": "Les modifications client, devis, factures et paiements apparaîtront ici.",
+      "quotes": "Devis",
+      "invoices": "Factures",
+      "payments": "Paiements",
+      "quotesEmptyTitle": "Aucun devis",
+      "quotesEmptyBody": "Créez le premier devis pour ce client.",
+      "invoicesEmptyTitle": "Aucune facture",
+      "invoicesEmptyBody": "Une facture peut être créée dès qu'un devis accepté est disponible pour ce client.",
+      "paymentsEmptyTitle": "Aucun paiement enregistré",
+      "paymentsEmptyBody": "Les paiements enregistrés sur les factures de ce client apparaîtront ici.",
+      "openQuote": "Ouvrir le devis",
+      "duplicateQuote": "Dupliquer le devis",
+      "sendQuote": "Envoyer le devis",
+      "createInvoice": "Créer une facture",
+      "openInvoice": "Ouvrir la facture",
+      "viewPdf": "Voir le PDF",
+      "sendEmail": "Envoyer un email",
+      "editInvoice": "Modifier la facture",
+      "invoiceCreatedToast": "Facture créée à partir du devis accepté.",
+      "paymentRecordedToast": "Paiement enregistré.",
+      "filters": {
+        "all": "Toutes les activités",
+        "customer": "Client",
+        "quotes": "Devis",
+        "invoices": "Factures",
+        "payments": "Paiements",
+        "email": "Email",
+        "system": "Système"
+      }
+    },
+    "pagination": {
+      "summary": "{from}–{to} sur {total}",
+      "prev": "Précédent",
+      "next": "Suivant",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page"
+    },
+    "details": {
+      "emptyTitle": "Sélectionnez un client",
+      "emptyBody": "Choisissez un client dans la liste pour voir la fiche, l'historique et les notes.",
+      "edit": "Modifier",
+      "editing": "Édition",
+      "unsaved": "Modifications non enregistrées",
+      "saving": "Enregistrement…",
+      "discardTitle": "Abandonner les modifications ?",
+      "discardConfirm": "Vos modifications seront perdues si vous quittez le mode édition.",
+      "discardAction": "Abandonner",
+      "keepEditing": "Continuer l'édition",
+      "typeChangeTitle": "Passer en Particulier ?",
+      "typeChangeConfirm": "Les champs société (raison sociale, SIRET, TVA) seront masqués. Vous pourrez revenir en arrière.",
+      "typeChangeAction": "Continuer",
+      "addContact": "Ajouter un contact",
+      "deleteContact": "Supprimer",
+      "deleteContactTitle": "Supprimer ce contact ?",
+      "deleteContactConfirm": "Ce contact sera retiré du brouillon jusqu'à l'enregistrement.",
+      "deletePrimaryContactTitle": "Supprimer le contact principal ?",
+      "deletePrimaryContactConfirm": "Un autre contact deviendra principal dans ce brouillon.",
+      "deleteContactAction": "Supprimer",
+      "close": "Fermer la fiche",
+      "owner": "Commercial · {name}",
+      "primary": "Principal",
+      "noNotes": "Aucune note.",
+      "noQuotes": "Aucun devis pour ce client.",
+      "noInvoices": "Aucune facture pour ce client.",
+      "noPayments": "Aucun paiement pour ce client.",
+      "openFull": "Ouvrir la fiche",
+      "viewQuotes": "Voir les devis",
+      "tabsLabel": "Sections de la fiche client",
+      "notFound": "Client introuvable",
+      "fullPagePlaceholder": "Les onglets détaillés (Vue d'ensemble, Contacts, Adresses, Devis, Factures, Paiements, Notes & activité) pourront s'étendre ici."
+    },
+    "history": {
+      "number": "Numéro",
+      "date": "Date",
+      "issueDate": "Date d'émission",
+      "dueDate": "Échéance",
+      "validUntil": "Valide jusqu'au",
+      "amount": "Montant",
+      "status": "Statut",
+      "invoice": "Facture",
+      "method": "Mode",
+      "reference": "Référence"
+    },
+    "quoteStatus": {
+      "draft": "Brouillon",
+      "sent": "Envoyé",
+      "review": "À valider",
+      "accepted": "Accepté",
+      "rejected": "Refusé",
+      "expired": "Expiré",
+      "invoiced": "Facturé"
+    },
+    "invoiceStatus": {
+      "draft": "Brouillon",
+      "validated": "Validée",
+      "unpaid": "Impayée",
+      "sent": "Impayée",
+      "paid": "Payée",
+      "overdue": "En retard",
+      "partial": "Partielle"
+    },
+    "paymentStatus": {
+      "completed": "Terminé",
+      "pending": "En attente",
+      "failed": "Échoué"
+    },
+    "form": {
+      "title": "Ajouter un client",
+      "editTitle": "Modifier le client",
+      "body": "Renseignez l'identité, les contacts, les adresses et les paramètres commerciaux.",
+      "editBody": "Mettez à jour l'identité, les contacts, les adresses et les paramètres commerciaux.",
+      "type": "Type de client",
+      "lookupSiret": "Rechercher SIRET",
+      "siretLoading": "Recherche…",
+      "siretFound": "Société trouvée via SIRET.",
+      "siretNotFound": "Aucune société pour ce SIRET.",
+      "siretError": "Le SIRET doit contenir 14 chiffres.",
+      "siretAutofill": "Rempli via SIRET — vérifiez avant enregistrement.",
+      "useBillingForDelivery": "Utiliser l'adresse de facturation pour la livraison",
+      "ownerHint": "Cet utilisateur est propriétaire du client selon le périmètre de données.",
+      "required": "Le nom et l'email sont obligatoires.",
+      "requiredName": "Le nom client est obligatoire.",
+      "requiredLegalName": "La raison sociale est obligatoire pour une société.",
+      "requiredEmail": "Un email valide est obligatoire.",
+      "invalidWebsite": "L'URL du site web est invalide.",
+      "requiredHint": "Complétez les champs obligatoires en haut pour enregistrer.",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "editSave": "Enregistrer"
+    },
+    "duplicate": {
+      "title": "Doublon potentiel détecté",
+      "body": "Un client similaire existe déjà. Consultez la fiche existante ou continuez.",
+      "existing": "Client existant",
+      "cancel": "Annuler",
+      "review": "Voir l'existant",
+      "continue": "Continuer quand même",
+      "badge": "Doublon possible",
+      "badgeShort": "Dbl"
+    },
+    "import": {
+      "title": "Importer des clients CSV",
+      "body": "Uploadez, mappez, validez, puis importez. Aperçu mock uniquement.",
+      "steps": {
+        "upload": "Upload",
+        "map": "Mapping",
+        "validate": "Validation",
+        "review": "Revue",
+        "import": "Import"
+      },
+      "uploadTitle": "Déposez un fichier CSV",
+      "uploadHint": "Ou continuez avec l'échantillon de cette phase mock.",
+      "useSample": "Utiliser l'échantillon",
+      "mapBody": "Les colonnes sont mappées vers les champs client COMPTE.",
+      "fields": {
+        "name": "Nom client",
+        "email": "Email",
+        "type": "Type",
+        "siret": "SIRET",
+        "vat": "TVA"
+      },
+      "row": {
+        "valid": "Valide",
+        "warning": "Alerte",
+        "duplicate": "Doublon",
+        "error": "Erreur"
+      },
+      "missingEmail": "Email manquant",
+      "mockComplete": "Aperçu d'import terminé. Aucune écriture serveur.",
+      "close": "Fermer",
+      "next": "Suivant",
+      "done": "Terminer"
+    }
+  },
+  "settingsCompanies": {
+    "page": {
+      "title": "Societes",
+      "description": "Gerez les entites juridiques appartenant a ce tenant."
+    },
+    "search": "Rechercher des societes...",
+    "statusFilter": "Statut",
+    "allStatuses": "Tous les statuts",
+    "add": "Ajouter une societe",
+    "edit": "Modifier",
+    "archive": "Archiver la societe",
+    "empty": "Aucune societe ne correspond aux filtres.",
+    "emptyDetail": "Selectionnez une societe pour voir les details.",
+    "userCount": "{count} utilisateurs",
+    "membersTitle": "Membres",
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archivee"
+    },
+    "fields": {
+      "name": "Nom affiche",
+      "legalName": "Raison sociale",
+      "currency": "Devise",
+      "siret": "SIRET",
+      "vat": "Numero de TVA",
+      "naf": "NAF",
+      "address": "Adresse",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "logo": "URL du logo"
+    },
+    "sections": {
+      "identity": "Identite",
+      "legal": "Informations legales",
+      "address": "Adresse",
+      "bank": "Coordonnees bancaires",
+      "branding": "Identite visuelle"
+    },
+    "sheet": {
+      "createTitle": "Ajouter une societe",
+      "createBody": "Creez une entite juridique dans ce tenant. Les changements restent locaux tant que le backend n'est pas branche.",
+      "editTitle": "Modifier la societe",
+      "editBody": "Mettez a jour les details de l'entite juridique.",
+      "createSave": "Creer la societe",
+      "editSave": "Enregistrer"
+    },
+    "archiveConfirm": {
+      "title": "Archiver cette societe ?",
+      "body": "L'archivage conserve l'historique des devis et factures. Ce n'est pas une suppression definitive."
+    },
+    "errors": {
+      "legalName": "La raison sociale est obligatoire.",
+      "name": "Le nom affiche est obligatoire.",
+      "currency": "La devise est obligatoire."
+    }
+  },
+  "settingsUsers": {
+    "page": {
+      "title": "Utilisateurs",
+      "description": "Gerez les utilisateurs, invitations, appartenances et acces."
+    },
+    "hint": "Assignez societes et roles via les memberships. Les permissions se gerent dans Roles et permissions.",
+    "invite": "Inviter un utilisateur",
+    "search": "Rechercher par nom ou e-mail...",
+    "filters": {
+      "company": "Societe",
+      "role": "Role",
+      "status": "Statut",
+      "allCompanies": "Toutes les societes",
+      "allRoles": "Tous les roles",
+      "allStatuses": "Tous les statuts"
+    },
+    "columns": {
+      "user": "Utilisateur",
+      "email": "E-mail",
+      "companies": "Societes",
+      "role": "Role",
+      "status": "Statut",
+      "activity": "Derniere activite",
+      "actions": "Actions"
+    },
+    "showing": "Affichage {from}-{to} sur {total} utilisateurs",
+    "prevPage": "Page precedente",
+    "nextPage": "Page suivante",
+    "edit": {
+      "title": "Modifier l'utilisateur",
+      "body": "Mettez a jour l'identite et les memberships. Un role par societe.",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "status": "Statut",
+      "memberships": "Memberships",
+      "membershipsHint": "Un utilisateur peut appartenir a plusieurs societes, chacune avec son role.",
+      "company": "Societe",
+      "role": "Role",
+      "addMembership": "Ajouter un membership",
+      "removeMembership": "Retirer",
+      "save": "Enregistrer"
+    },
+    "inviteSheet": {
+      "title": "Inviter un utilisateur",
+      "body": "Envoyez une invitation avec un membership initial.",
+      "send": "Envoyer l'invitation",
+      "errors": {
+        "email": "Saisissez un e-mail valide.",
+        "name": "Le nom est obligatoire.",
+        "membership": "Choisissez une societe et un role."
+      }
+    },
+    "disableConfirm": {
+      "title": "Desactiver cet utilisateur ?",
+      "body": "L'utilisateur perdra l'acces. Les memberships sont conserves pour l'audit.",
+      "confirm": "Desactiver"
+    }
+  },
+  "settingsRoles": {
+    "page": {
+      "title": "Roles et permissions",
+      "description": "Definissez ce que chaque role peut faire et son perimetre de donnees."
+    },
+    "create": "Creer un role personnalise",
+    "listTitle": "Roles",
+    "listSubtitle": "Roles systeme et personnalises de ce tenant.",
+    "system": "Systeme",
+    "custom": "Personnalise",
+    "userCount": "{count} utilisateurs",
+    "delete": "Supprimer le role",
+    "scopeNote": "Les permissions repondent a ce qu'un utilisateur peut faire. Le perimetre (OWN / COMPANY / TENANT) repond aux donnees visibles.",
+    "deleteConfirm": {
+      "title": "Supprimer ce role personnalise ?",
+      "body": "Ce role n'est assigne a personne. Vous pouvez le retirer du catalogue mock."
+    },
+    "deleteBlocked": {
+      "title": "Role encore assigne",
+      "body": "Ce role est assigne a {count} utilisateurs. Reassignez ces memberships avant de supprimer.",
+      "confirm": "Compris"
+    }
+  },
+  "settingsSecurity": {
+    "page": {
+      "title": "Securite",
+      "description": "Politiques d'authentification, sessions et controles sensibles."
+    }
   }
 }

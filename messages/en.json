@@ -24,16 +24,15 @@
   },
   "usersPermissions": {
     "page": {
-      "title": "Users & permissions",
-      "description": "Manage team members, roles, data scope and security."
+      "title": "Users & Permissions",
+      "description": "Manage team members, roles, and access to your data. Assign users to companies and control what each role can do."
     },
     "nav": {
       "label": "Settings sections",
       "section": "Settings",
       "comingSoon": "Soon",
       "general": "General",
-      "company": "Company profile",
-      "users": "Users & permissions",
+      "users": "Users",
       "billing": "Billing & subscription",
       "documents": "Invoice & quote settings",
       "payments": "Payment & collection",
@@ -42,11 +41,13 @@
       "templates": "Templates",
       "notifications": "Notifications",
       "security": "Security",
-      "audit": "Audit log"
+      "audit": "Audit log",
+      "companies": "Companies",
+      "roles": "Roles & permissions"
     },
     "team": {
       "title": "Team members",
-      "subtitle": "Manage your team, assign roles and define data access for each user.",
+      "subtitle": "Invite users, assign roles and manage their company access.",
       "invite": "Invite user",
       "createRole": "Create role",
       "allCompanies": "All companies",
@@ -58,7 +59,19 @@
         "status": "Status",
         "activity": "Last activity",
         "actions": "Actions"
-      }
+      },
+      "moreActions": "More actions",
+      "search": "Search users by name or email...",
+      "filter": "Filter",
+      "allCompaniesFilter": "All companies",
+      "allStatuses": "All statuses",
+      "select": "Select",
+      "selectUser": "Select {name}",
+      "moreCompanies": "+{count} more",
+      "showing": "Showing {from}-{to} of {total} users",
+      "prevPage": "Previous page",
+      "nextPage": "Next page",
+      "rowsPerPage": "{count} / page"
     },
     "status": {
       "ACTIVE": "Active",
@@ -81,28 +94,39 @@
       "summarySubtitle": "Select a role to review its permission matrix.",
       "tenantAdmin": {
         "name": "Tenant admin",
-        "description": "Manage companies, users, roles, settings and templates."
+        "description": "Manage companies, users, roles, settings and templates.",
+        "card": "Full access to manage the tenant."
       },
       "businessOwner": {
         "name": "Business owner",
-        "description": "View all company KPIs, approve quotes and validate invoices."
+        "description": "View all company KPIs, approve quotes and validate invoices.",
+        "card": "Manage company data, approve documents."
       },
       "accountant": {
         "name": "Accountant",
-        "description": "Manage invoices, credit notes, payments and accounting operations."
+        "description": "Manage invoices, credit notes, payments and accounting operations.",
+        "card": "Manage invoices and payments."
       },
       "sales": {
         "name": "Sales",
-        "description": "Manage assigned customers and own quotes."
+        "description": "Manage assigned customers and own quotes.",
+        "card": "Manage own customers and quotes."
       },
       "viewer": {
         "name": "Viewer",
-        "description": "Read-only access according to assigned scope."
+        "description": "Read-only access according to assigned scope.",
+        "card": "Read-only access."
       },
       "superAdmin": {
         "name": "Super admin",
-        "description": "Platform administration outside tenant settings."
-      }
+        "description": "Platform administration outside tenant settings.",
+        "card": "Platform administration."
+      },
+      "panelTitle": "Roles & permissions",
+      "panelSubtitle": "Configure permissions for each role. Assign a role to a user in the Users tab.",
+      "createCustom": "Create custom role",
+      "systemBadge": "System role",
+      "customBadge": "Custom"
     },
     "scope": {
       "title": "Data scope rules",
@@ -111,9 +135,9 @@
       "COMPANY": "COMPANY",
       "TENANT": "TENANT",
       "desc": {
-        "OWN": "Access only assigned customers and owned business records.",
-        "COMPANY": "Access data for selected legal entity/entities.",
-        "TENANT": "Access tenant-wide data across legal entities."
+        "OWN": "Access only assigned customers and owned records.",
+        "COMPANY": "Access data for selected companies.",
+        "TENANT": "Access tenant-wide data."
       }
     },
     "matrix": {
@@ -123,7 +147,7 @@
       "module": "Module",
       "phase2": "Phase 2",
       "sensitive": "Sensitive",
-      "immutableNote": "invoice.validate grants validation only. Validated invoices stay immutable — even for Tenant admin."
+      "immutableNote": "Validation permission allows validation only. Validated invoices remain immutable."
     },
     "capabilities": {
       "read": "Read",
@@ -139,19 +163,19 @@
       "export": "Export"
     },
     "modules": {
-      "company": "Company / legal entities",
-      "users": "Users & invitations",
-      "roles": "Roles & permissions",
+      "company": "Company & legal entities",
+      "users": "Users & access",
+      "roles": "Users & access",
       "customers": "Customers",
       "products": "Products",
       "quotes": "Quotes",
       "invoices": "Invoices",
       "payments": "Payments",
-      "emailTemplates": "Email templates",
-      "pdfTemplates": "PDF templates",
+      "emailTemplates": "Templates",
+      "pdfTemplates": "Templates",
       "reports": "Reports",
-      "security": "Security & sessions",
-      "audit": "Audit log",
+      "security": "Security",
+      "audit": "Security",
       "bank": "Bank connections"
     },
     "approval": {
@@ -232,6 +256,175 @@
     "dialogs": {
       "close": "Close",
       "cancel": "Cancel"
+    },
+    "workspaceTabs": {
+      "label": "Users workspace sections",
+      "users": "Users",
+      "roles": "Permissions",
+      "companies": "Company access",
+      "security": "Security"
+    },
+    "editUser": {
+      "title": "Edit user",
+      "empty": "Select a team member to edit their access.",
+      "reset": "Reset",
+      "role": "Role",
+      "companies": "Company access",
+      "allCompanies": "All companies (tenant scope)",
+      "scope": "Data scope",
+      "cancel": "Cancel",
+      "save": "Save changes"
+    },
+    "roleTabs": {
+      "matrix": "Permission matrix",
+      "settings": "Role settings",
+      "description": "Description"
+    },
+    "roleSettings": {
+      "name": "Role name",
+      "description": "Description",
+      "scope": "Default data scope",
+      "type": "Type",
+      "locked": "Locked",
+      "note": "Permissions are edited in the Permission matrix tab with explicit save."
+    },
+    "permissions": {
+      "compare": "Compare with role",
+      "reset": "Reset to default",
+      "search": "Search permissions...",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "edit": "Edit permissions",
+      "save": "Save role changes",
+      "unsaved": "Unsaved changes",
+      "discardConfirm": "Discard unsaved permission changes?",
+      "emptySearch": "No permissions match your search.",
+      "columnPermission": "Permission",
+      "columnCurrent": "Current",
+      "columnCompare": "Compare",
+      "extra": "Extra",
+      "crudHint": "Each module shows Create / Read / Update / Delete at a glance.",
+      "crudShort": {
+        "create": "C",
+        "read": "R",
+        "update": "U",
+        "delete": "D"
+      }
+    },
+    "companyAccess": {
+      "title": "Company access",
+      "subtitle": "See which users belong to each legal entity, with their role and data scope.",
+      "memberCount": "{count} members",
+      "viewUser": "View"
+    },
+    "groups": {
+      "company": {
+        "label": "Company & legal entities",
+        "description": "Manage company profiles and legal entities"
+      },
+      "users": {
+        "label": "Users & access",
+        "description": "Invite users and manage roles"
+      },
+      "customers": {
+        "label": "Customers",
+        "description": "Customer records and assignment"
+      },
+      "products": {
+        "label": "Products",
+        "description": "Catalog and product data"
+      },
+      "quotes": {
+        "label": "Quotes",
+        "description": "Create, send and approve quotes"
+      },
+      "invoices": {
+        "label": "Invoices",
+        "description": "Invoice lifecycle and validation"
+      },
+      "payments": {
+        "label": "Payments",
+        "description": "Payments, reconciliation and banks"
+      },
+      "reports": {
+        "label": "Reports",
+        "description": "KPIs and exports"
+      },
+      "templates": {
+        "label": "Templates",
+        "description": "Email and PDF templates"
+      },
+      "security": {
+        "label": "Security",
+        "description": "Sessions and audit access"
+      },
+      "bank": {
+        "label": "Bank connections",
+        "description": "Bank links for reconciliation"
+      }
+    },
+    "actions": {
+      "company": {
+        "view": "View company information",
+        "create": "Create company",
+        "edit": "Edit company",
+        "archive": "Archive company",
+        "legal": "Manage legal entities"
+      },
+      "users": {
+        "view": "View users",
+        "invite": "Invite users",
+        "edit": "Edit users",
+        "disable": "Disable users",
+        "roles": "Manage roles & permissions"
+      },
+      "customers": {
+        "view": "View customers",
+        "create": "Create customers",
+        "edit": "Edit customers",
+        "delete": "Delete customers"
+      },
+      "products": {
+        "view": "View products",
+        "create": "Create products",
+        "edit": "Edit products"
+      },
+      "quotes": {
+        "view": "View quotes",
+        "create": "Create quotes",
+        "edit": "Edit quotes",
+        "send": "Send quotes",
+        "approve": "Approve quotes"
+      },
+      "invoices": {
+        "view": "View invoices",
+        "create": "Create invoices",
+        "validate": "Validate invoices",
+        "validateNote": "Validation permission allows validation only. Validated invoices remain immutable.",
+        "export": "Export invoices"
+      },
+      "payments": {
+        "view": "View payments",
+        "record": "Record payments",
+        "reconcile": "Manage reconciliation",
+        "bank": "Manage bank connections"
+      },
+      "reports": {
+        "view": "View reports",
+        "export": "Export reports"
+      },
+      "templates": {
+        "email": "Manage email templates",
+        "pdf": "Manage PDF templates"
+      },
+      "security": {
+        "sessions": "Manage sessions",
+        "audit": "View audit log"
+      },
+      "bank": {
+        "view": "View bank connections",
+        "manage": "Manage bank connections"
+      }
     }
   },
   "loading": {
@@ -252,7 +445,8 @@
     "templates": "Templates",
     "integrations": "Integrations",
     "settings": "Settings",
-    "operations": "OPERATIONS"
+    "operations": "OPERATIONS",
+    "comingSoon": "Coming soon"
   },
   "sidebar": {
     "switchCompany": "Switch company",
@@ -271,7 +465,30 @@
     "search": "Search a customer, quote, or invoice...",
     "month": "October",
     "notifications": "Notifications",
-    "newQuote": "Create quote"
+    "newQuote": "Create quote",
+    "accountMenu": "Account menu for {name}",
+    "accountSettings": "Settings",
+    "accountProfile": "My profile",
+    "signOut": "Sign out",
+    "periodUnavailable": "Period selector is not available in this demo",
+    "notificationsPanel": {
+      "title": "Notifications",
+      "options": "Notification options",
+      "tabAll": "All",
+      "tabUnread": "Unread",
+      "earlier": "Earlier",
+      "new": "New",
+      "seeAll": "See all",
+      "markAllRead": "Mark all as read",
+      "dismiss": "Dismiss",
+      "emptyAll": "You're all caught up",
+      "emptyUnread": "No unread notifications",
+      "unreadBadge": "{count} unread",
+      "timeMinutes": "{count}m",
+      "timeHours": "{count}h",
+      "timeDays": "{count}d",
+      "timeWeeks": "{count}w"
+    }
   },
   "hero": {
     "active": "System active",
@@ -371,7 +588,398 @@
     "title": "Invoices to follow",
     "open": "Open",
     "due": "Due {date}",
-    "empty": "No invoices to follow"
+    "empty": "No invoices to follow",
+    "workspaceTitle": "Invoices",
+    "subtitle": "Manage your invoices, track payments and monitor outstanding amounts.",
+    "emptyTitle": "No invoices yet",
+    "emptyBody": "Accepted quotes can be converted into invoices.",
+    "emptyFilteredTitle": "No invoices match your filters.",
+    "emptyFilteredBody": "Try another status, customer or period.",
+    "emptyClear": "Clear filters",
+    "emptyCreate": "Create invoice",
+    "back": "Back to invoices",
+    "missing": "This invoice could not be found.",
+    "forbidden": "You do not have permission to view invoices.",
+    "quoteRef": "From quote {id}",
+    "search": "Search an invoice, customer, quote or reference...",
+    "filters": "More filters",
+    "apply": "Apply",
+    "clear": "Clear",
+    "owner": "Owner",
+    "customer": "Customer",
+    "anyOwner": "Any owner",
+    "anyCustomer": "Any customer",
+    "statusLabel": "Status",
+    "number": "Invoice no.",
+    "quotePo": "Quote / PO",
+    "total": "Total incl. tax",
+    "next": "Next action",
+    "newInvoice": "New invoice",
+    "relatedQuote": "Related quote",
+    "reference": "Reference / Description",
+    "currency": "Currency",
+    "paymentTerms": "Payment terms",
+    "changeCustomer": "Change",
+    "lines": "Lines",
+    "description": "Description",
+    "qty": "Qty",
+    "unit": "Unit excl. tax",
+    "lineTotal": "Total",
+    "ht": "Subtotal (HT)",
+    "vat": "VAT ({rate}%)",
+    "ttc": "Total (TTC)",
+    "issueDate": "Issue date",
+    "dueDate": "Due date",
+    "poNumber": "PO number",
+    "draftNumber": "Draft invoice · {id}",
+    "close": "Close",
+    "saveDraft": "Save draft",
+    "sendEmail": "Send by email",
+    "footerValue": "{amount} total value",
+    "mobileIssued": "Issued {date}",
+    "mobileDue": "Due {date}",
+    "status": {
+      "draft": "Draft",
+      "validated": "Validated"
+    },
+    "listStatus": {
+      "all": "All",
+      "draft": "Draft",
+      "to_validate": "To validate",
+      "validated": "Validated",
+      "sent": "Sent",
+      "unpaid": "Unpaid",
+      "partial": "Partially paid",
+      "paid": "Paid",
+      "overdue": "Overdue"
+    },
+    "actions": {
+      "edit": "Edit",
+      "validate": "Validate",
+      "view": "View",
+      "followUp": "Follow up"
+    },
+    "terms": {
+      "upon_receipt": "Upon receipt",
+      "net_15": "Net 15",
+      "net_30": "Net 30",
+      "net_45": "Net 45",
+      "net_60": "Net 60"
+    },
+    "dates": {
+      "any": "Any period",
+      "month": "This month",
+      "quarter": "This quarter",
+      "overdue": "Overdue"
+    },
+    "sort": {
+      "label": "Sort",
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "dueSoon": "Due soon",
+      "highest": "Highest amount",
+      "lowest": "Lowest amount"
+    },
+    "kpis": {
+      "invoiced": "Invoiced this month",
+      "invoicedHint": "Validated invoices issued this month",
+      "outstanding": "Outstanding",
+      "outstandingHint": "Validated invoices still unpaid",
+      "overdue": "Overdue",
+      "overdueHint": "Past due and still open",
+      "paid": "Paid this month",
+      "paidHint": "Payments recorded this month"
+    },
+    "tabs": {
+      "details": "Details",
+      "items": "Items",
+      "payments": "Payments",
+      "activity": "Activity"
+    },
+    "panel": {
+      "title": "Invoice {number}",
+      "tabsLabel": "Invoice sections"
+    },
+    "sections": {
+      "customer": "Customer",
+      "information": "Invoice information"
+    },
+    "table": {
+      "selectAll": "Select all invoices",
+      "selectRow": "Select {id}"
+    },
+    "pagination": {
+      "summary": "{from}–{to} of {total}",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "menu": {
+      "trigger": "Invoice actions",
+      "open": "Open",
+      "edit": "Edit",
+      "send": "Send by email",
+      "history": "View activity",
+      "delete": "Delete"
+    },
+    "payments": {
+      "empty": "No payments recorded on this invoice.",
+      "paidTitle": "This invoice has been paid in full.",
+      "paidOn": "Paid on {date}",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "date": "Date",
+      "reference": "Reference",
+      "amount": "Amount",
+      "method": "Method",
+      "status": "Status",
+      "methods": {
+        "transfer": "Bank transfer",
+        "check": "Cheque",
+        "card": "Card",
+        "direct_debit": "Direct debit",
+        "cash": "Cash"
+      },
+      "states": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed"
+      }
+    },
+    "activity": {
+      "created": "Invoice created from {quote}",
+      "updated": "Invoice draft updated",
+      "validated": "Invoice validated",
+      "sent": "Invoice sent by email",
+      "payment": "Payment recorded",
+      "latest": "Latest"
+    },
+    "selectQuote": {
+      "title": "Create invoice",
+      "body": "Select an accepted quote to convert.",
+      "search": "Search accepted quote...",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "close": "Close",
+      "emptyTitle": "No accepted quotes available.",
+      "emptyBody": "An invoice can be created once a quote has been accepted.",
+      "goToQuotes": "Go to quotes"
+    },
+    "validate": "Validate invoice",
+    "validateTitle": "Validate invoice?",
+    "validateConfirm": "Validation will assign the final invoice number and lock this invoice. After validation, it can no longer be edited or deleted. Corrections must be made using a credit note.",
+    "validated": "Invoice validated and locked.",
+    "locked": "A validated invoice cannot be changed.",
+    "delete": "Delete",
+    "deleted": "Invoice draft deleted.",
+    "cancel": "Cancel",
+    "deleteConfirm": {
+      "title": "Delete draft invoice?",
+      "body": "This draft will be removed from the current session."
+    },
+    "discard": {
+      "title": "Unsaved changes",
+      "body": "Your draft edits will be discarded.",
+      "keep": "Keep editing",
+      "leave": "Discard"
+    },
+    "notices": {
+      "saved": "Invoice draft saved",
+      "created": "Invoice draft created from the accepted quote.",
+      "sent": "Send request recorded for this invoice.",
+      "followUp": "Follow-up opened on this invoice.",
+      "convertBlocked": "Only an accepted quote with remaining invoiceable amount can be converted."
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "subtitle": "Track incoming payments, reconcile transactions and monitor outstanding amounts.",
+    "forbidden": "You do not have permission to view payments.",
+    "search": "Search payments, customer, invoice or reference...",
+    "filters": "More filters",
+    "apply": "Apply",
+    "clear": "Clear",
+    "customer": "Customer",
+    "invoice": "Invoice",
+    "anyCustomer": "Any customer",
+    "anyInvoice": "Any invoice",
+    "statusLabel": "Status",
+    "methodLabel": "Method",
+    "reconciliationLabel": "Reconciliation",
+    "recordAction": "Record payment",
+    "close": "Close",
+    "emptyTitle": "No payments recorded",
+    "emptyBody": "Payments recorded against invoices will appear here.",
+    "emptyFilteredTitle": "No payments match your filters.",
+    "emptyFilteredBody": "Try another status, method, customer or period.",
+    "emptyClear": "Clear filters",
+    "footerValue": "{amount} recorded",
+    "listStatus": {
+      "all": "All statuses",
+      "paid": "Paid",
+      "partial": "Partial",
+      "to_match": "To match",
+      "failed": "Failed"
+    },
+    "methods": {
+      "all": "All methods",
+      "transfer": "Bank transfer",
+      "card": "Card",
+      "direct_debit": "Direct debit",
+      "cash": "Cash",
+      "check": "Cheque"
+    },
+    "reconciliation": {
+      "all": "Any reconciliation",
+      "matched": "Matched",
+      "to_match": "To match",
+      "needs_review": "Needs review"
+    },
+    "dates": {
+      "any": "Any period",
+      "month": "This month",
+      "quarter": "This quarter"
+    },
+    "columns": {
+      "reference": "Payment ref.",
+      "customer": "Customer",
+      "invoice": "Invoice",
+      "method": "Method",
+      "date": "Date",
+      "amount": "Amount",
+      "reconciliation": "Reconciliation",
+      "status": "Status",
+      "next": "Next action"
+    },
+    "actions": {
+      "view": "View",
+      "match": "Match",
+      "review": "Review",
+      "none": "—"
+    },
+    "table": {
+      "selectAll": "Select all payments",
+      "selectRow": "Select {id}"
+    },
+    "pagination": {
+      "summary": "{from}–{to} of {total}",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "kpis": {
+      "collected": "Collected this month",
+      "collectedHint": "Completed payments in the current month",
+      "outstanding": "Outstanding receivables",
+      "outstandingHint": "Across {count} open invoices",
+      "partial": "Partially paid",
+      "partialHint": "Remaining balance on {count} partial invoices",
+      "overdue": "Overdue",
+      "overdueHint": "{count} overdue invoices still open"
+    },
+    "tabs": {
+      "details": "Details",
+      "invoice": "Invoice",
+      "reconciliation": "Reconciliation",
+      "activity": "Activity"
+    },
+    "panel": {
+      "title": "Payment {reference}",
+      "tabsLabel": "Payment sections"
+    },
+    "sections": {
+      "information": "Payment information"
+    },
+    "menu": {
+      "trigger": "Payment actions",
+      "open": "View payment",
+      "invoice": "Open invoice",
+      "customer": "Open customer",
+      "activity": "View activity",
+      "match": "Match transaction"
+    },
+    "record": {
+      "title": "Record payment",
+      "invoice": "Invoice",
+      "amount": "Amount",
+      "date": "Payment date",
+      "method": "Method",
+      "reference": "Reference",
+      "bankReference": "Bank transaction ref.",
+      "notes": "Notes",
+      "remaining": "Remaining: {amount}",
+      "cancel": "Cancel",
+      "save": "Save payment",
+      "saving": "Saving…",
+      "noInvoicesTitle": "No invoices awaiting payment",
+      "noInvoices": "No invoices awaiting payment.",
+      "invalidAmount": "Enter a valid amount.",
+      "overpayment": "Amount cannot exceed the remaining balance.",
+      "failed": "The payment could not be recorded."
+    },
+    "match": {
+      "title": "Confirm match",
+      "body": "Bank transaction: {amount}. Suggested invoice: {invoice}. Invoice balance: {remaining}.",
+      "cancel": "Cancel",
+      "confirm": "Confirm match"
+    },
+    "review": {
+      "title": "Review transaction",
+      "bank": "Bank transaction: {amount}",
+      "invoice": "Invoice",
+      "cancel": "Cancel",
+      "confirm": "Confirm match",
+      "saving": "Matching…",
+      "noInvoices": "No invoices awaiting payment."
+    },
+    "queue": {
+      "title": "Reconciliation queue",
+      "match": "Match",
+      "review": "Review",
+      "possible": "Possible match: {invoice} · remaining {remaining}",
+      "noSuggestion": "No confident match — review to select an invoice.",
+      "emptyTitle": "All transactions matched",
+      "emptyBody": "No bank transactions require review.",
+      "alreadyMatched": "This transaction is already matched."
+    },
+    "methodsCard": {
+      "title": "Payment methods",
+      "center": "collected"
+    },
+    "health": {
+      "title": "Collection health",
+      "onTime": "On time payments",
+      "partial": "Partially paid",
+      "overdue": "Overdue"
+    },
+    "activity": {
+      "title": "Recent payment activity",
+      "empty": "No recent payment activity.",
+      "recorded": "Payment of {amount} recorded",
+      "matched": "Bank transaction matched to {invoice}",
+      "invoice_paid": "Invoice {invoice} marked paid",
+      "reviewed": "Payment reviewed"
+    },
+    "invoiceTab": {
+      "total": "Invoice total",
+      "paidBefore": "Paid before",
+      "thisPayment": "This payment",
+      "remaining": "Remaining",
+      "open": "Open invoice",
+      "missing": "The linked invoice could not be found."
+    },
+    "recon": {
+      "invoice": "Matched invoice",
+      "bank": "Bank transaction",
+      "matchedOn": "Matched on",
+      "source": "Source",
+      "manual": "Manual"
+    },
+    "notices": {
+      "recorded": "Payment recorded."
+    }
   },
   "activity": {
     "title": "Activity",
@@ -472,7 +1080,9 @@
   },
   "register": {
     "title": "Quotes",
-    "search": "Search a quote or a customer",
+    "subtitle": "Create, manage and track your quotes from initial draft to conversion.",
+    "search": "Search a quote or a customer...",
+    "statusAll": "All",
     "filters": "Filters",
     "view": "View",
     "more": "More actions",
@@ -546,9 +1156,86 @@
       "clear": "Clear filters"
     },
     "footer": "{count, plural, one {# quote} other {# quotes}} · {amount}",
-    "page": "{from}–{to} of {total}",
-    "previous": "Previous page",
-    "nextPage": "Next page",
+    "footerValue": "{amount} total value",
+    "page": "{from}–{to} of {total} quotes",
+    "previous": "Previous",
+    "nextPage": "Next",
+    "pagination": {
+      "summary": "{from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page"
+    },
+    "table": {
+      "selectAll": "Select all quotes on this page",
+      "selectRow": "Select quote {id}"
+    },
+    "sort": {
+      "label": "Sort quotes",
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "highest": "Highest amount",
+      "lowest": "Lowest amount",
+      "expiry": "Expiry soon"
+    },
+    "kpis": {
+      "open": "Open quotes",
+      "openHint": "vs last month",
+      "awaiting": "Awaiting approval",
+      "awaitingHint": "vs previous period",
+      "accepted": "Accepted this month",
+      "acceptedHint": "vs last month",
+      "value": "Quote value",
+      "valueHint": "open pipeline"
+    },
+    "analytics": {
+      "pipeline": "Quote pipeline",
+      "valueByStatus": "Quote value by status",
+      "insight": "Insight",
+      "quotesLabel": "quotes",
+      "documents": "{count, plural, one {# quote} other {# quotes}}",
+      "insightAcceptedUp": "Accepted quotes increased by {percent}% compared to last month.",
+      "insightAcceptedDown": "Accepted quotes decreased by {percent}% compared to last month."
+    },
+    "sheet": {
+      "title": "Quote details",
+      "body": "Review identity, lines, totals and the next commercial action.",
+      "work": "Work",
+      "lineQty": "Qty {qty}"
+    },
+    "menu": {
+      "trigger": "Quote actions",
+      "open": "Open",
+      "duplicate": "Duplicate",
+      "download": "Download PDF",
+      "email": "Send email",
+      "history": "View history",
+      "send": "Send",
+      "approve": "Approve",
+      "followUp": "Follow up",
+      "convert": "Convert",
+      "delete": "Delete"
+    },
+    "deleteConfirm": {
+      "title": "Delete this quote?",
+      "body": "This action cannot be undone. The quote will be permanently removed.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "notices": {
+      "sent": "Quote {id} sent.",
+      "approved": "Quote {id} approved.",
+      "followUp": "Follow-up prepared for {id}.",
+      "convert": "Invoice draft prepared from {id}.",
+      "convertBlocked": "This quote cannot be converted. Only an accepted quote with remaining invoiceable amount can create an invoice.",
+      "duplicated": "Quote duplicated as {id}.",
+      "download": "PDF download prepared for {id}.",
+      "email": "Email draft prepared for {id}.",
+      "history": "History opened for {id}.",
+      "deleted": "Quote {id} deleted.",
+      "exported": "Exported {count, plural, one {# quote} other {# quotes}}."
+    },
     "preview": {
       "ht": "Total excl. tax",
       "vat": "VAT {rate}%",
@@ -579,7 +1266,11 @@
       "qty": "Qty",
       "unit": "Unit excl. tax",
       "missing": "This quote could not be found.",
-      "emptyLines": "No lines yet. Add the first service."
+      "emptyLines": "No lines yet. Add the first service.",
+      "saveDraft": "Save draft",
+      "send": "Send",
+      "sent": "Quote sent.",
+      "saved": "Draft saved."
     },
     "loading": "Loading quotes"
   },
@@ -685,5 +1376,469 @@
       "row": "{year}: {realized} realized against a {target} target"
     },
     "chartSummary": "{label}: {amount} ({share})"
+  },
+  "customers": {
+    "title": "Customers",
+    "subtitle": "Manage your customers, view their activity and relationship history.",
+    "add": "Add customer",
+    "export": "Export",
+    "exportMock": "Export is UI-only in this mock phase. No file was generated.",
+    "importCsv": "Import CSV",
+    "editMock": "Inline edit opens the full customer form in a later iteration.",
+    "created": "Customer added for this session.",
+    "updated": "Customer updated for this session.",
+    "createdAnyway": "Customer added for this session despite a possible duplicate.",
+    "list": {
+      "title": "Customer list",
+      "subtitle": "View and manage all your customers. Click a customer to see details.",
+      "more": "More list actions"
+    },
+    "empty": {
+      "title": "No customers yet",
+      "body": "Create your first customer or import customers from CSV."
+    },
+    "kpis": {
+      "total": "Total customers",
+      "active": "Active customers",
+      "revenue": "Total revenue",
+      "quotes": "Open quotes",
+      "overdue": "Overdue invoices",
+      "deltaUp": "↑ {value}%",
+      "vsLastMonth": "vs last month",
+      "openAmount": "Open amount",
+      "overdueAmount": "Overdue amount"
+    },
+    "filters": {
+      "searchPlaceholder": "Search customers by name, email, SIRET or VAT number...",
+      "open": "Open column filters",
+      "title": "Filter by column",
+      "type": "Type",
+      "owner": "Owner",
+      "tags": "Tags",
+      "country": "Country",
+      "status": "Status",
+      "all": "All",
+      "company": "Company",
+      "individual": "Individual",
+      "active": "Active",
+      "inactive": "Inactive",
+      "clear": "Clear filters"
+    },
+    "table": {
+      "selectAll": "Select all customers",
+      "selectRow": "Select {name}",
+      "customer": "Customer",
+      "legal": "Legal / business info",
+      "country": "Country",
+      "owner": "Owner",
+      "terms": "Payment terms",
+      "status": "Status",
+      "activity": "Last activity",
+      "open": "Open actions for {name}"
+    },
+    "type": {
+      "company": "Company",
+      "individual": "Individual"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "terms": {
+      "net_15": "Net 15",
+      "net_30": "Net 30",
+      "net_45": "Net 45",
+      "net_60": "Net 60",
+      "upon_receipt": "Upon receipt"
+    },
+    "methods": {
+      "transfer": "Transfer",
+      "check": "Check",
+      "card": "Card",
+      "direct_debit": "Direct debit",
+      "cash": "Cash"
+    },
+    "templates": {
+      "standard": "Standard",
+      "premium": "Premium"
+    },
+    "relative": {
+      "today": "Today",
+      "days": "{count, plural, one {# day ago} other {# days ago}}",
+      "weeks": "{count, plural, one {# week ago} other {# weeks ago}}",
+      "months": "{count, plural, one {# month ago} other {# months ago}}"
+    },
+    "tabs": {
+      "details": "Customer",
+      "activity": "Activity",
+      "quotes": "Quotes",
+      "invoices": "Invoices",
+      "payments": "Payments"
+    },
+    "sections": {
+      "identity": "Identity",
+      "individualIdentity": "Identity",
+      "companyInformation": "Company information",
+      "commercial": "Commercial settings",
+      "contacts": "Contacts ({count})",
+      "addresses": "Addresses ({count})",
+      "notes": "Notes ({count})"
+    },
+    "fields": {
+      "legalName": "Legal name",
+      "displayName": "Customer name",
+      "fullName": "Full name",
+      "siret": "SIRET",
+      "vat": "VAT number",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "paymentTerms": "Payment terms",
+      "paymentMethod": "Payment method",
+      "quoteTemplate": "Default quote template",
+      "owner": "Owner",
+      "contactName": "Contact name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "line1": "Street",
+      "postalCode": "Postal code",
+      "city": "City",
+      "country": "Country",
+      "tags": "Tags"
+    },
+    "address": {
+      "billing": "Billing address",
+      "delivery": "Delivery address"
+    },
+    "actions": {
+      "newQuote": "New quote",
+      "newInvoice": "New invoice",
+      "recordPayment": "Record payment",
+      "email": "Send email",
+      "more": "More",
+      "invoiceHint": "Invoices follow accepted quotes in the current COMPTE flow.",
+      "invoiceAcceptedRequired": "An accepted quote is required before creating an invoice.",
+      "paymentHint": "Payment recording opens when an eligible invoice is available."
+    },
+    "historyTabs": {
+      "activityTitle": "Activity timeline",
+      "activityFilter": "Filter activities",
+      "activityEmptyTitle": "No activity yet",
+      "activityEmptyBody": "Customer changes, quotes, invoices and payments will appear here.",
+      "quotes": "Quotes",
+      "invoices": "Invoices",
+      "payments": "Payments",
+      "quotesEmptyTitle": "No quotes yet",
+      "quotesEmptyBody": "Create the first quote for this customer.",
+      "invoicesEmptyTitle": "No invoices yet",
+      "invoicesEmptyBody": "An invoice can be created once an accepted quote is available for this customer.",
+      "paymentsEmptyTitle": "No payments recorded",
+      "paymentsEmptyBody": "Payments recorded against this customer's invoices will appear here.",
+      "openQuote": "Open quote",
+      "duplicateQuote": "Duplicate quote",
+      "sendQuote": "Send quote",
+      "createInvoice": "Create invoice",
+      "openInvoice": "Open invoice",
+      "viewPdf": "View PDF",
+      "sendEmail": "Send email",
+      "editInvoice": "Edit invoice",
+      "invoiceCreatedToast": "Invoice created from accepted quote.",
+      "paymentRecordedToast": "Payment recorded.",
+      "filters": {
+        "all": "All activities",
+        "customer": "Customer",
+        "quotes": "Quotes",
+        "invoices": "Invoices",
+        "payments": "Payments",
+        "email": "Email",
+        "system": "System"
+      }
+    },
+    "pagination": {
+      "summary": "{from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page"
+    },
+    "details": {
+      "emptyTitle": "Select a customer",
+      "emptyBody": "Choose a customer from the list to review details, history and notes.",
+      "edit": "Edit",
+      "editing": "Editing",
+      "unsaved": "Unsaved changes",
+      "saving": "Saving…",
+      "discardTitle": "Discard unsaved changes?",
+      "discardConfirm": "Your edits will be lost if you leave edit mode.",
+      "discardAction": "Discard",
+      "keepEditing": "Keep editing",
+      "typeChangeTitle": "Switch to Individual?",
+      "typeChangeConfirm": "Company fields (legal name, SIRET, VAT) will be hidden. You can switch back later.",
+      "typeChangeAction": "Continue",
+      "addContact": "Add contact",
+      "deleteContact": "Delete",
+      "deleteContactTitle": "Delete this contact?",
+      "deleteContactConfirm": "This contact will be removed from the draft until you save.",
+      "deletePrimaryContactTitle": "Delete the primary contact?",
+      "deletePrimaryContactConfirm": "Another contact will become primary in this draft.",
+      "deleteContactAction": "Delete",
+      "close": "Close details",
+      "owner": "Owner · {name}",
+      "primary": "Primary",
+      "noNotes": "No notes yet.",
+      "noQuotes": "No quotes for this customer.",
+      "noInvoices": "No invoices for this customer.",
+      "noPayments": "No payments for this customer.",
+      "openFull": "Open customer",
+      "viewQuotes": "View quotes",
+      "tabsLabel": "Customer detail sections",
+      "notFound": "Customer not found",
+      "fullPagePlaceholder": "Full customer detail tabs (Overview, Contacts, Addresses, Quotes, Invoices, Payments, Notes & activity) can expand here without changing the list workspace."
+    },
+    "history": {
+      "number": "Number",
+      "date": "Date",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "validUntil": "Valid until",
+      "amount": "Amount",
+      "status": "Status",
+      "invoice": "Invoice",
+      "method": "Method",
+      "reference": "Reference"
+    },
+    "quoteStatus": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "review": "To approve",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired",
+      "invoiced": "Invoiced"
+    },
+    "invoiceStatus": {
+      "draft": "Draft",
+      "validated": "Validated",
+      "unpaid": "Unpaid",
+      "sent": "Unpaid",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "partial": "Partial"
+    },
+    "paymentStatus": {
+      "completed": "Completed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "form": {
+      "title": "Add customer",
+      "editTitle": "Edit customer",
+      "body": "Capture identity, contacts, addresses and commercial defaults.",
+      "editBody": "Update identity, contacts, addresses and commercial defaults.",
+      "type": "Customer type",
+      "lookupSiret": "Lookup SIRET",
+      "siretLoading": "Looking up…",
+      "siretFound": "Company found from SIRET lookup.",
+      "siretNotFound": "No company found for this SIRET.",
+      "siretError": "SIRET must contain 14 digits.",
+      "siretAutofill": "Filled from SIRET lookup — review before saving.",
+      "useBillingForDelivery": "Use billing address for delivery",
+      "ownerHint": "This user owns the customer according to the configured data scope.",
+      "required": "Name and email are required.",
+      "requiredName": "Customer name is required.",
+      "requiredLegalName": "Legal name is required for companies.",
+      "requiredEmail": "A valid email is required.",
+      "invalidWebsite": "Website URL is invalid.",
+      "requiredHint": "Complete the required fields at the top to save.",
+      "cancel": "Cancel",
+      "save": "Save customer",
+      "editSave": "Save changes"
+    },
+    "duplicate": {
+      "title": "Potential duplicate found",
+      "body": "A similar customer already exists. Review the existing record or continue anyway.",
+      "existing": "Existing customer",
+      "cancel": "Cancel",
+      "review": "Review existing",
+      "continue": "Continue anyway",
+      "badge": "Possible duplicate",
+      "badgeShort": "Dup"
+    },
+    "import": {
+      "title": "Import customers from CSV",
+      "body": "Upload, map columns, validate rows, then import. Mock preview only.",
+      "steps": {
+        "upload": "Upload",
+        "map": "Map",
+        "validate": "Validate",
+        "review": "Review",
+        "import": "Import"
+      },
+      "uploadTitle": "Drop a CSV file here",
+      "uploadHint": "Or continue with the sample file for this mock phase.",
+      "useSample": "Use sample CSV",
+      "mapBody": "Columns are mapped to COMPTE customer fields.",
+      "fields": {
+        "name": "Customer name",
+        "email": "Email",
+        "type": "Type",
+        "siret": "SIRET",
+        "vat": "VAT"
+      },
+      "row": {
+        "valid": "Valid",
+        "warning": "Warning",
+        "duplicate": "Duplicate",
+        "error": "Error"
+      },
+      "missingEmail": "Missing email",
+      "mockComplete": "Import preview complete. No server write was performed.",
+      "close": "Close",
+      "next": "Next",
+      "done": "Done"
+    }
+  },
+  "settingsCompanies": {
+    "page": {
+      "title": "Companies",
+      "description": "Manage the legal entities belonging to this tenant."
+    },
+    "search": "Search companies...",
+    "statusFilter": "Status",
+    "allStatuses": "All statuses",
+    "add": "Add company",
+    "edit": "Edit",
+    "archive": "Archive company",
+    "empty": "No companies match your filters.",
+    "emptyDetail": "Select a company to review legal details.",
+    "userCount": "{count} users",
+    "membersTitle": "Members",
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archived"
+    },
+    "fields": {
+      "name": "Display name",
+      "legalName": "Legal name",
+      "currency": "Currency",
+      "siret": "SIRET",
+      "vat": "VAT / TVA number",
+      "naf": "NAF",
+      "address": "Address",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "logo": "Logo URL"
+    },
+    "sections": {
+      "identity": "Identity",
+      "legal": "Legal information",
+      "address": "Address",
+      "bank": "Bank information",
+      "branding": "Branding"
+    },
+    "sheet": {
+      "createTitle": "Add company",
+      "createBody": "Create a legal entity in this tenant. Changes stay local until backend is connected.",
+      "editTitle": "Edit company",
+      "editBody": "Update legal entity details for document and accounting context.",
+      "createSave": "Create company",
+      "editSave": "Save changes"
+    },
+    "archiveConfirm": {
+      "title": "Archive this company?",
+      "body": "Archiving keeps history for quotes and invoices. This is not a hard delete."
+    },
+    "errors": {
+      "legalName": "Legal name is required.",
+      "name": "Display name is required.",
+      "currency": "Currency is required."
+    }
+  },
+  "settingsUsers": {
+    "page": {
+      "title": "Users",
+      "description": "Manage users, invitations, memberships and account access."
+    },
+    "hint": "Assign companies and roles through memberships. Permissions are managed on Roles & permissions.",
+    "invite": "Invite user",
+    "search": "Search users by name or email...",
+    "filters": {
+      "company": "Company",
+      "role": "Role",
+      "status": "Status",
+      "allCompanies": "All companies",
+      "allRoles": "All roles",
+      "allStatuses": "All statuses"
+    },
+    "columns": {
+      "user": "User",
+      "email": "Email",
+      "companies": "Companies",
+      "role": "Role",
+      "status": "Status",
+      "activity": "Last activity",
+      "actions": "Actions"
+    },
+    "showing": "Showing {from}-{to} of {total} users",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "edit": {
+      "title": "Edit user",
+      "body": "Update identity and memberships. One role per company membership.",
+      "name": "Full name",
+      "email": "Email",
+      "status": "Status",
+      "memberships": "Memberships",
+      "membershipsHint": "A user can belong to several companies, each with its own role.",
+      "company": "Company",
+      "role": "Role",
+      "addMembership": "Add membership",
+      "removeMembership": "Remove",
+      "save": "Save changes"
+    },
+    "inviteSheet": {
+      "title": "Invite user",
+      "body": "Send an invitation with an initial company membership.",
+      "send": "Send invitation",
+      "errors": {
+        "email": "Enter a valid email.",
+        "name": "Name is required.",
+        "membership": "Choose a company and role."
+      }
+    },
+    "disableConfirm": {
+      "title": "Disable this user?",
+      "body": "The user will lose access. Memberships are kept for audit history.",
+      "confirm": "Disable user"
+    }
+  },
+  "settingsRoles": {
+    "page": {
+      "title": "Roles & permissions",
+      "description": "Define what each role can do and which data scope it applies to."
+    },
+    "create": "Create custom role",
+    "listTitle": "Roles",
+    "listSubtitle": "System and custom roles for this tenant.",
+    "system": "System",
+    "custom": "Custom",
+    "userCount": "{count} users",
+    "delete": "Delete role",
+    "scopeNote": "Role permissions answer what a user can do. Data scope (OWN / COMPANY / TENANT) answers which records they can see.",
+    "deleteConfirm": {
+      "title": "Delete this custom role?",
+      "body": "This role is not assigned. You can remove it from the mock catalog."
+    },
+    "deleteBlocked": {
+      "title": "Role still assigned",
+      "body": "This role is assigned to {count} users. Reassign those memberships before deleting.",
+      "confirm": "Got it"
+    }
+  },
+  "settingsSecurity": {
+    "page": {
+      "title": "Security",
+      "description": "Authentication policies, sessions and sensitive account controls."
+    }
   }
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+
+import { FormSheet } from "@/components/forms/form-sheet";
 
 import type { Company, DataScope, Role } from "../types";
 
@@ -40,17 +41,6 @@ export function InviteUserDialog({
     if (open) firstFieldRef.current?.focus();
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   function toggleCompany(companyId: string) {
     setForm((current) => {
       const exists = current.companyIds.includes(companyId);
@@ -79,46 +69,38 @@ export function InviteUserDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-start justify-center bg-[#063586]/30 px-4 pt-[8vh]">
-      <button
-        aria-label={t("dialogs.close")}
-        className="absolute inset-0 cursor-default"
-        type="button"
-        onClick={onClose}
-      />
-      <form
-        aria-labelledby="invite-user-title"
-        className="relative z-10 max-h-[84dvh] w-full max-w-[480px] overflow-y-auto rounded-[18px] bg-white p-5 shadow-[0_22px_70px_rgb(29_43_68/0.16)] ring-1 ring-[#e1e7f1]"
-        role="dialog"
-        onSubmit={(event) => {
-          event.preventDefault();
-          submit();
-        }}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#063586]" id="invite-user-title">
-              {t("invite.title")}
-            </h2>
-            <p className="mt-1 text-sm text-[#728097]">{t("invite.body")}</p>
-          </div>
+    <FormSheet
+      closeLabel={t("dialogs.close")}
+      description={t("invite.body")}
+      open={open}
+      title={t("invite.title")}
+      widthClassName="sm:max-w-[480px]"
+      onClose={onClose}
+      footer={
+        <div className="flex justify-end gap-2">
           <button
-            aria-label={t("dialogs.close")}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border border-[#dfe6f1] text-[#506078]"
+            className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
             type="button"
             onClick={onClose}
           >
-            <X aria-hidden="true" className="h-4 w-4" />
+            {t("dialogs.cancel")}
+          </button>
+          <button
+            className="soft-primary min-h-10 rounded-[10px] px-3 text-sm font-semibold text-white"
+            type="button"
+            onClick={submit}
+          >
+            {t("invite.submit")}
           </button>
         </div>
-
-        <div className="mt-5 space-y-4">
-          <Field
-            error={errors.email}
-            id="invite-email"
-            label={t("invite.email")}
-            required
-          >
+      }
+    >
+      <div className="space-y-5">
+        <section className="space-y-3">
+          <h3 className="text-[12px] font-semibold tracking-[0.06em] text-[#7a899e] uppercase">
+            {t("invite.email")}
+          </h3>
+          <Field error={errors.email} id="invite-email" label={t("invite.email")} required>
             <input
               ref={firstFieldRef}
               aria-invalid={errors.email ? true : undefined}
@@ -139,7 +121,12 @@ export function InviteUserDialog({
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
             />
           </Field>
+        </section>
 
+        <section className="space-y-3">
+          <h3 className="text-[12px] font-semibold tracking-[0.06em] text-[#7a899e] uppercase">
+            {t("invite.role")}
+          </h3>
           <Field error={errors.roleId} id="invite-role" label={t("invite.role")} required>
             <select
               className={inputClass(Boolean(errors.roleId))}
@@ -182,7 +169,7 @@ export function InviteUserDialog({
 
           {form.dataScope !== "TENANT" ? (
             <fieldset>
-              <legend className="mb-1.5 text-xs font-medium text-[#405069]">
+              <legend className="mb-1.5 text-[11px] font-medium text-[#5f6f88]">
                 {t("invite.companies")}
                 <span className="text-[#8e2a26]"> *</span>
               </legend>
@@ -212,25 +199,9 @@ export function InviteUserDialog({
           ) : (
             <p className="text-[12px] text-[#7a899e]">{t("invite.tenantHint")}</p>
           )}
-        </div>
-
-        <div className="mt-5 flex justify-end gap-2">
-          <button
-            className="min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
-            type="button"
-            onClick={onClose}
-          >
-            {t("dialogs.cancel")}
-          </button>
-          <button
-            className="soft-primary min-h-10 rounded-[10px] px-3 text-sm font-semibold text-white"
-            type="submit"
-          >
-            {t("invite.submit")}
-          </button>
-        </div>
-      </form>
-    </div>
+        </section>
+      </div>
+    </FormSheet>
   );
 }
 
@@ -249,7 +220,7 @@ function Field({
 }) {
   return (
     <label className="block" htmlFor={id}>
-      <span className="mb-1.5 block text-xs font-medium text-[#405069]">
+      <span className="mb-1.5 block text-[11px] font-medium text-[#5f6f88]">
         {label}
         {required ? <span className="text-[#8e2a26]"> *</span> : null}
       </span>
@@ -260,7 +231,7 @@ function Field({
 }
 
 function inputClass(invalid: boolean) {
-  return `h-10 w-full rounded-[12px] border bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/35 ${
+  return `h-10 w-full rounded-[10px] border bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30 ${
     invalid ? "border-[#c9564f]" : "border-[#dfe6f1]"
   }`;
 }
