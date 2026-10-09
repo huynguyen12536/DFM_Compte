@@ -2,7 +2,7 @@
 
 import { WalletCards } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ConfirmDialog } from "@/components/compte/confirm-dialog";
 import { SoftToast } from "@/components/compte/soft-toast";
@@ -24,24 +24,28 @@ import { can } from "@/features/settings/can";
 import { useCurrentCompany } from "@/features/settings/company-store";
 import { systemRoles } from "@/features/settings/mocks/roles";
 import { useRouter } from "@/i18n/navigation";
+import { centsToCsvEuro, downloadCsv, mockExportFilename } from "@/lib/csv-export";
 import { formatMoneyFromCents } from "@/lib/money";
 
+import { CollectionFollowUpSheet } from "./components/collection-follow-up-sheet";
 import { PaymentDetailsPanel } from "./components/payment-details-panel";
 import { PaymentKpisStrip } from "./components/payment-kpis";
 import { PaymentMobileList } from "./components/payment-mobile-list";
 import { PaymentRail } from "./components/payment-rail";
-import type { PaymentMenuAction } from "./components/payment-row-menu";
 import { PaymentTable } from "./components/payment-table";
 import { PaymentToolbar } from "./components/payment-toolbar";
 import { RecordPaymentSheet } from "./components/record-payment-sheet";
+import { ReconciliationQueueSheet } from "./components/reconciliation-queue-sheet";
 import { ReviewMatchSheet } from "./components/review-match-sheet";
 import { getPaymentKpis } from "./kpis";
 import {
   emptyPaymentFilters,
+  paymentListStatus,
   paymentNextAction,
   type PaymentFilters,
   type PaymentListStatus,
 } from "./model";
+import { useReminderEvents } from "./reminders";
 import {
   bankTransactionsForCompany,
   eligibleInvoicesForPayment,
@@ -73,11 +77,17 @@ export function PaymentsWorkspace() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [recordOpen, setRecordOpen] = useState(false);
+  const [recordInvoiceId, setRecordInvoiceId] = useState<string | null>(null);
+  const [followUpInvoiceId, setFollowUpInvoiceId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [matchId, setMatchId] = useState<string | null>(null);
+  const [matchInvoiceId, setMatchInvoiceId] = useState<string | null>(null);
   const [reviewId, setReviewId] = useState<string | null>(null);
+  const [queueOpen, setQueueOpen] = useState(false);
+  const viewAllRef = useRef<HTMLButtonElement>(null);
+  const reminderEvents = useReminderEvents();
 
   useEffect(() => {
     hydrateLedger();
@@ -140,6 +150,11 @@ export function PaymentsWorkspace() {
   const selectedInvoice = selectedPayment
     ? invoicesById.get(selectedPayment.invoiceId)
     : undefined;
+  const followUpInvoice = followUpInvoiceId
+    ? (invoicesById.get(followUpInvoiceId) ??
+      invoicesAll.find((item) => item.id === followUpInvoiceId) ??
+      null)
+    : null;
   const selectedBank = selectedPayment?.bankTransactionId
     ? bankTransactions.find((item) => item.id === selectedPayment.bankTransactionId)
     : undefined;
@@ -149,6 +164,7 @@ export function PaymentsWorkspace() {
   const matchTx = matchId
     ? bankTransactions.find((item) => item.id === matchId) ?? null
     : null;
+  const matchInvoice = matchInvoiceId ? invoicesById.get(matchInvoiceId) : undefined;
   const reviewTx = reviewId
     ? bankTransactions.find((item) => item.id === reviewId) ?? null
     : null;
@@ -161,41 +177,78 @@ export function PaymentsWorkspace() {
     return t("record.failed");
   }
 
+  function openMatch(transactionId: string, invoiceId?: string) {
+    const transaction = bankTransactions.find((item) => item.id === transactionId);
+    const resolved = invoiceId ?? transaction?.suggestedInvoiceId;
+    if (!resolved) return;
+    setFormError(null);
+    setMatchId(transactionId);
+    setMatchInvoiceId(resolved);
+  }
+
   function openPayment(id: string) {
     setSelectedId(id);
+  }
+
+  function openRecord(invoiceId?: string) {
+    setFormError(null);
+    setRecordInvoiceId(invoiceId ?? null);
+    setRecordOpen(true);
+  }
+
+  function exportPaymentsCsv() {
+    const headers = [
+      "reference",
+      "customer",
+      "invoice",
+      "method",
+      "date",
+      "amount_eur",
+      "remaining_eur",
+      "status",
+      "reconciliation",
+      "bank_reference",
+      "data_source",
+    ];
+    const rows = filtered.map((payment) => {
+      const invoice = invoicesById.get(payment.invoiceId);
+      const remaining = invoice ? remainingCentsFor(invoice, payments) : 0;
+      return [
+        payment.reference,
+        invoice?.customerName ?? "",
+        invoice ? invoiceDisplayNumber(invoice) : payment.invoiceId,
+        payment.method,
+        payment.date,
+        centsToCsvEuro(payment.amountCents),
+        centsToCsvEuro(remaining),
+        paymentListStatus(payment, invoice, payments),
+        payment.reconciliationStatus,
+        payment.bankReference ?? "",
+        "mock",
+      ];
+    });
+    const { rowCount } = downloadCsv(mockExportFilename("payments"), headers, rows);
+    setNotice(t("exportDone", { count: rowCount }));
   }
 
   function handleNextAction(id: string) {
     const payment = payments.find((item) => item.id === id);
     if (!payment) return;
     const invoice = invoicesById.get(payment.invoiceId);
-    const next = paymentNextAction(payment, invoice, payments);
-    if (next === "match" && payment.bankTransactionId) {
-      setMatchId(payment.bankTransactionId);
-      return;
-    }
-    openPayment(id);
-  }
-
-  function handleMenuAction(id: string, action: PaymentMenuAction) {
-    const payment = payments.find((item) => item.id === id);
-    if (!payment) return;
-    const invoice = invoicesById.get(payment.invoiceId);
-    if (action === "open" || action === "activity") {
+    const next = paymentNextAction(invoice, payments);
+    if (next === "view") {
       openPayment(id);
       return;
     }
-    if (action === "invoice" && invoice) {
-      router.push(`/factures?invoice=${invoice.id}`);
+    if (next === "follow_up") {
+      setFollowUpInvoiceId(payment.invoiceId);
       return;
     }
-    if (action === "customer" && invoice) {
-      router.push(`/customers?search=${encodeURIComponent(invoice.customerName)}`);
+    if (!canCreate) {
+      openPayment(id);
       return;
     }
-    if (action === "match" && payment.bankTransactionId) {
-      setMatchId(payment.bankTransactionId);
-    }
+    openRecord(payment.invoiceId);
   }
 
   function runSave(task: () => { ok: boolean; error?: string }) {
@@ -210,7 +263,9 @@ export function PaymentsWorkspace() {
       }
       setFormError(null);
       setRecordOpen(false);
+      setRecordInvoiceId(null);
       setMatchId(null);
+      setMatchInvoiceId(null);
       setReviewId(null);
       setNotice(t("notices.recorded"));
     }, 280);
@@ -251,10 +306,8 @@ export function PaymentsWorkspace() {
                   setFilters(emptyPaymentFilters);
                   setPage(0);
                 }}
-                onCreate={() => {
-                  setFormError(null);
-                  setRecordOpen(true);
-                }}
+                onCreate={() => openRecord()}
+                onExport={exportPaymentsCsv}
                 onFiltersChange={(patch) => {
                   setPage(0);
                   setFilters((current) => ({ ...current, ...patch }));
@@ -293,7 +346,7 @@ export function PaymentsWorkspace() {
                   ) : canCreate && eligible.length > 0 ? (
                     <button
                       className="action-motion soft-primary mt-2 h-9 rounded-[9px] px-3 text-xs font-semibold text-white"
-                      onClick={() => setRecordOpen(true)}
+                      onClick={() => openRecord()}
                       type="button"
                     >
                       {t("recordAction")}
@@ -302,15 +355,13 @@ export function PaymentsWorkspace() {
                 </div>
               ) : (
                 <>
-                  <div className="hidden min-h-0 flex-1 flex-col lg:flex">
+                  <div className="hidden min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex">
                     <PaymentTable
-                      canReconcile={canReconcile}
                       invoicesById={invoicesById}
                       ledgerPayments={payments}
                       payments={visible}
                       selectedId={selectedId}
                       selectedIds={selectedIds}
-                      onMenuAction={handleMenuAction}
                       onNextAction={handleNextAction}
                       onOpen={openPayment}
                       onOpenInvoice={(invoiceId) => router.push(`/factures?invoice=${invoiceId}`)}
@@ -329,11 +380,9 @@ export function PaymentsWorkspace() {
                     />
                   </div>
                   <PaymentMobileList
-                    canReconcile={canReconcile}
                     invoicesById={invoicesById}
                     ledgerPayments={payments}
                     payments={visible}
-                    onMenuAction={handleMenuAction}
                     onNextAction={handleNextAction}
                     onOpen={openPayment}
                   />
@@ -394,17 +443,19 @@ export function PaymentsWorkspace() {
               </footer>
           </section>
 
-          <div className="app-scroll shrink-0 xl:h-full xl:overflow-y-auto">
+          <div className="min-h-0 w-full min-w-0 xl:h-full xl:w-[320px] xl:shrink-0 xl:overflow-hidden 2xl:w-[300px]">
             <PaymentRail
               canReconcile={canReconcile}
               invoices={invoices}
               payments={payments}
               queue={queue}
-              onMatch={(id) => setMatchId(id)}
+              viewAllRef={viewAllRef}
+              onMatch={(id) => openMatch(id)}
               onReview={(id) => {
                 setFormError(null);
                 setReviewId(id);
               }}
+              onViewAll={() => setQueueOpen(true)}
             />
           </div>
         </div>
@@ -428,11 +479,6 @@ export function PaymentsWorkspace() {
             ledgerPayments={payments}
             payment={selectedPayment}
             onClose={() => setSelectedId(null)}
-            onOpenCustomer={() => {
-              if (!selectedInvoice) return;
-              setSelectedId(null);
-              router.push(`/customers?search=${encodeURIComponent(selectedInvoice.customerName)}`);
-            }}
             onOpenInvoice={() => {
               if (!selectedInvoice) return;
               setSelectedId(null);
@@ -445,12 +491,14 @@ export function PaymentsWorkspace() {
       <RecordPaymentSheet
         error={formError}
         invoices={eligible}
-        key={recordOpen ? "record-open" : "record-closed"}
+        key={recordOpen ? `record-${recordInvoiceId ?? "new"}` : "record-closed"}
         open={recordOpen}
         payments={paymentsAll}
+        prefillInvoiceId={recordInvoiceId}
         saving={saving}
         onClose={() => {
           setRecordOpen(false);
+          setRecordInvoiceId(null);
           setFormError(null);
         }}
         onSave={(input) => {
@@ -458,6 +506,42 @@ export function PaymentsWorkspace() {
             const result = recordPayment(input);
             return result.ok ? { ok: true } : { ok: false, error: result.error };
           });
+        }}
+      />
+
+      <CollectionFollowUpSheet
+        invoice={followUpInvoice}
+        key={followUpInvoiceId ?? "follow-up-closed"}
+        open={followUpInvoiceId !== null}
+        payments={paymentsAll}
+        reminderEvents={reminderEvents}
+        onClose={() => setFollowUpInvoiceId(null)}
+        onSent={() => {
+          setNotice(t("followUp.sentNotice"));
+          setFollowUpInvoiceId(null);
+        }}
+      />
+
+      <ReconciliationQueueSheet
+        activities={activitiesAll}
+        canReconcile={canReconcile}
+        invoices={invoices}
+        open={queueOpen}
+        payments={paymentsAll}
+        transactions={queue}
+        onClose={() => {
+          setQueueOpen(false);
+          window.requestAnimationFrame(() => viewAllRef.current?.focus());
+        }}
+        onMatch={(id) => openMatch(id)}
+        onMatchInvoice={(transactionId, invoiceId) => openMatch(transactionId, invoiceId)}
+        onReview={(id) => {
+          setFormError(null);
+          setReviewId(id);
+        }}
+        onViewPayment={(paymentId) => {
+          setQueueOpen(false);
+          openPayment(paymentId);
         }}
       />
 
@@ -476,7 +560,7 @@ export function PaymentsWorkspace() {
         onConfirm={(invoiceId) => {
           if (!reviewId) return;
           runSave(() => {
-            const result = matchBankTransaction(reviewId, invoiceId);
+            const result = matchBankTransaction(reviewId, invoiceId, { manualReview: true });
             return result.ok ? { ok: true } : { ok: false, error: result.error };
           });
         }}
@@ -487,32 +571,28 @@ export function PaymentsWorkspace() {
           matchTx
             ? t("match.body", {
                 amount: formatMoneyFromCents(matchTx.amountCents),
-                invoice: (() => {
-                  const suggested = matchTx.suggestedInvoiceId
-                    ? invoicesById.get(matchTx.suggestedInvoiceId)
-                    : undefined;
-                  return suggested ? invoiceDisplayNumber(suggested) : "—";
-                })(),
-                remaining: (() => {
-                  const suggested = matchTx.suggestedInvoiceId
-                    ? invoicesById.get(matchTx.suggestedInvoiceId)
-                    : undefined;
-                  return suggested
-                    ? formatMoneyFromCents(remainingCentsFor(suggested, paymentsAll))
-                    : "—";
-                })(),
+                invoice: matchInvoice ? invoiceDisplayNumber(matchInvoice) : "—",
+                remaining: matchInvoice
+                  ? formatMoneyFromCents(remainingCentsFor(matchInvoice, paymentsAll))
+                  : "—",
               })
             : undefined
         }
         cancelLabel={t("match.cancel")}
         confirmLabel={t("match.confirm")}
-        open={matchId !== null && Boolean(matchTx?.suggestedInvoiceId)}
+        open={matchId !== null && matchInvoice !== undefined}
         title={t("match.title")}
-        onCancel={() => setMatchId(null)}
+        onCancel={() => {
+          setMatchId(null);
+          setMatchInvoiceId(null);
+        }}
         onConfirm={() => {
-          if (!matchTx?.suggestedInvoiceId) return;
+          if (!matchTx || !matchInvoiceId) return;
+          const manualReview = matchInvoiceId !== matchTx.suggestedInvoiceId;
           runSave(() => {
-            const result = matchBankTransaction(matchTx.id, matchTx.suggestedInvoiceId!);
+            const result = matchBankTransaction(matchTx.id, matchInvoiceId, {
+              manualReview,
+            });
             return result.ok ? { ok: true } : { ok: false, error: result.error };
           });
         }}

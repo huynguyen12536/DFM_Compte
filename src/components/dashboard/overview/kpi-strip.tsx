@@ -37,7 +37,6 @@ type Kpi = {
   label: string;
   value: string;
   badge: string;
-  hint: string;
   icon: ComponentType<SVGProps<SVGSVGElement> & { strokeWidth?: number }>;
   tone: Tone;
 };
@@ -54,7 +53,6 @@ export async function KpiStrip({ startOrder }: { startOrder: number }) {
       label: t("kpi.revenue"),
       value: formatEuro(currentMonthRevenue),
       badge: `+${revenueDelta}`,
-      hint: t("kpi.revenueHint"),
       icon: KpiDollarIcon,
       tone: "blue",
     },
@@ -63,7 +61,6 @@ export async function KpiStrip({ startOrder }: { startOrder: number }) {
       label: t("kpi.receivable"),
       value: formatEuro(receivablesTotal),
       badge: t("kpi.invoiceCount", { count: receivablesInvoiceCount }),
-      hint: t("kpi.receivableHint"),
       icon: KpiCardIcon,
       tone: "purple",
     },
@@ -72,7 +69,6 @@ export async function KpiStrip({ startOrder }: { startOrder: number }) {
       label: t("kpi.overdue"),
       value: formatEuro(overdueTotal),
       badge: t("kpi.invoiceCount", { count: overdueInvoices }),
-      hint: t("kpi.overdueHint"),
       icon: KpiClockIcon,
       tone: "orange",
     },
@@ -81,7 +77,6 @@ export async function KpiStrip({ startOrder }: { startOrder: number }) {
       label: t("kpi.winRate"),
       value: pipelineSummary.closeRate,
       badge: "+8,2%",
-      hint: t("kpi.winRateHint"),
       icon: KpiFileCheckIcon,
       tone: "green",
     },
@@ -108,9 +103,6 @@ export async function KpiStrip({ startOrder }: { startOrder: number }) {
             <strong className="block text-[22px] leading-[1.1] font-bold tracking-[-0.03em] text-[#102342] tabular-nums">
               <CountUp value={kpi.value} />
             </strong>
-            <p className="mt-px truncate text-[10px] leading-tight text-[#7a899e]" title={kpi.hint}>
-              {kpi.hint}
-            </p>
           </div>
         </article>
       ))}

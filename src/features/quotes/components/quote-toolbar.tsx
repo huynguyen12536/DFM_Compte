@@ -2,9 +2,11 @@
 
 import { Filter, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
+import { ExportCsvButton } from "@/components/compte/export-csv-button";
 import { SoftSelect } from "@/components/compte/soft-select";
+import { useOutsideDismiss } from "@/lib/use-outside-dismiss";
 import { cn } from "@/lib/utils";
 
 import type { CustomerRecord, OwnerRecord, QuoteFilters } from "../model";
@@ -31,6 +33,7 @@ export function QuoteToolbar({
   onFiltersChange,
   onClearFilters,
   onCreate,
+  onExport,
 }: {
   query: string;
   status: StatusFilterValue;
@@ -45,14 +48,11 @@ export function QuoteToolbar({
   onFiltersChange: (patch: Partial<QuoteFilters>) => void;
   onClearFilters: () => void;
   onCreate?: () => void;
+  onExport?: () => void;
 }) {
   const t = useTranslations("register");
   const statusT = useTranslations("status");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [draftStatus, setDraftStatus] = useState(status);
-  const [draftOwnerId, setDraftOwnerId] = useState(filters.ownerId);
-  const [draftCustomerId, setDraftCustomerId] = useState(filters.customerId);
-  const [draftDatePreset, setDraftDatePreset] = useState(filters.datePreset);
   const filtersRootRef = useRef<HTMLDivElement>(null);
 
   const statusLabels: Record<StatusFilterValue, string> = {
@@ -74,25 +74,12 @@ export function QuoteToolbar({
     filters.amountMaxCents != null ||
     filters.datePreset !== "any";
 
-  useEffect(() => {
-    if (!filtersOpen) return;
-    function onPointerDown(event: PointerEvent) {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (filtersRootRef.current?.contains(target)) return;
-      if (target instanceof Element && target.closest("[data-soft-select-list]")) return;
-      setFiltersOpen(false);
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setFiltersOpen(false);
-    }
-    document.addEventListener("pointerdown", onPointerDown, true);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown, true);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [filtersOpen]);
+  useOutsideDismiss({
+    active: filtersOpen,
+    onDismiss: () => setFiltersOpen(false),
+    roots: [filtersRootRef],
+    allowSelector: "[data-soft-select-list]",
+  });
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-[#edf2f8] px-3.5 py-3">
@@ -115,17 +102,7 @@ export function QuoteToolbar({
             "action-motion soft-button inline-flex h-9 items-center gap-1.5 rounded-[9px] px-2.5 text-xs font-semibold text-[#405069]",
             advancedActive && "ring-1 ring-[#044ce2]/25",
           )}
-          onClick={() => {
-            if (filtersOpen) {
-              setFiltersOpen(false);
-              return;
-            }
-            setDraftStatus(status);
-            setDraftOwnerId(filters.ownerId);
-            setDraftCustomerId(filters.customerId);
-            setDraftDatePreset(filters.datePreset);
-            setFiltersOpen(true);
-          }}
+          onClick={() => setFiltersOpen((open) => !open)}
           type="button"
         >
           <Filter aria-hidden="true" className="h-3.5 w-3.5" />
@@ -146,8 +123,8 @@ export function QuoteToolbar({
                 <QuoteStatusPills
                   ariaLabel={t("status")}
                   labels={statusLabels}
-                  onChange={setDraftStatus}
-                  value={draftStatus}
+                  onChange={onStatusChange}
+                  value={status}
                 />
               </div>
               <SoftSelect
@@ -156,8 +133,8 @@ export function QuoteToolbar({
                   { value: "", label: t("anyOwner") },
                   ...owners.map((owner) => ({ value: owner.id, label: owner.name })),
                 ]}
-                value={draftOwnerId ?? ""}
-                onChange={(value) => setDraftOwnerId(value || null)}
+                value={filters.ownerId ?? ""}
+                onChange={(value) => onFiltersChange({ ownerId: value || null })}
               />
               <SoftSelect
                 label={t("customer")}
@@ -168,8 +145,8 @@ export function QuoteToolbar({
                     label: customer.name,
                   })),
                 ]}
-                value={draftCustomerId ?? ""}
-                onChange={(value) => setDraftCustomerId(value || null)}
+                value={filters.customerId ?? ""}
+                onChange={(value) => onFiltersChange({ customerId: value || null })}
               />
               <SoftSelect
                 label={t("dates.any")}
@@ -179,38 +156,25 @@ export function QuoteToolbar({
                     label: t(`dates.${preset}`),
                   }),
                 )}
-                value={draftDatePreset}
+                value={filters.datePreset}
                 onChange={(value) =>
-                  setDraftDatePreset(value as QuoteFilters["datePreset"])
+                  onFiltersChange({ datePreset: value as QuoteFilters["datePreset"] })
                 }
               />
-              <div className="flex justify-end gap-1.5 pt-1">
-                <button
-                  className="action-motion soft-button h-8 rounded-[8px] px-2.5 text-xs font-semibold text-[#516078]"
-                  onClick={() => {
-                    onClearFilters();
-                    setFiltersOpen(false);
-                  }}
-                  type="button"
-                >
-                  {t("clear")}
-                </button>
-                <button
-                  className="action-motion soft-primary h-8 rounded-[8px] px-2.5 text-xs font-semibold text-white"
-                  onClick={() => {
-                    onStatusChange(draftStatus);
-                    onFiltersChange({
-                      ownerId: draftOwnerId,
-                      customerId: draftCustomerId,
-                      datePreset: draftDatePreset,
-                    });
-                    setFiltersOpen(false);
-                  }}
-                  type="button"
-                >
-                  {t("apply")}
-                </button>
-              </div>
+              {advancedActive ? (
+                <div className="flex justify-end pt-1">
+                  <button
+                    className="action-motion soft-button h-8 rounded-[8px] px-2.5 text-xs font-semibold text-[#516078]"
+                    onClick={() => {
+                      onClearFilters();
+                      setFiltersOpen(false);
+                    }}
+                    type="button"
+                  >
+                    {t("clear")}
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -231,6 +195,8 @@ export function QuoteToolbar({
         value={sortPreset}
         onChange={(value) => onSortChange(value as QuoteSortPreset)}
       />
+
+      {onExport ? <ExportCsvButton label={t("export")} onClick={onExport} /> : null}
 
       {canCreate && onCreate ? (
         <button

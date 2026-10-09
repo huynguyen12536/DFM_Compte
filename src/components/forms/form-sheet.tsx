@@ -48,30 +48,23 @@ export function FormSheet({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
+  if (mounted && open && (!visible || exiting)) {
+    setVisible(true);
+    setExiting(false);
+  }
+
+  if (mounted && !open && visible && !exiting) {
+    setExiting(true);
+  }
+
   useEffect(() => {
-    if (!mounted) return;
-
-    if (open) {
-      const frame = window.requestAnimationFrame(() => {
-        setVisible(true);
-        setExiting(false);
-      });
-      return () => window.cancelAnimationFrame(frame);
-    }
-
-    if (!visible) return;
-
-    const start = window.requestAnimationFrame(() => setExiting(true));
+    if (!exiting) return;
     const timer = window.setTimeout(() => {
       setVisible(false);
       setExiting(false);
     }, EXIT_MS);
-
-    return () => {
-      window.cancelAnimationFrame(start);
-      window.clearTimeout(timer);
-    };
-  }, [open, mounted, visible]);
+    return () => window.clearTimeout(timer);
+  }, [exiting]);
 
   useEffect(() => {
     if (!visible || exiting) return;

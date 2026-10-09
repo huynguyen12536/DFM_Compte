@@ -1,5 +1,5 @@
 import {
-  derivePaymentStatus,
+  paidCentsFor,
   remainingCentsFor,
   type InvoicePayment,
   type InvoicePaymentMethod,
@@ -8,9 +8,10 @@ import {
 } from "@/features/invoices/model";
 import { ledgerToday } from "@/features/quotes/model";
 
-export type PaymentListStatus = "paid" | "partial" | "to_match" | "failed";
+/** Invoice collection status shown in the payment list Status column (not reconciliation). */
+export type PaymentListStatus = "paid" | "partial" | "unpaid" | "overdue";
 
-export type PaymentNextAction = "none" | "view" | "match" | "review";
+export type PaymentNextAction = "view" | "record" | "follow_up";
 
 export type PaymentSortPreset = "newest" | "oldest" | "highest" | "lowest";
 
@@ -38,9 +39,28 @@ export const PAYMENT_STATUS_FILTERS: Array<PaymentListStatus | "all"> = [
   "all",
   "paid",
   "partial",
-  "to_match",
-  "failed",
+  "unpaid",
+  "overdue",
 ];
+
+export function completedPaymentCount(invoiceId: string, payments: InvoicePayment[]) {
+  return payments.filter(
+    (payment) => payment.invoiceId === invoiceId && payment.status === "completed",
+  ).length;
+}
+
+export function collectionStatus(
+  invoice: InvoiceRecord | undefined,
+  payments: InvoicePayment[],
+): PaymentListStatus {
+  if (!invoice) return "paid";
+  const remaining = remainingCentsFor(invoice, payments);
+  const paid = paidCentsFor(invoice.id, payments);
+  if (remaining <= 0) return "paid";
+  if (invoice.dueDate < ledgerToday) return "overdue";
+  if (paid > 0) return "partial";
+  return "unpaid";
+}
 
 export const PAYMENT_METHOD_ORDER: InvoicePaymentMethod[] = [
   "transfer",
@@ -51,30 +71,35 @@ export const PAYMENT_METHOD_ORDER: InvoicePaymentMethod[] = [
 ];
 
 export function paymentListStatus(
-  payment: InvoicePayment,
+  _payment: InvoicePayment,
   invoice: InvoiceRecord | undefined,
   payments: InvoicePayment[],
 ): PaymentListStatus {
-  if (payment.status === "failed") return "failed";
-  if (payment.reconciliationStatus === "to_match" || payment.status === "pending") {
-    return "to_match";
-  }
-  if (!invoice) return "paid";
-  const invoiceStatus = derivePaymentStatus(invoice, payments, ledgerToday);
-  if (invoiceStatus === "partial") return "partial";
-  return "paid";
+  return collectionStatus(invoice, payments);
 }
 
 export function paymentNextAction(
-  payment: InvoicePayment,
   invoice: InvoiceRecord | undefined,
   payments: InvoicePayment[],
 ): PaymentNextAction {
-  const status = paymentListStatus(payment, invoice, payments);
-  if (status === "failed") return "review";
-  if (status === "to_match") return "match";
-  if (status === "partial") return "view";
-  return "none";
+  if (!invoice) return "view";
+  const remaining = remainingCentsFor(invoice, payments);
+  if (remaining <= 0) return "view";
+  // Overdue (including partial + overdue) → collection follow-up, not record payment.
+  if (invoice.dueDate < ledgerToday) return "follow_up";
+  return "record";
+}
+
+export function nextActionCopy(
+  invoice: InvoiceRecord | undefined,
+  payments: InvoicePayment[],
+): { key: "view" | "record" | "recordNth" | "followUp"; values?: { n: number } } {
+  const next = paymentNextAction(invoice, payments);
+  if (next === "view") return { key: "view" };
+  if (next === "follow_up") return { key: "followUp" };
+  const n = invoice ? completedPaymentCount(invoice.id, payments) + 1 : 1;
+  if (n > 1) return { key: "recordNth", values: { n } };
+  return { key: "record" };
 }
 
 export function invoiceRemaining(invoice: InvoiceRecord, payments: InvoicePayment[]) {

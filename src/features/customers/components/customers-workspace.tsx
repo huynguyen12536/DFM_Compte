@@ -1,16 +1,18 @@
 "use client";
 
-import { Download, Plus, Search, Upload } from "lucide-react";
+import { Plus, Search, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ConfirmDialog } from "@/components/compte/confirm-dialog";
+import { ExportCsvButton } from "@/components/compte/export-csv-button";
 import { SoftToast } from "@/components/compte/soft-toast";
 import { FormSheet } from "@/components/forms/form-sheet";
 import { Can, can } from "@/features/settings/can";
 import { systemRoles } from "@/features/settings/mocks/roles";
+import { centsToCsvEuro, downloadCsv, mockExportFilename } from "@/lib/csv-export";
 import { cn } from "@/lib/utils";
 
 import {
@@ -94,6 +96,49 @@ export function CustomersWorkspace() {
     ? getCustomerByIdFrom(customers, selectedId)
     : null;
   const owner = owners.find((item) => item.id === selected?.ownerId);
+
+  function exportCustomersCsv() {
+    const headers = [
+      "id",
+      "display_name",
+      "type",
+      "status",
+      "email",
+      "phone",
+      "siret",
+      "vat_number",
+      "owner_id",
+      "payment_terms",
+      "payment_method",
+      "tags",
+      "revenue_eur",
+      "country",
+      "data_source",
+    ];
+    const rows = filteredCustomers.map((customer) => {
+      const primaryAddress =
+        customer.addresses.find((address) => address.primary) ?? customer.addresses[0];
+      return [
+        customer.id,
+        customer.displayName,
+        customer.type,
+        customer.status,
+        customer.email,
+        customer.phone ?? "",
+        customer.siret ?? "",
+        customer.vatNumber ?? "",
+        customer.ownerId,
+        customer.paymentTerms,
+        customer.paymentMethod,
+        customer.tags.join("|"),
+        centsToCsvEuro(customer.revenueCents),
+        primaryAddress?.countryCode ?? "",
+        "mock",
+      ];
+    });
+    const { rowCount } = downloadCsv(mockExportFilename("customers"), headers, rows);
+    setNotice(t("exportDone", { count: rowCount }));
+  }
 
   useEffect(() => {
     const next = new URLSearchParams();
@@ -212,15 +257,11 @@ export function CustomersWorkspace() {
                   {t("add")}
                 </button>
               </Can>
-              <button
-                aria-label={t("export")}
-                className="action-motion soft-button grid h-8 w-8 place-items-center rounded-[8px] text-[#516078]"
-                onClick={() => setNotice(t("exportMock"))}
-                title={t("export")}
-                type="button"
-              >
-                <Download aria-hidden="true" className="h-3.5 w-3.5" />
-              </button>
+              <ExportCsvButton
+                className="h-8 w-8 rounded-[8px]"
+                label={t("export")}
+                onClick={exportCustomersCsv}
+              />
               <Can permission="customer.create" permissions={activePermissions}>
                 <button
                   aria-label={t("importCsv")}

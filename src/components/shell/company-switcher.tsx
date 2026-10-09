@@ -2,11 +2,12 @@
 
 import { Building2, Check, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 import { IconTile } from "@/components/dashboard/tone";
 import { useCurrentCompany } from "@/features/settings/company-store";
 import { getActiveCompanies } from "@/features/settings/mocks/companies";
+import { useOutsideDismiss } from "@/lib/use-outside-dismiss";
 import { cn } from "@/lib/utils";
 
 export function CompanySwitcher() {
@@ -19,26 +20,11 @@ export function CompanySwitcher() {
 
   const active = company ?? companies[0];
 
-  useEffect(() => {
-    if (!open) return;
-
-    const onPointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  useOutsideDismiss({
+    active: open,
+    onDismiss: () => setOpen(false),
+    roots: [rootRef],
+  });
 
   return (
     <div

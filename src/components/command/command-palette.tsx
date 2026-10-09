@@ -222,7 +222,7 @@ export function CommandSearchTrigger({ label }: { label: string }) {
 
   return (
     <button
-      className="action-motion ml-auto hidden min-w-0 max-w-[420px] flex-1 items-center gap-2 soft-input rounded-[12px] px-3 py-2 text-left text-sm text-[#7b8798] xl:flex"
+      className="action-motion hidden w-full min-w-0 max-w-[420px] items-center gap-2 soft-input rounded-[12px] px-3 py-2 text-left text-sm text-[#7b8798] xl:flex"
       type="button"
       onClick={openCommand}
     >

@@ -6,16 +6,17 @@ import { DashboardScroll } from "@/components/dashboard/dashboard-scroll";
 import { StatusBadge } from "@/components/dashboard/tone";
 import {
   invoiceDisplayNumber,
+  remainingCentsFor,
   type InvoicePayment,
   type InvoiceRecord,
 } from "@/features/invoices/model";
 import { formatMoneyFromCents } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-import { paymentListStatus, paymentNextAction } from "../model";
-import { paymentListStatusTone, reconciliationDot } from "../status";
+import { nextActionCopy, paymentListStatus } from "../model";
+import { paymentListStatusTone } from "../status";
 import { PaymentMethodIcon } from "./payment-method-icon";
-import { PaymentRowMenu, type PaymentMenuAction } from "./payment-row-menu";
+import { PaymentRemaining } from "./payment-remaining";
 
 const cell = "min-w-0 overflow-hidden";
 
@@ -25,26 +26,22 @@ export function PaymentTable({
   invoicesById,
   selectedId,
   selectedIds,
-  canReconcile,
   onToggleCheck,
   onToggleAll,
   onOpen,
   onOpenInvoice,
   onNextAction,
-  onMenuAction,
 }: {
   payments: InvoicePayment[];
   ledgerPayments: InvoicePayment[];
   invoicesById: Map<string, InvoiceRecord>;
   selectedId: string | null;
   selectedIds: string[];
-  canReconcile: boolean;
   onToggleCheck: (id: string) => void;
   onToggleAll: () => void;
   onOpen: (id: string) => void;
   onOpenInvoice: (invoiceId: string) => void;
   onNextAction: (id: string) => void;
-  onMenuAction: (id: string, action: PaymentMenuAction) => void;
 }) {
   const t = useTranslations("payments");
   const workT = useTranslations();
@@ -54,19 +51,18 @@ export function PaymentTable({
 
   return (
     <DashboardScroll scrollClassName="overflow-x-auto overflow-y-auto">
-      <table className="w-full min-w-[1080px] table-fixed border-separate border-spacing-0 text-left xl:min-w-0">
+      <table className="w-full min-w-[880px] table-fixed border-separate border-spacing-0 text-left">
         <colgroup>
-          <col style={{ width: 36 }} />
-          <col style={{ width: 128 }} />
-          <col />
-          <col style={{ width: 120 }} />
-          <col style={{ width: 140 }} />
-          <col style={{ width: 100 }} />
-          <col style={{ width: 110 }} />
-          <col style={{ width: 110 }} />
-          <col style={{ width: 100 }} />
-          <col style={{ width: 100 }} />
-          <col style={{ width: 44 }} />
+          <col style={{ width: "4%" }} />
+          <col style={{ width: "12%" }} />
+          <col style={{ width: "15%" }} />
+          <col style={{ width: "12%" }} />
+          <col style={{ width: "11%" }} />
+          <col style={{ width: "8%" }} />
+          <col style={{ width: "10%" }} />
+          <col style={{ width: "12%" }} />
+          <col style={{ width: "8%" }} />
+          <col style={{ width: "8%" }} />
         </colgroup>
         <thead className="dashboard-list__head">
           <tr>
@@ -85,17 +81,17 @@ export function PaymentTable({
             <th className={cell}>{t("columns.method")}</th>
             <th className={cell}>{t("columns.date")}</th>
             <th className={`${cell} text-right`}>{t("columns.amount")}</th>
-            <th className={cell}>{t("columns.reconciliation")}</th>
+            <th className={`${cell} text-right`}>{t("columns.remaining")}</th>
             <th className={cell}>{t("columns.status")}</th>
             <th className={cell}>{t("columns.next")}</th>
-            <th className={cell} />
           </tr>
         </thead>
         <tbody>
           {payments.map((payment) => {
             const invoice = invoicesById.get(payment.invoiceId);
             const listStatus = paymentListStatus(payment, invoice, ledgerPayments);
-            const next = paymentNextAction(payment, invoice, ledgerPayments);
+            const action = nextActionCopy(invoice, ledgerPayments);
+            const remaining = invoice ? remainingCentsFor(invoice, ledgerPayments) : 0;
             const checked = selectedIds.includes(payment.id);
             const active = selectedId === payment.id;
             const work = invoice ? workT(invoice.workKey) : "";
@@ -103,8 +99,12 @@ export function PaymentTable({
 
             return (
               <tr
-                className={cn("dashboard-list__row", active && "bg-[#eef4ff]")}
+                className={cn(
+                  "dashboard-list__row cursor-pointer",
+                  active && "bg-[#eef4ff]",
+                )}
                 key={payment.id}
+                onClick={() => onOpen(payment.id)}
               >
                 <td className={cn(cell, "relative")}>
                   {active ? (
@@ -115,13 +115,17 @@ export function PaymentTable({
                     checked={checked}
                     className="h-3.5 w-3.5 accent-[#044ce2]"
                     onChange={() => onToggleCheck(payment.id)}
+                    onClick={(event) => event.stopPropagation()}
                     type="checkbox"
                   />
                 </td>
                 <td className={cell}>
                   <button
                     className="dashboard-list__primary dashboard-list__link tabular-nums"
-                    onClick={() => onOpen(payment.id)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onOpen(payment.id);
+                    }}
                     type="button"
                   >
                     {payment.reference}
@@ -139,7 +143,10 @@ export function PaymentTable({
                   {invoice ? (
                     <button
                       className="dashboard-list__primary dashboard-list__link tabular-nums"
-                      onClick={() => onOpenInvoice(invoice.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onOpenInvoice(invoice.id);
+                      }}
                       type="button"
                     >
                       {invoiceDisplayNumber(invoice)}
@@ -166,19 +173,8 @@ export function PaymentTable({
                     {amount}
                   </span>
                 </td>
-                <td className={cell}>
-                  <span className="inline-flex min-w-0 items-center gap-1.5">
-                    <span
-                      aria-hidden="true"
-                      className="h-1.5 w-1.5 shrink-0 rounded-full"
-                      style={{
-                        backgroundColor: reconciliationDot[payment.reconciliationStatus],
-                      }}
-                    />
-                    <span className="dashboard-list__secondary truncate">
-                      {t(`reconciliation.${payment.reconciliationStatus}`)}
-                    </span>
-                  </span>
+                <td className={`${cell} text-right`}>
+                  <PaymentRemaining remainingCents={remaining} status={listStatus} align="right" />
                 </td>
                 <td className={cell}>
                   <StatusBadge
@@ -189,25 +185,17 @@ export function PaymentTable({
                     {t(`listStatus.${listStatus}`)}
                   </StatusBadge>
                 </td>
-                <td className={cell}>
-                  {next === "none" ? (
-                    <span className="dashboard-list__secondary">—</span>
-                  ) : (
-                    <button
-                      className="action-motion soft-button h-7 rounded-[8px] px-2 text-[11px] font-semibold text-[#044ce2]"
-                      onClick={() => onNextAction(payment.id)}
-                      type="button"
-                    >
-                      {t(`actions.${next}`)}
-                    </button>
-                  )}
-                </td>
-                <td className={cell}>
-                  <PaymentRowMenu
-                    canReconcile={canReconcile}
-                    nextAction={next}
-                    onAction={(action) => onMenuAction(payment.id, action)}
-                  />
+                <td className={cn(cell, "relative z-[1]")}>
+                  <button
+                    className="action-motion soft-button relative z-[1] h-7 max-w-full truncate rounded-[8px] px-2 text-[11px] font-semibold text-[#044ce2]"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onNextAction(payment.id);
+                    }}
+                    type="button"
+                  >
+                    {t(`actions.${action.key}`, action.values)}
+                  </button>
                 </td>
               </tr>
             );

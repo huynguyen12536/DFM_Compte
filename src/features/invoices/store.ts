@@ -12,6 +12,7 @@ import {
   invoiceDisplayNumber,
   isInvoiceEligibleForPayment,
   isInvoiceLocked,
+  paidCentsFor,
   parseOfficialInvoiceSequence,
   remainingCentsFor,
   type BankTransaction,
@@ -342,19 +343,23 @@ export function recordPayment(
   const payment: InvoicePayment = {
     id: `pay-${Date.now()}`,
     invoiceId: invoice.id,
-    reference: input.reference?.trim() || nextPaymentReference(state.payments),
+    reference: nextPaymentReference(state.payments),
     date: input.date,
     amountCents: input.amountCents,
     method: input.method,
     status: "completed",
-    reconciliationStatus: input.bankTransactionId ? "matched" : "matched",
+    reconciliationStatus: "matched",
     notes: input.notes?.trim() || undefined,
     bankTransactionId: input.bankTransactionId,
     bankReference: input.bankReference?.trim() || undefined,
+    externalReference: input.reference?.trim() || undefined,
+    createdAt: now,
+    createdBy: actorName,
   };
 
   const payments = [payment, ...state.payments];
   const becamePaid = remainingCentsFor(invoice, payments) === 0;
+  const becamePartial = !becamePaid && paidCentsFor(invoice.id, payments) > 0;
   const invoices = refreshInvoices(
     state.invoices.map((item) =>
       item.id === invoice.id
@@ -398,6 +403,17 @@ export function recordPayment(
       amountCents: payment.amountCents,
       customerName: invoice.customerName,
     });
+  } else if (becamePartial) {
+    activities = appendPaymentActivity(activities, {
+      at: now,
+      kind: "invoice_partial",
+      actorName,
+      paymentId: payment.id,
+      invoiceId: invoice.id,
+      invoiceNumber: invoiceDisplayNumber(invoice),
+      amountCents: payment.amountCents,
+      customerName: invoice.customerName,
+    });
   }
 
   state = { ...state, invoices, payments, paymentActivities: activities };
@@ -408,6 +424,7 @@ export function recordPayment(
 export function matchBankTransaction(
   bankTransactionId: string,
   invoiceId: string,
+  options?: { manualReview?: boolean },
 ): LedgerMutationResult {
   const transaction = state.bankTransactions.find((item) => item.id === bankTransactionId);
   if (!transaction) return { ok: false, error: "not_found" };
@@ -441,7 +458,7 @@ export function matchBankTransaction(
   );
   const paymentActivities = appendPaymentActivity(state.paymentActivities, {
     at: now,
-    kind: "matched",
+    kind: options?.manualReview ? "reviewed" : "matched",
     actorName: "You",
     paymentId: recorded.payment.id,
     invoiceId,

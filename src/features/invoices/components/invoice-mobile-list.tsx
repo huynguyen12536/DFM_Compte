@@ -44,15 +44,15 @@ export function InvoiceMobileList({
         const next = nextInvoiceAction(invoice, payments, ledgerToday);
 
         return (
-          <li className="dashboard-card px-3 py-3" key={invoice.id}>
+          <li
+            className="dashboard-card cursor-pointer px-3 py-3"
+            key={invoice.id}
+            onClick={() => onOpen(invoice.id)}
+          >
             <div className="flex items-start justify-between gap-2">
-              <button
-                className="dashboard-list__primary dashboard-list__link text-left tabular-nums"
-                onClick={() => onOpen(invoice.id)}
-                type="button"
-              >
+              <span className="dashboard-list__primary dashboard-list__link tabular-nums">
                 {invoiceDisplayNumber(invoice)}
-              </button>
+              </span>
               <StatusBadge
                 size="xs"
                 tone={invoiceListStatusTone[listStatus === "all" ? "draft" : listStatus]}
@@ -75,7 +75,10 @@ export function InvoiceMobileList({
             <div className="mt-2 flex items-center justify-end gap-1.5">
               <button
                 className="action-motion soft-button h-8 rounded-[8px] px-2.5 text-xs font-semibold text-[#044ce2]"
-                onClick={() => onNextAction(invoice.id)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onNextAction(invoice.id);
+                }}
                 type="button"
               >
                 {t(`actions.${next}`)}

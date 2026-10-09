@@ -2,12 +2,20 @@ import type { InvoicePaymentMethod } from "@/features/invoices/model";
 import type { Tone } from "@/mocks/dashboard/types";
 
 import type { PaymentListStatus } from "./model";
+import type { ReconciliationQueueStatus } from "./reconciliation";
 
 export const paymentListStatusTone: Record<PaymentListStatus, Tone> = {
   paid: "green",
   partial: "orange",
-  to_match: "blue",
-  failed: "red",
+  unpaid: "slate",
+  overdue: "red",
+};
+
+export const reconciliationQueueStatusTone: Record<ReconciliationQueueStatus, Tone> = {
+  suggested_match: "blue",
+  needs_review: "orange",
+  matched: "green",
+  unmatched: "slate",
 };
 
 export const paymentMethodTone: Record<InvoicePaymentMethod, Tone> = {

@@ -36,15 +36,31 @@ export type InvoicePayment = {
   date: string;
   amountCents: number;
   method: InvoicePaymentMethod;
+  /** Money-movement lifecycle — not the invoice collection status (unpaid/partial/paid/overdue). */
   status: "completed" | "pending" | "failed";
   reconciliationStatus: PaymentReconciliationStatus;
   notes?: string;
   bankTransactionId?: string;
   bankReference?: string;
+  /** Optional free-text remittance / payer reference (not the PAY-xxxx id). */
+  externalReference?: string;
+  createdAt?: string;
+  createdBy?: string;
 };
 
 /** Mock imported bank lines — not an Open Banking / AI matching integration. */
 export type BankTransactionStatus = "unmatched" | "matched" | "needs_review";
+
+export type BankMatchReasonCode =
+  | "amount_exact"
+  | "amount_partial"
+  | "amount_mismatch"
+  | "amount_exceeds"
+  | "invoice_number_found"
+  | "customer_name_match"
+  | "customer_name_uncertain"
+  | "no_invoice_reference"
+  | "partial_payment_candidate";
 
 export type BankTransaction = {
   id: string;
@@ -56,9 +72,19 @@ export type BankTransaction = {
   suggestedInvoiceId?: string;
   matchedInvoiceId?: string;
   matchedPaymentId?: string;
+  reference?: string;
+  sourceAccount?: string;
+  /** 0–100 heuristic confidence for demo suggestions — not live Open Banking AI. */
+  matchConfidence?: number;
+  matchReasons?: BankMatchReasonCode[];
 };
 
-export type PaymentActivityKind = "recorded" | "matched" | "invoice_paid" | "reviewed";
+export type PaymentActivityKind =
+  | "recorded"
+  | "matched"
+  | "invoice_paid"
+  | "invoice_partial"
+  | "reviewed";
 
 export type PaymentActivity = {
   id: string;
@@ -229,8 +255,10 @@ export function nextInvoiceAction(
 ): "edit" | "validate" | "view" | "followUp" {
   if (invoice.status === "draft") return "edit";
   if (invoice.status === "to_validate") return "validate";
-  const payment = derivePaymentStatus(invoice, payments, today);
-  if (payment === "overdue") return "followUp";
+  const remaining = remainingCentsFor(invoice, payments);
+  if (remaining <= 0) return "view";
+  // Partial + overdue still follows up — ask for the remainder before recording cash.
+  if (invoice.dueDate < today) return "followUp";
   return "view";
 }
 

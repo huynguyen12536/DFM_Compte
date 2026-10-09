@@ -78,39 +78,46 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="workspace-pane flex min-h-0 min-w-0 flex-1 flex-col">
           <img alt="" aria-hidden="true" className="workspace-pane__art" src="/workspace-bg.png" />
-          <header className="dashboard-enter enter-0 relative z-30 flex min-h-[64px] shrink-0 items-center gap-2 border-b border-[#e0e6ef] bg-white/55 px-3 shadow-[0_8px_30px_rgb(24_36_58/0.05)] backdrop-blur-md sm:min-h-[76px] sm:gap-4 sm:px-6 xl:px-8">
-            <NavDrawerTrigger
-              className="action-motion soft-button grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-[#506078] xl:hidden"
-              label={t("header.openMenu")}
-            >
-              <Menu aria-hidden="true" className="h-5 w-5" />
-            </NavDrawerTrigger>
-            <BrandLogo className="hidden h-8 w-auto shrink-0 md:block xl:hidden" />
+          <header className="dashboard-enter enter-0 relative z-30 flex min-h-[64px] shrink-0 items-center gap-2 border-b border-[#e0e6ef] bg-white/55 px-3 shadow-[0_8px_30px_rgb(24_36_58/0.05)] backdrop-blur-md sm:min-h-[76px] sm:gap-4 sm:px-6 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)_minmax(0,1fr)] xl:px-8">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 xl:flex-none xl:gap-3">
+              <NavDrawerTrigger
+                className="action-motion soft-button grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-[#506078] xl:hidden"
+                label={t("header.openMenu")}
+              >
+                <Menu aria-hidden="true" className="h-5 w-5" />
+              </NavDrawerTrigger>
+              <BrandLogo className="hidden h-8 w-auto shrink-0 md:block xl:hidden" />
 
-            <div className="min-w-0 flex-1 xl:flex-none xl:shrink-0">
-              <p className="hidden text-xs font-medium text-[#7d8aa0] sm:block">{today}</p>
-              <h1 className="truncate text-[21px] font-semibold tracking-[-0.025em] text-[#063586] sm:text-[26px] lg:text-[28px] xl:text-[30px]">
-                <ShellTitle />
-              </h1>
+              <div className="min-w-0 flex-1 xl:flex-none">
+                <p className="hidden text-xs font-medium text-[#7d8aa0] sm:block">{today}</p>
+                <h1 className="truncate text-[21px] font-semibold tracking-[-0.025em] text-[#063586] sm:text-[26px] lg:text-[28px] xl:text-[30px]">
+                  <ShellTitle />
+                </h1>
+              </div>
             </div>
 
-            <CommandSearchTrigger label={t("header.search")} />
-            <CommandSearchIconTrigger className="hidden min-[480px]:grid xl:hidden" label={t("header.search")} />
+            <div className="hidden min-w-0 justify-self-center xl:flex xl:w-full xl:max-w-[420px]">
+              <CommandSearchTrigger label={t("header.search")} />
+            </div>
 
-            <button
-              aria-disabled="true"
-              className="action-motion soft-button hidden min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-semibold text-[#405069] xl:inline-flex"
-              disabled
-              title={t("header.periodUnavailable")}
-              type="button"
-            >
-              <CalendarDays className="h-4 w-4 text-[#044ce2]" />
-              {t("header.month")}
-            </button>
+            <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 xl:ml-0 xl:justify-self-end">
+              <CommandSearchIconTrigger className="hidden min-[480px]:grid xl:hidden" label={t("header.search")} />
 
-            <HeaderNotifications label={t("header.notifications")} />
+              <button
+                aria-disabled="true"
+                className="action-motion soft-button hidden min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-semibold text-[#405069] xl:inline-flex"
+                disabled
+                title={t("header.periodUnavailable")}
+                type="button"
+              >
+                <CalendarDays className="h-4 w-4 text-[#044ce2]" />
+                {t("header.month")}
+              </button>
 
-            <UserAccountMenu />
+              <HeaderNotifications label={t("header.notifications")} />
+
+              <UserAccountMenu />
+            </div>
           </header>
 
           <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">

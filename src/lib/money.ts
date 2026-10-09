@@ -33,6 +33,40 @@ export function formatPercent(ratio: number, digits = 1) {
   return `${formatDecimal(ratio * 100, digits)}%`;
 }
 
+/**
+ * Keeps only numeric amount characters for price/money fields.
+ * Allows digits, spaces (thousands), and a single decimal separator (`,` or `.`).
+ * Letters and other symbols are stripped — never stored in the input.
+ */
+export function sanitizeAmountInput(value: string) {
+  const cleaned = value.replace(/[^\d\s,.]/g, "");
+  const commaIdx = cleaned.indexOf(",");
+  const periodIdx = cleaned.indexOf(".");
+
+  let sepIdx = -1;
+  let sep = "";
+  if (commaIdx >= 0 && (periodIdx < 0 || commaIdx < periodIdx)) {
+    sepIdx = commaIdx;
+    sep = ",";
+  } else if (periodIdx >= 0) {
+    sepIdx = periodIdx;
+    sep = ".";
+  }
+
+  if (sepIdx < 0) {
+    return cleaned.replace(/[^\d\s]/g, "");
+  }
+
+  const intPart = cleaned.slice(0, sepIdx).replace(/[^\d\s]/g, "");
+  const fracPart = cleaned.slice(sepIdx + 1).replace(/\D/g, "");
+  return `${intPart}${sep}${fracPart}`;
+}
+
+/** Digits-only sanitizer for quantity fields (no decimal). */
+export function sanitizeIntegerInput(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 /** Parses the dashboard notation (`18 600 €`, `68,4%`) back to a number. */
 export function parseAmount(value: string) {
   const numeric = value.replace(/[^\d,.-]/g, "").replace(",", ".");

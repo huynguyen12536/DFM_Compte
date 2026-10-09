@@ -53,12 +53,12 @@ const mainNav: SidebarNavItem[] = [
   { labelKey: "nav.quotes", icon: FileText, href: "/devis", count: "6" },
   { labelKey: "nav.invoices", icon: ReceiptText, href: "/factures" },
   { labelKey: "nav.payments", icon: WalletCards, href: "/paiements", count: "3" },
-  { labelKey: "nav.products", icon: Package },
-  { labelKey: "nav.reports", icon: Gauge },
+  { labelKey: "nav.products", icon: Package, href: "/produits" },
+  { labelKey: "nav.reports", icon: Gauge, href: "/rapports" },
 ];
 
 const opsNav: SidebarNavItem[] = [
-  { labelKey: "nav.automation", icon: Sparkles },
+  { labelKey: "nav.automation", icon: Sparkles, href: "/automation" },
   { labelKey: "nav.projects", icon: FolderKanban },
   { labelKey: "nav.templates", icon: Mail },
   { labelKey: "nav.integrations", icon: Link2 },

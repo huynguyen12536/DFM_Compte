@@ -41,6 +41,8 @@ export function unmatchedBankTransactions(transactions: BankTransaction[]) {
   return transactions.filter((item) => item.status !== "matched");
 }
 
+export { pendingBankTransactions, previewBankTransactions } from "./reconciliation";
+
 export function eligibleInvoicesForPayment(
   invoices: InvoiceRecord[],
   payments: InvoicePayment[],
@@ -66,6 +68,7 @@ export function matchesPaymentFilters(
   if (query) {
     const haystack = [
       payment.reference,
+      payment.externalReference ?? "",
       payment.bankReference ?? "",
       payment.bankTransactionId ?? "",
       invoice?.customerName ?? "",

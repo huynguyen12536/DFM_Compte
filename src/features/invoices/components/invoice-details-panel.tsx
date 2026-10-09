@@ -9,11 +9,12 @@ import {
   AnimatedSelectionGroup,
   TOP_TABS_ACTIVE_LAYOUT_ID,
 } from "@/components/compte/animated-selection";
+import { AmountInput } from "@/components/compte/amount-input";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { IconTile, StatusBadge } from "@/components/dashboard/tone";
 import type { PaymentTerms } from "@/features/customers/types";
 import { Link } from "@/i18n/navigation";
-import { formatMoneyFromCents } from "@/lib/money";
+import { formatMoneyFromCents, parseAmount, sanitizeIntegerInput } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 import {
@@ -100,12 +101,14 @@ export function InvoiceDetailsPanel({
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<InvoiceDraftPatch>(() => toDraft(invoice));
+  const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
   const [appliedKey, setAppliedKey] = useState(`${invoice.id}:${invoice.updatedAt}:${initialTab}`);
   const baseline = toDraft(invoice);
   const syncKey = `${invoice.id}:${invoice.updatedAt}:${initialTab}`;
   if (appliedKey !== syncKey) {
     setAppliedKey(syncKey);
     setDraft(toDraft(invoice));
+    setPriceDrafts({});
     setTab(initialTab);
   }
   const dirty = !locked && !draftsEqual(draft, baseline);
@@ -422,30 +425,33 @@ export function InvoiceDetailsPanel({
                         />
                       </td>
                       <td className="px-2 py-2">
-                        <input
-                          className="h-9 w-16 rounded-[8px] border border-[#dfe6f1] px-2 tabular-nums"
+                        <AmountInput
+                          className="h-9 w-16 rounded-[8px] border border-[#dfe6f1] px-2 text-[#24334c]"
                           disabled={!editable}
-                          min={1}
-                          onChange={(event) =>
-                            patchLine(line.id, { qty: Number(event.target.value) || 1 })
-                          }
-                          type="number"
-                          value={line.qty}
+                          mode="integer"
+                          value={String(line.qty)}
+                          onValueChange={(raw) => {
+                            const digits = sanitizeIntegerInput(raw);
+                            patchLine(line.id, { qty: Math.max(1, Number(digits) || 1) });
+                          }}
                         />
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <input
-                          className="h-9 w-24 rounded-[8px] border border-[#dfe6f1] px-2 text-right tabular-nums"
+                        <AmountInput
+                          className="h-9 w-24 rounded-[8px] border border-[#dfe6f1] px-2 text-right text-[#24334c]"
                           disabled={!editable}
-                          min={0}
-                          onChange={(event) =>
-                            patchLine(line.id, {
-                              unitHtCents: Math.round(Number(event.target.value) * 100) || 0,
-                            })
+                          value={
+                            priceDrafts[line.id] ??
+                            (line.unitHtCents === 0
+                              ? ""
+                              : String(line.unitHtCents / 100).replace(".", ","))
                           }
-                          step="0.01"
-                          type="number"
-                          value={line.unitHtCents / 100}
+                          onValueChange={(raw) => {
+                            setPriceDrafts((current) => ({ ...current, [line.id]: raw }));
+                            patchLine(line.id, {
+                              unitHtCents: Math.round(parseAmount(raw) * 100) || 0,
+                            });
+                          }}
                         />
                       </td>
                       <td className="px-3 py-2 text-right text-sm font-semibold tabular-nums text-[#102342]">

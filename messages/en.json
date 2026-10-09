@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "COMPTE - Workspace",
+    "title": "COMPTA - Workspace",
     "description": "Multi-company workspace for CRM, quotes, invoices, and payments"
   },
   "locale": {
@@ -452,7 +452,7 @@
     "switchCompany": "Switch company",
     "companyList": "Available companies",
     "companyFallback": "Tenant",
-    "assistantTitle": "COMPTE assistant",
+    "assistantTitle": "COMPTA assistant",
     "assistantBody": "2 suggestions to review before sending to the customer.",
     "assistantAction": "View suggestions"
   },
@@ -789,8 +789,11 @@
       "created": "Invoice draft created from the accepted quote.",
       "sent": "Send request recorded for this invoice.",
       "followUp": "Follow-up opened on this invoice.",
+      "followUpSent": "Payment reminder sent.",
       "convertBlocked": "Only an accepted quote with remaining invoiceable amount can be converted."
-    }
+    },
+    "export": "Export",
+    "exportDone": "CSV downloaded ({count, plural, one {# row} other {# rows}}) — mock data for later API connection."
   },
   "payments": {
     "title": "Payments",
@@ -798,6 +801,7 @@
     "forbidden": "You do not have permission to view payments.",
     "search": "Search payments, customer, invoice or reference...",
     "filters": "More filters",
+    "export": "Export",
     "apply": "Apply",
     "clear": "Clear",
     "customer": "Customer",
@@ -819,8 +823,19 @@
       "all": "All statuses",
       "paid": "Paid",
       "partial": "Partial",
-      "to_match": "To match",
-      "failed": "Failed"
+      "unpaid": "Unpaid",
+      "overdue": "Overdue",
+      "to_match": "To match"
+    },
+    "invoiceState": {
+      "unpaid": "Unpaid",
+      "partial": "Partial",
+      "paid": "Paid",
+      "overdue": "Overdue"
+    },
+    "details": {
+      "createdBy": "Created by",
+      "createdAt": "Created at"
     },
     "methods": {
       "all": "All methods",
@@ -848,15 +863,62 @@
       "method": "Method",
       "date": "Date",
       "amount": "Amount",
+      "remaining": "Remaining balance",
       "reconciliation": "Reconciliation",
       "status": "Status",
       "next": "Next action"
     },
+    "remaining": {
+      "paid": "Paid in full",
+      "partial": "left to collect",
+      "unpaid": "unpaid",
+      "overdue": "overdue"
+    },
     "actions": {
       "view": "View",
+      "record": "Record payment",
+      "recordNth": "Record payment #{n}",
+      "followUp": "Follow up",
       "match": "Match",
       "review": "Review",
       "none": "—"
+    },
+    "followUp": {
+      "title": "Collection follow-up",
+      "missing": "This invoice could not be found.",
+      "outstanding": "Outstanding",
+      "invoiceTotal": "Invoice total",
+      "alreadyPaid": "Already paid",
+      "dueDate": "Due date",
+      "overdue": "Overdue",
+      "overdueDays": "{count, plural, one {# day} other {# days}}",
+      "notOverdue": "Not overdue",
+      "history": "Reminder history",
+      "historyEmpty": "No reminders sent yet.",
+      "next": "Next action",
+      "nextHint": "Send a payment reminder now. Recording a payment stays a separate action after money is received.",
+      "sendNow": "Send reminder now",
+      "composer": "Reminder preview",
+      "to": "To",
+      "subjectLabel": "Subject",
+      "subject": "Payment reminder — {invoice}",
+      "preview": "Message",
+      "message": "Hello,\n\nInvoice {invoice} currently has {amount} outstanding.\nThe due date was {due}.\n\nPlease arrange payment of the remaining balance at your earliest convenience.\n\nThank you.",
+      "toneHint": "Standard collection tone. Automated staged reminders remain future work.",
+      "cancel": "Back",
+      "confirmSend": "Confirm send",
+      "sending": "Sending…",
+      "sentNotice": "Payment reminder sent.",
+      "stages": {
+        "BEFORE_DUE_3_DAYS": "Pre-due reminder",
+        "OVERDUE_7_DAYS": "Overdue reminder (7 days)",
+        "OVERDUE_15_DAYS": "Overdue reminder (15 days)",
+        "OVERDUE_30_DAYS": "Overdue reminder (30 days)",
+        "MANUAL": "Manual reminder"
+      },
+      "channels": {
+        "email": "Email"
+      }
     },
     "table": {
       "selectAll": "Select all payments",
@@ -910,13 +972,16 @@
       "bankReference": "Bank transaction ref.",
       "notes": "Notes",
       "remaining": "Remaining: {amount}",
+      "invoiceTotal": "Invoice total",
+      "alreadyPaid": "Already paid",
+      "remainingLabel": "Remaining",
       "cancel": "Cancel",
       "save": "Save payment",
       "saving": "Saving…",
       "noInvoicesTitle": "No invoices awaiting payment",
       "noInvoices": "No invoices awaiting payment.",
-      "invalidAmount": "Enter a valid amount.",
-      "overpayment": "Amount cannot exceed the remaining balance.",
+      "invalidAmount": "Enter a valid amount greater than zero.",
+      "overpayment": "Payment amount cannot exceed the remaining invoice balance.",
       "failed": "The payment could not be recorded."
     },
     "match": {
@@ -927,8 +992,23 @@
     },
     "review": {
       "title": "Review transaction",
-      "bank": "Bank transaction: {amount}",
+      "amount": "Amount",
+      "date": "Date",
+      "label": "Bank label",
+      "reference": "Reference",
+      "status": "Status",
+      "reason": "Review reason",
+      "suggestedTitle": "Suggested match",
       "invoice": "Invoice",
+      "customer": "Customer",
+      "remaining": "Remaining balance",
+      "matchReason": "Match reason",
+      "search": "Search invoice",
+      "searchPlaceholder": "Invoice number, customer, amount, PO…",
+      "searchAndLink": "Search and link invoice",
+      "searchAnother": "Search another invoice",
+      "keepUnmatched": "Keep unmatched",
+      "close": "Close",
       "cancel": "Cancel",
       "confirm": "Confirm match",
       "saving": "Matching…",
@@ -936,6 +1016,8 @@
     },
     "queue": {
       "title": "Reconciliation queue",
+      "viewAll": "View all",
+      "viewAllAria": "View all reconciliation queue items",
       "match": "Match",
       "review": "Review",
       "possible": "Possible match: {invoice} · remaining {remaining}",
@@ -943,6 +1025,116 @@
       "emptyTitle": "All transactions matched",
       "emptyBody": "No bank transactions require review.",
       "alreadyMatched": "This transaction is already matched."
+    },
+    "queueFull": {
+      "title": "Reconciliation queue",
+      "subtitle": "Review bank transactions and match them with invoices.",
+      "close": "Close",
+      "search": "Search",
+      "searchPlaceholder": "Search transaction, invoice, customer or amount...",
+      "clearFilters": "Clear filters",
+      "bankTransfer": "Bank transfer",
+      "selectAll": "Select all transactions",
+      "selectRow": "Select {label}",
+      "emptyTitle": "No reconciliation items",
+      "emptyBody": "New imported bank transactions will appear here.",
+      "filters": {
+        "status": "Status",
+        "confidence": "Confidence",
+        "period": "Period",
+        "amount": "Amount",
+        "sort": "Sort"
+      },
+      "status": {
+        "all": "All statuses",
+        "suggested_match": "Suggested match",
+        "needs_review": "Needs review",
+        "matched": "Matched",
+        "unmatched": "Unmatched"
+      },
+      "confidence": {
+        "all": "Any confidence",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "period": {
+        "any": "Any period",
+        "month": "This month",
+        "last_month": "Last month"
+      },
+      "amount": {
+        "all": "All amounts",
+        "exact_match": "Exact match",
+        "partial_match": "Partial match",
+        "amount_mismatch": "Amount mismatch"
+      },
+      "sort": {
+        "newest": "Newest first",
+        "oldest": "Oldest first",
+        "highest": "Highest amount",
+        "lowest": "Lowest amount",
+        "confidence_high": "Highest confidence",
+        "confidence_low": "Lowest confidence",
+        "closest_amount": "Closest amount match"
+      },
+      "columns": {
+        "date": "Date",
+        "bank": "Bank transaction",
+        "amount": "Amount",
+        "invoice": "Suggested invoice",
+        "reason": "Match reason",
+        "status": "Status",
+        "action": "Action"
+      },
+      "actions": {
+        "view": "View"
+      },
+      "invoice": {
+        "noneTitle": "No reliable match",
+        "none": "Select an invoice manually",
+        "remaining": "Remaining {amount}",
+        "matched": "Matched"
+      },
+      "reasons": {
+        "amount_exact": "Amount exact",
+        "amount_partial": "Partial amount",
+        "amount_mismatch": "Amount mismatch",
+        "amount_exceeds": "Amount exceeds remaining balance",
+        "invoice_number_found": "Invoice number found",
+        "customer_name_match": "Customer name match",
+        "customer_name_uncertain": "Customer name uncertain",
+        "no_invoice_reference": "No invoice reference found",
+        "partial_payment_candidate": "Partial payment candidate"
+      },
+      "mobile": {
+        "suggested": "Suggested match: {invoice} · Remaining: {remaining}"
+      },
+      "pagination": {
+        "summary": "{from}–{to} of {total} transactions",
+        "pageSize": "Rows per page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Previous",
+        "next": "Next"
+      },
+      "detail": {
+        "title": "Transaction detail",
+        "bank": "Bank transaction",
+        "suggested": "Suggested match",
+        "activity": "Activity",
+        "activityEmpty": "No activity for this transaction yet.",
+        "reference": "Reference",
+        "account": "Source account",
+        "invoice": "Invoice",
+        "customer": "Customer",
+        "remaining": "Remaining",
+        "confidence": "Confidence"
+      },
+      "activity": {
+        "detected": "Bank transaction detected",
+        "matched": "Bank transaction matched to {invoice}",
+        "reviewed": "Reconciliation reviewed manually"
+      }
     },
     "methodsCard": {
       "title": "Payment methods",
@@ -960,13 +1152,16 @@
       "recorded": "Payment of {amount} recorded",
       "matched": "Bank transaction matched to {invoice}",
       "invoice_paid": "Invoice {invoice} marked paid",
-      "reviewed": "Payment reviewed"
+      "invoice_partial": "Invoice {invoice} marked partial",
+      "reviewed": "Reconciliation manually confirmed"
     },
     "invoiceTab": {
       "total": "Invoice total",
       "paidBefore": "Paid before",
       "thisPayment": "This payment",
+      "totalPaid": "Total paid",
       "remaining": "Remaining",
+      "paymentState": "Invoice payment state",
       "open": "Open invoice",
       "missing": "The linked invoice could not be found."
     },
@@ -979,7 +1174,203 @@
     },
     "notices": {
       "recorded": "Payment recorded."
-    }
+    },
+    "exportDone": "CSV downloaded ({count, plural, one {# row} other {# rows}}) — mock data for later API connection."
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "Manage the products and services used in quotes and invoices.",
+    "forbidden": "You do not have permission to view products.",
+    "addAction": "Add product",
+    "editAction": "Edit product",
+    "save": "Save product",
+    "saveChanges": "Save changes",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "activate": "Mark active",
+    "deactivate": "Mark inactive",
+    "search": "Search product name, SKU, description…",
+    "clear": "Clear",
+    "apply": "Apply",
+    "moreFilters": "More filters",
+    "footerValue": "{amount} catalog value",
+    "tabsLabel": "Product type",
+    "emptyTitle": "No products or services yet",
+    "emptyBody": "Create reusable catalog items to speed up quote creation.",
+    "emptyFilteredTitle": "No products match your filters",
+    "emptyFilteredBody": "Try adjusting search or filters to find catalog items.",
+    "vatShort": "VAT {rate}%",
+    "usedDocuments": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
+    "actions": {
+      "view": "View",
+      "edit": "Edit"
+    },
+    "sort": {
+      "label": "Sort",
+      "nameAsc": "Name A–Z",
+      "nameDesc": "Name Z–A",
+      "newest": "Newest first",
+      "priceHigh": "Highest price",
+      "priceLow": "Lowest price",
+      "mostUsed": "Most used"
+    },
+    "tabs": {
+      "all": "All products",
+      "good": "Goods",
+      "service": "Services",
+      "inactive": "Inactive"
+    },
+    "tabsPanel": {
+      "details": "Details",
+      "pricing": "Pricing",
+      "usage": "Usage",
+      "activity": "Activity"
+    },
+    "type": {
+      "good": "Good",
+      "service": "Service"
+    },
+    "typeHelp": {
+      "good": "A tangible item used in quotes and invoices.",
+      "service": "Work or service sold to customers."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "filters": {
+      "type": "Type",
+      "status": "Status",
+      "category": "Category",
+      "typeAll": "All types",
+      "statusAll": "All statuses",
+      "categoryAll": "All categories"
+    },
+    "kpis": {
+      "total": "Total products",
+      "used": "Products used this month",
+      "revenue": "Revenue this month",
+      "top": "Top product / service",
+      "totalHint": "{active} active · {inactive} inactive",
+      "usedHint": "Catalog items on quote or invoice lines",
+      "revenueHint": "From invoiced catalog lines",
+      "topHint": "{amount} · {uses} uses",
+      "topEmpty": "No usage this month"
+    },
+    "columns": {
+      "product": "Product",
+      "sku": "SKU",
+      "type": "Type",
+      "unit": "Unit",
+      "unitPrice": "Unit price",
+      "category": "Category",
+      "vat": "VAT",
+      "status": "Status",
+      "usedIn": "Used in",
+      "next": "Next action"
+    },
+    "pagination": {
+      "summary": "{from}–{to} of {total} products",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "fields": {
+      "type": "Type",
+      "name": "Product name",
+      "code": "Code / SKU",
+      "description": "Description",
+      "category": "Category",
+      "unit": "Unit",
+      "unitPrice": "Unit price",
+      "cost": "Cost",
+      "vat": "VAT rate",
+      "status": "Status",
+      "margin": "Margin",
+      "marginPct": "Margin %",
+      "createdBy": "Created by",
+      "createdAt": "Created",
+      "updatedAt": "Updated"
+    },
+    "sections": {
+      "basic": "Basic information",
+      "pricing": "Pricing & tax",
+      "timestamps": "Timestamps"
+    },
+    "form": {
+      "title": "Add product",
+      "subtitle": "Create a reusable catalog item for quotes and invoices.",
+      "nameHelp": "Name shown when selecting this item in a quote.",
+      "codeHelp": "Internal code used to identify this catalog item.",
+      "priceFutureOnly": "New price will apply to future quote lines only. Historical documents keep their original price.",
+      "required": "Fill in the required fields.",
+      "invalidPrice": "Enter a valid unit price (0 or more).",
+      "invalidCost": "Cost must be 0 or more.",
+      "duplicateCode": "This code is already used.",
+      "failed": "Could not save the product."
+    },
+    "pricing": {
+      "default": "Default pricing",
+      "customer": "Customer-specific prices",
+      "empty": "No customer-specific prices yet.",
+      "add": "Add customer price",
+      "customerField": "Customer",
+      "remove": "Remove",
+      "save": "Save price",
+      "pickCustomer": "Select a customer."
+    },
+    "usage": {
+      "empty": "This product has not been used in documents yet.",
+      "quote": "Quote",
+      "invoice": "Invoice"
+    },
+    "panel": {
+      "tabsLabel": "Product details"
+    },
+    "activity": {
+      "empty": "No activity yet.",
+      "created": "Product created",
+      "updated": "Product information updated",
+      "price_changed": "Default price changed{detail}",
+      "customer_price_added": "Customer-specific price added{detail}",
+      "customer_price_updated": "Customer-specific price updated{detail}",
+      "customer_price_removed": "Customer-specific price removed{detail}",
+      "marked_inactive": "Product marked inactive",
+      "marked_active": "Product marked active"
+    },
+    "notices": {
+      "created": "Product created.",
+      "updated": "Product updated.",
+      "activated": "Product marked active.",
+      "deactivated": "Product marked inactive.",
+      "priceRemoved": "Customer-specific price removed."
+    },
+    "units": {
+      "unit": "unit",
+      "hour": "hour",
+      "day": "day",
+      "month": "month",
+      "year": "year",
+      "m2": "m²",
+      "m": "m",
+      "kg": "kg",
+      "package": "package"
+    },
+    "categories": {
+      "consulting": "Consulting",
+      "development": "Development",
+      "design": "Design",
+      "marketing": "Marketing",
+      "electronics": "Electronics",
+      "accessories": "Accessories",
+      "furniture": "Furniture",
+      "training": "Training",
+      "support": "Support"
+    },
+    "export": "Export",
+    "exportDone": "CSV downloaded ({count, plural, one {# row} other {# rows}}) — mock data for later API connection."
   },
   "activity": {
     "title": "Activity",
@@ -1234,7 +1625,7 @@
       "email": "Email draft prepared for {id}.",
       "history": "History opened for {id}.",
       "deleted": "Quote {id} deleted.",
-      "exported": "Exported {count, plural, one {# quote} other {# quotes}}."
+      "exported": "CSV downloaded ({count, plural, one {# quote} other {# quotes}}) — mock data for later API connection."
     },
     "preview": {
       "ht": "Total excl. tax",
@@ -1265,6 +1656,8 @@
       "description": "Description",
       "qty": "Qty",
       "unit": "Unit excl. tax",
+      "catalog": "Product catalog",
+      "freeLine": "Free line (no catalog item)",
       "missing": "This quote could not be found.",
       "emptyLines": "No lines yet. Add the first service.",
       "saveDraft": "Save draft",
@@ -1382,7 +1775,6 @@
     "subtitle": "Manage your customers, view their activity and relationship history.",
     "add": "Add customer",
     "export": "Export",
-    "exportMock": "Export is UI-only in this mock phase. No file was generated.",
     "importCsv": "Import CSV",
     "editMock": "Inline edit opens the full customer form in a later iteration.",
     "created": "Customer added for this session.",
@@ -1516,7 +1908,7 @@
       "recordPayment": "Record payment",
       "email": "Send email",
       "more": "More",
-      "invoiceHint": "Invoices follow accepted quotes in the current COMPTE flow.",
+      "invoiceHint": "Invoices follow accepted quotes in the current COMPTA flow.",
       "invoiceAcceptedRequired": "An accepted quote is required before creating an invoice.",
       "paymentHint": "Payment recording opens when an eligible invoice is available."
     },
@@ -1677,7 +2069,7 @@
       "uploadTitle": "Drop a CSV file here",
       "uploadHint": "Or continue with the sample file for this mock phase.",
       "useSample": "Use sample CSV",
-      "mapBody": "Columns are mapped to COMPTE customer fields.",
+      "mapBody": "Columns are mapped to COMPTA customer fields.",
       "fields": {
         "name": "Customer name",
         "email": "Email",
@@ -1696,7 +2088,8 @@
       "close": "Close",
       "next": "Next",
       "done": "Done"
-    }
+    },
+    "exportDone": "CSV downloaded ({count, plural, one {# row} other {# rows}}) — mock data for later API connection."
   },
   "settingsCompanies": {
     "page": {
@@ -1839,6 +2232,637 @@
     "page": {
       "title": "Security",
       "description": "Authentication policies, sessions and sensitive account controls."
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Analyze revenue, receivables, sales performance and quote conversion.",
+    "forbidden": "You do not have permission to view reports.",
+    "close": "Close",
+    "period": {
+      "this_month": "This month",
+      "last_month": "Last month",
+      "this_quarter": "This quarter",
+      "last_quarter": "Last quarter",
+      "this_year": "This year",
+      "previous_year": "Previous year",
+      "previous_compare": "Previous period"
+    },
+    "filters": {
+      "title": "Report filters",
+      "period": "Period",
+      "company": "Company",
+      "currency": "Currency",
+      "salesperson": "Salesperson",
+      "customer": "Customer",
+      "product": "Product",
+      "more": "More filters",
+      "clearAll": "Clear all",
+      "apply": "Apply",
+      "openMobile": "Filters",
+      "active": "Active",
+      "mobileHint": "Filters apply to every report on this page.",
+      "allCompanies": "All companies",
+      "anySalesperson": "All salespeople",
+      "anyCustomer": "All customers",
+      "anyProduct": "All products",
+      "anyStatus": "Any status",
+      "quoteStatus": "Quote status",
+      "invoiceStatus": "Invoice status"
+    },
+    "quoteStatus": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "review": "To approve",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "invoiceStatus": {
+      "draft": "Draft",
+      "to_validate": "To validate",
+      "validated": "Validated",
+      "sent": "Sent"
+    },
+    "kpis": {
+      "revenue": "Revenue (invoiced)",
+      "margin": "Gross margin",
+      "outstanding": "Outstanding receivables",
+      "conversion": "Quote conversion",
+      "unavailable": "N/A",
+      "vsPrevious": "vs previous period",
+      "costUnavailable": "Cost data unavailable"
+    },
+    "revenueTrend": {
+      "title": "Revenue & margin trend",
+      "subtitle": "Invoiced revenue and gross margin vs previous period.",
+      "granularity": "Granularity",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly",
+      "metric": "Metric",
+      "metricRevenue": "Revenue",
+      "metricMargin": "Margin",
+      "current": "Current period",
+      "previous": "Previous period",
+      "marginPct": "Margin %",
+      "summary": "Current {current} · Previous {previous} · Margin {margin}",
+      "chartDemoNote": "Chart uses continuous demo data for readability — exports and KPIs still use real filtered data."
+    },
+    "breakdown": {
+      "title": "Revenue breakdown",
+      "subtitle": "Top contributors for the selected filters.",
+      "customer": "Customer",
+      "salesperson": "Salesperson",
+      "product": "Product",
+      "company": "Company",
+      "other": "Other",
+      "topNote": "Top 5 + Other · Total {total}"
+    },
+    "aging": {
+      "title": "Accounts receivable aging",
+      "subtitle": "Outstanding receivables grouped by age (due date).",
+      "total": "Total outstanding receivables: {amount}",
+      "viewOverdue": "View overdue invoices",
+      "drillTitle": "{bucket}",
+      "drillBody": "Outstanding invoices in this aging bucket.",
+      "buckets": {
+        "current": "Current",
+        "d1_30": "1–30 days",
+        "d31_60": "31–60 days",
+        "d61_90": "61–90 days",
+        "d90_plus": "90+ days"
+      },
+      "columns": {
+        "invoice": "Invoice",
+        "customer": "Customer",
+        "issue": "Issue date",
+        "due": "Due date",
+        "days": "Days overdue",
+        "total": "Invoice total",
+        "paid": "Paid",
+        "remaining": "Remaining"
+      }
+    },
+    "pipeline": {
+      "title": "Quote pipeline",
+      "subtitle": "Quotes in the selected period by status.",
+      "metric": "Metric",
+      "count": "Count",
+      "value": "Value"
+    },
+    "sales": {
+      "title": "Sales performance",
+      "subtitle": "Revenue, conversion and outstanding by salesperson.",
+      "columns": {
+        "salesperson": "Salesperson",
+        "revenue": "Revenue",
+        "quotesWon": "Quotes won",
+        "conversion": "Conversion",
+        "outstanding": "Outstanding"
+      }
+    },
+    "products": {
+      "title": "Top products & services",
+      "subtitle": "Historical invoice line performance.",
+      "columns": {
+        "product": "Product / Service",
+        "type": "Type",
+        "revenue": "Revenue",
+        "usage": "Usage",
+        "avgPrice": "Average price",
+        "margin": "Margin"
+      },
+      "types": {
+        "good": "Good",
+        "service": "Service"
+      }
+    },
+    "library": {
+      "title": "Exports & accounting",
+      "subtitle": "Preview your reports before downloading. All exports include the current filters.",
+      "breakdownCsv": "Breakdown CSV",
+      "excelNote": "Excel export is deferred for this FE milestone — CSV is available now. FEC accounting export is not implemented.",
+      "meta": {
+        "byPeriod": "By period",
+        "byInvoice": "By invoice",
+        "byQuote": "By quote",
+        "bySalesperson": "By salesperson",
+        "byProduct": "By product",
+        "specialExport": "Special export"
+      },
+      "revenue": {
+        "title": "Revenue report",
+        "body": "Export invoiced revenue and previous-period comparison."
+      },
+      "aging": {
+        "title": "Receivables aging report",
+        "body": "Export outstanding receivables grouped by aging buckets."
+      },
+      "pipeline": {
+        "title": "Quote pipeline report",
+        "body": "Export quotes with status, customer and amount."
+      },
+      "sales": {
+        "title": "Sales performance report",
+        "body": "Export revenue, conversion and activity by salesperson."
+      },
+      "products": {
+        "title": "Product performance report",
+        "body": "Export revenue and usage by product or service."
+      },
+      "fec": {
+        "title": "Accounting export (FEC)",
+        "body": "French FEC file as an official accounting-specific export format.",
+        "badge": "Not available yet"
+      }
+    },
+    "preview": {
+      "view": "View",
+      "viewAria": "Preview {report} CSV",
+      "exportAria": "Export {report} as CSV",
+      "exportCsvAria": "Export CSV",
+      "title": "{report} preview",
+      "fallbackTitle": "Report preview",
+      "subtitle": "Preview the content of your CSV file before downloading.",
+      "fileInfo": "File information",
+      "generatedWithFilters": "Generated with current filters",
+      "rowCount": "{count} rows",
+      "visibleRows": "{visible} visible of {total} rows",
+      "columnCount": "{count} columns",
+      "search": "Search in this preview...",
+      "exportCsv": "Export CSV",
+      "close": "Close",
+      "emptyTitle": "No data to preview",
+      "emptyBody": "No rows match the current report filters.",
+      "footerNote": "This is a preview of your CSV file. The data shown here matches your current filters. Export CSV to download the complete file.",
+      "success": "CSV exported successfully.",
+      "filterLine": "Uses current Reports filters",
+      "pagination": {
+        "summary": "{from}–{to} of {total} rows",
+        "prev": "Previous",
+        "next": "Next",
+        "pageSize": "Rows per page",
+        "rowsPerPage": "{count}"
+      },
+      "columns": {
+        "period": "Period",
+        "currency": "Currency",
+        "revenue": "Revenue",
+        "previousPeriod": "Previous period",
+        "delta": "Delta",
+        "deltaPercent": "Delta %",
+        "grossMargin": "Gross margin",
+        "grossMarginPercent": "Gross margin %",
+        "customer": "Customer",
+        "salesperson": "Salesperson",
+        "productName": "Product name",
+        "company": "Company",
+        "sharePercent": "Share %",
+        "invoiceNumber": "Invoice number",
+        "issueDate": "Issue date",
+        "dueDate": "Due date",
+        "daysOverdue": "Days overdue",
+        "agingBucket": "Aging bucket",
+        "invoiceTotal": "Invoice total",
+        "alreadyPaid": "Already paid",
+        "remainingBalance": "Remaining balance",
+        "quoteNumber": "Quote number",
+        "createdDate": "Created date",
+        "validUntil": "Valid until",
+        "status": "Status",
+        "ht": "HT",
+        "ttc": "TTC",
+        "quotesCreated": "Quotes created",
+        "quotesWon": "Quotes won",
+        "conversionRate": "Conversion rate",
+        "outstanding": "Outstanding",
+        "productCode": "Product code",
+        "type": "Type",
+        "unit": "Unit",
+        "usage": "Usage / quantity",
+        "averagePrice": "Average selling price",
+        "cost": "Cost"
+      }
+    },
+    "export": {
+      "menu": "Export",
+      "csv": "Export CSV",
+      "generating": "Generating…",
+      "empty": "No data to export for the current filters.",
+      "forbidden": "You do not have permission to export reports.",
+      "items": {
+        "revenue": "Revenue CSV",
+        "breakdown": "Breakdown CSV",
+        "aging": "Receivables CSV",
+        "pipeline": "Quote pipeline CSV",
+        "sales": "Sales CSV",
+        "products": "Products CSV"
+      }
+    },
+    "empty": {
+      "reportTitle": "No report data",
+      "reportBody": "No data matches the selected filters."
+    }
+  },
+  "automation": {
+    "title": "Automation",
+    "subtitle": "Automate repetitive finance and sales workflows while keeping control over approvals.",
+    "new": "New automation",
+    "forbidden": "You do not have permission to view automation.",
+    "tabsLabel": "Automation sections",
+    "search": "Search automations…",
+    "tabs": {
+      "overview": "Overview",
+      "automations": "Automations",
+      "activity": "Activity"
+    },
+    "kpis": {
+      "active": "Active automations",
+      "activeHelper": "of {total} configured",
+      "actions": "Actions this month",
+      "actionsHelper": "Items processed this month",
+      "attention": "Needs attention",
+      "attentionHelper": "Unresolved review items",
+      "success": "Success rate",
+      "successHelper": "Successful runs / completed runs"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "error": "Error",
+      "draft": "Draft"
+    },
+    "runStatus": {
+      "success": "Success",
+      "needs_review": "Needs review",
+      "failed": "Failed",
+      "skipped": "Skipped",
+      "running": "Running"
+    },
+    "mode": {
+      "automatic": "Automatic",
+      "suggestApprove": "Suggest & approve",
+      "autoWithReview": "Auto + review"
+    },
+    "category": {
+      "finance": "Finance",
+      "sales": "Sales"
+    },
+    "filters": {
+      "status": "Status",
+      "type": "Type",
+      "allStatuses": "All statuses",
+      "allTypes": "All types"
+    },
+    "list": {
+      "title": "Automations",
+      "subtitle": "{count} workflows",
+      "columns": {
+        "name": "Name",
+        "trigger": "Trigger",
+        "mode": "Mode",
+        "lastRun": "Last run",
+        "outcome": "Outcome",
+        "status": "Status"
+      }
+    },
+    "empty": {
+      "title": "No automations yet",
+      "body": "Start with a workflow template to automate repetitive finance and sales tasks."
+    },
+    "items": {
+      "bank": {
+        "name": "Bank payment reconciliation",
+        "description": "Automatically match bank transactions to invoices and create/link payments.",
+        "trigger": "Daily bank sync",
+        "triggerHelper": "Every day at 08:00",
+        "outcome": "{matched} matched · {review} need review",
+        "outcomeEmpty": "No runs yet"
+      },
+      "reminders": {
+        "name": "Payment reminders",
+        "description": "Send reminders for upcoming and overdue invoices.",
+        "trigger": "Due date schedule",
+        "triggerHelper": "-3 / +7 / +15 / +30 days",
+        "outcome": "{sent} sent · {skipped} skipped",
+        "outcomeEmpty": "No runs yet"
+      },
+      "quotes": {
+        "name": "Quote follow-up",
+        "description": "Follow up on sent quotes with no response or approaching expiration.",
+        "trigger": "No response / nearing expiry",
+        "triggerHelper": "After N days or before expiration",
+        "outcome": "{suggestions} suggestions · {sent} sent",
+        "outcomeEmpty": "No runs yet"
+      }
+    },
+    "detail": {
+      "emptyTitle": "Select an automation",
+      "emptyBody": "Choose a workflow on the left to inspect its trigger, rules and last run.",
+      "tabsLabel": "Automation detail tabs",
+      "tabs": {
+        "overview": "Overview",
+        "history": "Execution history",
+        "settings": "Settings",
+        "logs": "Logs"
+      },
+      "workflow": "Workflow",
+      "details": "Automation details",
+      "lastExecution": "Last execution summary",
+      "company": "Company: {company}",
+      "trigger": "Trigger",
+      "mode": "Execution mode",
+      "lastRun": "Last run",
+      "nextRun": "Next run",
+      "processed": "{processed} processed · {succeeded} succeeded · {skipped} skipped · {review} review · {failed} failed",
+      "noRuns": "This automation has not run yet.",
+      "viewRun": "View",
+      "pause": "Pause automation",
+      "resume": "Resume automation"
+    },
+    "workflow": {
+      "bank": {
+        "triggerTitle": "Trigger",
+        "triggerBody": "Daily at 08:00 — fetch new bank transactions (demo sync, not live Open Banking).",
+        "matchTitle": "Matching",
+        "matchBody": "Match open invoices using invoice number, amount and customer name.",
+        "decisionTitle": "Decision",
+        "decisionBody": "High-confidence matches run automatically. Uncertain matches go to accountant review.",
+        "paymentTitle": "Payment update",
+        "paymentBody": "Create or link the Payment record for confirmed matches.",
+        "invoiceTitle": "Invoice update",
+        "invoiceBody": "Update the invoice to Partial or Paid according to remaining balance.",
+        "reviewTitle": "Review exceptions",
+        "reviewBody": "Notify the accountant about unresolved bank transactions."
+      },
+      "reminders": {
+        "triggerTitle": "Trigger",
+        "triggerBody": "Invoice due-date schedule for the current company.",
+        "scheduleTitle": "Schedule",
+        "scheduleBody": "3 days before due date, then +7 / +15 / +30 days overdue with a firmer tone.",
+        "checkTitle": "Stop when paid",
+        "checkBody": "If the invoice is already paid, skip and stop automatically.",
+        "prepareTitle": "Prepare reminder",
+        "prepareBody": "Draft the reminder email for the eligible invoice.",
+        "modeTitle": "Execution mode",
+        "modeBody": "Automatic sends immediately. Suggest & approve waits for user confirmation.",
+        "logTitle": "Log result",
+        "logBody": "Record sent, skipped or awaiting-approval outcomes."
+      },
+      "quotes": {
+        "statusTitle": "Quote status",
+        "statusBody": "Only quotes with status Sent are eligible.",
+        "triggerTitle": "Trigger condition",
+        "triggerBody": "No response after N days, or the quote is close to expiration.",
+        "prepareTitle": "Prepare follow-up",
+        "prepareBody": "Draft a follow-up message for the salesperson.",
+        "modeTitle": "Execution mode",
+        "modeBody": "Suggest & approve by default. Automatic only when the tenant allows it.",
+        "actionTitle": "Notify / send",
+        "actionBody": "Notify the salesperson or send the follow-up after approval.",
+        "logTitle": "Log result",
+        "logBody": "Keep an auditable trail of suggestions and sends."
+      }
+    },
+    "settings": {
+      "bankDemoNote": "Bank sync currently uses demo transactions. Live Open Banking is not claimed as connected.",
+      "schedule": "Schedule",
+      "time": "Time",
+      "matchUsing": "Match using",
+      "invoiceNumber": "Invoice number in transfer description",
+      "amount": "Amount",
+      "customerName": "Customer name",
+      "execution": "Execution",
+      "highConfidence": "High confidence → Automatic",
+      "uncertain": "Uncertain → Review",
+      "reminderSchedule": "Reminder schedule",
+      "beforeDue3": "3 days before due date",
+      "overdue7": "7 days overdue",
+      "overdue15": "15 days overdue",
+      "overdue30": "30 days overdue",
+      "stopWhenPaid": "Stop automatically when invoice is paid",
+      "mode": "Execution mode",
+      "noResponseDays": "No response after (days)",
+      "beforeExpirationDays": "Days before expiration"
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "confirmMode": "Switch to automatic",
+      "modeTitle": "Allow automatic external actions?",
+      "modeBody": "This automation may perform external actions without manual approval."
+    },
+    "attention": {
+      "title": "Needs attention",
+      "subtitle": "Human review before external or uncertain actions.",
+      "emptyTitle": "All caught up",
+      "emptyBody": "No automation actions require your attention.",
+      "review": "Review"
+    },
+    "review": {
+      "bank": {
+        "title": "{count} bank transactions",
+        "reason": "Match confidence too low"
+      },
+      "reminders": {
+        "title": "{count} reminder emails",
+        "reason": "Waiting for approval"
+      },
+      "quotes": {
+        "title": "{count} quote follow-up drafts",
+        "reason": "Ready to review"
+      }
+    },
+    "runs": {
+      "title": "Recent automation runs",
+      "subtitle": "Technical executions across active workflows.",
+      "empty": "No executions yet.",
+      "view": "View",
+      "columns": {
+        "when": "Date & time",
+        "automation": "Automation",
+        "trigger": "Trigger",
+        "result": "Result",
+        "processed": "Processed",
+        "duration": "Duration",
+        "status": "Status"
+      },
+      "bank": {
+        "summary": "{matched} matched · {review} need review",
+        "summaryOk": "{matched} matched",
+        "failed": "Bank sync failed",
+        "errorSync": "Demo bank feed could not be refreshed. Historical review items are unchanged.",
+        "log": {
+          "fetched": "Fetched {count} bank transactions",
+          "matched": "{count} transactions matched",
+          "review": "{count} transactions require review",
+          "syncStart": "Starting demo bank sync",
+          "syncFail": "Demo bank sync failed"
+        }
+      },
+      "reminders": {
+        "summary": "{drafts} drafts · {skipped} skipped",
+        "log": {
+          "checked": "Checked {count} invoices",
+          "drafts": "Prepared {count} reminder drafts",
+          "skipped": "Skipped {count} paid invoices"
+        }
+      },
+      "quotes": {
+        "summary": "{suggestions} suggestions · {sent} sent",
+        "log": {
+          "checked": "Checked {count} quotes",
+          "suggestions": "Created {count} follow-up suggestions",
+          "sent": "Recorded {count} follow-ups as sent"
+        }
+      }
+    },
+    "runDetail": {
+      "title": "Run details",
+      "trigger": "Trigger",
+      "started": "Started at",
+      "finished": "Completed at",
+      "duration": "Duration",
+      "processed": "Items processed",
+      "succeeded": "Succeeded",
+      "skipped": "Skipped",
+      "needsReview": "Needs review",
+      "failed": "Failed",
+      "logs": "Operational log"
+    },
+    "activity": {
+      "title": "Automation activity",
+      "subtitle": "Meaningful resulting actions and approvals.",
+      "empty": "No activity yet.",
+      "result": {
+        "success": "Done",
+        "needs_review": "Review",
+        "skipped": "Skipped",
+        "failed": "Failed",
+        "approved": "Approved"
+      },
+      "bankReview": {
+        "title": "Bank matches need review",
+        "body": "{count} transactions wait for accountant confirmation."
+      },
+      "reminderDraft": {
+        "title": "Payment reminder draft",
+        "body": "{invoice} · {customer}"
+      },
+      "quoteApproved": {
+        "title": "Quote follow-up approved",
+        "body": "{quote}"
+      },
+      "bankMatched": {
+        "title": "Bank match confirmed",
+        "body": "{invoice} · {amount}"
+      },
+      "reminderSent": {
+        "title": "Payment reminder sent",
+        "body": "{invoice} · {customer}"
+      },
+      "paused": {
+        "title": "Automation paused",
+        "body": "Future scheduled runs will not execute until resumed."
+      },
+      "resumed": {
+        "title": "Automation resumed",
+        "body": "The workflow is active again."
+      },
+      "modeChanged": {
+        "title": "Execution mode updated",
+        "body": "New mode applies to the next eligible run."
+      },
+      "created": {
+        "title": "Automation activated",
+        "body": "A workflow template was configured and activated."
+      }
+    },
+    "wizard": {
+      "title": "New automation",
+      "subtitle": "Choose a PRD-backed template, configure it, then activate.",
+      "steps": {
+        "template": "Template",
+        "configure": "Configure",
+        "review": "Review"
+      },
+      "templates": {
+        "bank_reconciliation": {
+          "title": "Bank reconciliation",
+          "body": "Automatically sync and match bank transactions with invoices.",
+          "flow": "Bank sync → Match rules → Review uncertainty → Update payment"
+        },
+        "payment_reminders": {
+          "title": "Payment reminder sequence",
+          "body": "Send reminders for upcoming and overdue invoices.",
+          "flow": "Schedule → Check invoice → Send / approve → Stop when paid"
+        },
+        "quote_follow_up": {
+          "title": "Quote follow-up",
+          "body": "Follow up sent quotes with no response or nearing expiration.",
+          "flow": "Check status → Trigger → Draft → Approve/send"
+        }
+      },
+      "bankConfigNote": "High-confidence matches stay automatic. Uncertain matches always require review. Demo bank feed only — not a live Open Banking connection.",
+      "summary": {
+        "name": "Name",
+        "mode": "Mode",
+        "company": "Company"
+      },
+      "back": "Back",
+      "continue": "Continue",
+      "activate": "Activate automation",
+      "errors": {
+        "template": "Choose a template to continue.",
+        "trigger": "Configure the follow-up triggers before activating."
+      }
+    },
+    "toast": {
+      "activated": "Automation activated.",
+      "openReconciliation": "Opening payments reconciliation for review.",
+      "openReminder": "Opening payments to review the reminder draft.",
+      "openQuote": "Opening quotes to review the follow-up draft.",
+      "forbiddenReview": "You do not have permission to approve automation actions."
     }
   }
 }

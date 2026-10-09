@@ -8,9 +8,12 @@ import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/compte/confirm-dialog";
 import { SoftToast } from "@/components/compte/soft-toast";
 import { FormSheet } from "@/components/forms/form-sheet";
+import { CollectionFollowUpSheet } from "@/features/payments/components/collection-follow-up-sheet";
+import { useReminderEvents } from "@/features/payments/reminders";
 import { can } from "@/features/settings/can";
 import { systemRoles } from "@/features/settings/mocks/roles";
 import { useRouter } from "@/i18n/navigation";
+import { centsToCsvEuro, downloadCsv, mockExportFilename } from "@/lib/csv-export";
 import { formatMoneyFromCents } from "@/lib/money";
 
 import { InvoiceDetailsPanel } from "./components/invoice-details-panel";
@@ -24,9 +27,13 @@ import { getInvoiceKpis } from "./kpis";
 import { ledgerToday } from "@/features/quotes/model";
 import {
   emptyInvoiceFilters,
+  invoiceDisplayNumber,
+  invoiceListStatus,
   invoiceTotals,
   isInvoiceLocked,
   nextInvoiceAction,
+  paidCentsFor,
+  remainingCentsFor,
   type InvoiceDraftPatch,
   type InvoiceFilters,
   type InvoiceListStatusFilter,
@@ -56,6 +63,7 @@ export function InvoicesWorkspace() {
   const params = useSearchParams();
   const invoices = useInvoices();
   const payments = useInvoicePayments();
+  const reminderEvents = useReminderEvents();
   const ledger = useLedger();
   const [filters, setFilters] = useState<InvoiceFilters>(emptyInvoiceFilters);
   const [statusFilter, setStatusFilter] = useState<InvoiceListStatusFilter>("all");
@@ -65,6 +73,7 @@ export function InvoicesWorkspace() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(params.get("invoice"));
   const [createOpen, setCreateOpen] = useState(params.get("create") === "1");
+  const [followUpInvoiceId, setFollowUpInvoiceId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [validateId, setValidateId] = useState<string | null>(null);
@@ -114,6 +123,43 @@ export function InvoicesWorkspace() {
   const selectedPayments = selectedInvoice
     ? payments.filter((payment) => payment.invoiceId === selectedInvoice.id)
     : [];
+  const followUpInvoice = followUpInvoiceId
+    ? (invoices.find((invoice) => invoice.id === followUpInvoiceId) ?? null)
+    : null;
+
+  function exportInvoicesCsv() {
+    const headers = [
+      "number",
+      "customer",
+      "status",
+      "issue_date",
+      "due_date",
+      "total_eur",
+      "paid_eur",
+      "remaining_eur",
+      "owner_id",
+      "quote_id",
+      "data_source",
+    ];
+    const rows = filtered.map((invoice) => {
+      const totals = invoiceTotals(invoice);
+      return [
+        invoiceDisplayNumber(invoice),
+        invoice.customerName,
+        invoiceListStatus(invoice, payments, ledgerToday),
+        invoice.issueDate,
+        invoice.dueDate,
+        centsToCsvEuro(totals.ttcCents),
+        centsToCsvEuro(paidCentsFor(invoice.id, payments)),
+        centsToCsvEuro(remainingCentsFor(invoice, payments)),
+        invoice.ownerId,
+        invoice.quoteId ?? "",
+        "mock",
+      ];
+    });
+    const { rowCount } = downloadCsv(mockExportFilename("invoices"), headers, rows);
+    setNotice(t("exportDone", { count: rowCount }));
+  }
 
   const eligibleQuotes = useMemo(
     () =>
@@ -168,8 +214,7 @@ export function InvoicesWorkspace() {
       return;
     }
     if (next === "followUp") {
-      openInvoice(id, "activity");
-      setNotice(t("notices.followUp"));
+      setFollowUpInvoiceId(id);
       return;
     }
     openInvoice(id, next === "edit" ? "details" : "details");
@@ -257,6 +302,7 @@ export function InvoicesWorkspace() {
               setPage(0);
             }}
             onCreate={() => setCreateOpen(true)}
+            onExport={exportInvoicesCsv}
             onFiltersChange={(patch) => {
               setPage(0);
               setFilters((current) => ({ ...current, ...patch }));
@@ -438,6 +484,19 @@ export function InvoicesWorkspace() {
         quotes={eligibleQuotes}
         onClose={() => setCreateOpen(false)}
         onSelect={handleCreateFromQuote}
+      />
+
+      <CollectionFollowUpSheet
+        invoice={followUpInvoice}
+        key={followUpInvoiceId ?? "follow-up-closed"}
+        open={followUpInvoiceId !== null}
+        payments={payments}
+        reminderEvents={reminderEvents}
+        onClose={() => setFollowUpInvoiceId(null)}
+        onSent={() => {
+          setNotice(t("notices.followUpSent"));
+          setFollowUpInvoiceId(null);
+        }}
       />
 
       <ConfirmDialog

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "COMPTE - Espace de travail",
+    "title": "COMPTA - Espace de travail",
     "description": "Espace multi-sociétés pour le CRM, les devis, les factures et les paiements"
   },
   "locale": {
@@ -452,7 +452,7 @@
     "switchCompany": "Changer de société",
     "companyList": "Sociétés disponibles",
     "companyFallback": "Tenant",
-    "assistantTitle": "Assistant COMPTE",
+    "assistantTitle": "Assistant COMPTA",
     "assistantBody": "2 suggestions à valider avant envoi au client.",
     "assistantAction": "Voir les suggestions"
   },
@@ -789,8 +789,11 @@
       "created": "Brouillon de facture créé depuis le devis accepté.",
       "sent": "Demande d'envoi enregistrée pour cette facture.",
       "followUp": "Relance ouverte sur cette facture.",
-      "convertBlocked": "Seul un devis accepté avec un montant encore facturable peut être converti."
-    }
+      "convertBlocked": "Seul un devis accepté avec un montant encore facturable peut être converti.",
+      "followUpSent": "Relance de paiement envoyée."
+    },
+    "export": "Exporter",
+    "exportDone": "CSV téléchargé ({count, plural, one {# ligne} other {# lignes}}) — données mock, connexion API plus tard."
   },
   "payments": {
     "title": "Paiements",
@@ -798,6 +801,7 @@
     "forbidden": "Vous n'avez pas l'autorisation de consulter les paiements.",
     "search": "Rechercher un paiement, client, facture ou référence...",
     "filters": "Plus de filtres",
+    "export": "Exporter",
     "apply": "Appliquer",
     "clear": "Effacer",
     "customer": "Client",
@@ -819,8 +823,19 @@
       "all": "Tous les statuts",
       "paid": "Payé",
       "partial": "Partiel",
-      "to_match": "À rapprocher",
-      "failed": "Échoué"
+      "unpaid": "Impayé",
+      "overdue": "En retard",
+      "to_match": "À rapprocher"
+    },
+    "invoiceState": {
+      "unpaid": "Impayé",
+      "partial": "Partiel",
+      "paid": "Payé",
+      "overdue": "En retard"
+    },
+    "details": {
+      "createdBy": "Créé par",
+      "createdAt": "Créé le"
     },
     "methods": {
       "all": "Tous les moyens",
@@ -848,12 +863,22 @@
       "method": "Moyen",
       "date": "Date",
       "amount": "Montant",
+      "remaining": "Reste à encaisser",
       "reconciliation": "Rapprochement",
       "status": "Statut",
       "next": "Action suivante"
     },
+    "remaining": {
+      "paid": "Soldé",
+      "partial": "reste à encaisser",
+      "unpaid": "impayé",
+      "overdue": "en retard"
+    },
     "actions": {
       "view": "Voir",
+      "record": "Enregistrer un paiement",
+      "recordNth": "Enregistrer paiement n°{n}",
+      "followUp": "Relancer",
       "match": "Rapprocher",
       "review": "Revoir",
       "none": "—"
@@ -910,13 +935,16 @@
       "bankReference": "Réf. bancaire",
       "notes": "Notes",
       "remaining": "Reste dû : {amount}",
+      "invoiceTotal": "Total facture",
+      "alreadyPaid": "Déjà payé",
+      "remainingLabel": "Reste dû",
       "cancel": "Annuler",
       "save": "Enregistrer",
       "saving": "Enregistrement…",
       "noInvoicesTitle": "Aucune facture en attente de paiement",
       "noInvoices": "Aucune facture en attente de paiement.",
-      "invalidAmount": "Saisissez un montant valide.",
-      "overpayment": "Le montant ne peut pas dépasser le reste dû.",
+      "invalidAmount": "Saisissez un montant supérieur à zéro.",
+      "overpayment": "Le montant du paiement ne peut pas dépasser le solde restant de la facture.",
       "failed": "Le paiement n'a pas pu être enregistré."
     },
     "match": {
@@ -927,8 +955,23 @@
     },
     "review": {
       "title": "Revoir l'opération",
-      "bank": "Opération bancaire : {amount}",
+      "amount": "Montant",
+      "date": "Date",
+      "label": "Libellé bancaire",
+      "reference": "Référence",
+      "status": "Statut",
+      "reason": "Motif de revue",
+      "suggestedTitle": "Correspondance suggérée",
       "invoice": "Facture",
+      "customer": "Client",
+      "remaining": "Reste dû",
+      "matchReason": "Motif de correspondance",
+      "search": "Rechercher une facture",
+      "searchPlaceholder": "N° facture, client, montant, PO…",
+      "searchAndLink": "Rechercher et lier une facture",
+      "searchAnother": "Rechercher une autre facture",
+      "keepUnmatched": "Laisser non rapprochée",
+      "close": "Fermer",
       "cancel": "Annuler",
       "confirm": "Confirmer",
       "saving": "Rapprochement…",
@@ -936,6 +979,8 @@
     },
     "queue": {
       "title": "File de rapprochement",
+      "viewAll": "Tout voir",
+      "viewAllAria": "Voir toute la file de rapprochement",
       "match": "Rapprocher",
       "review": "Revoir",
       "possible": "Correspondance possible : {invoice} · reste {remaining}",
@@ -943,6 +988,116 @@
       "emptyTitle": "Toutes les opérations sont rapprochées",
       "emptyBody": "Aucune opération bancaire à revoir.",
       "alreadyMatched": "Cette opération est déjà rapprochée."
+    },
+    "queueFull": {
+      "title": "File de rapprochement",
+      "subtitle": "Examinez les opérations bancaires et rapprochez-les des factures.",
+      "close": "Fermer",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher une opération, facture, client ou montant...",
+      "clearFilters": "Effacer les filtres",
+      "bankTransfer": "Virement",
+      "selectAll": "Sélectionner toutes les opérations",
+      "selectRow": "Sélectionner {label}",
+      "emptyTitle": "Aucun élément de rapprochement",
+      "emptyBody": "Les nouvelles opérations bancaires importées apparaîtront ici.",
+      "filters": {
+        "status": "Statut",
+        "confidence": "Confiance",
+        "period": "Période",
+        "amount": "Montant",
+        "sort": "Tri"
+      },
+      "status": {
+        "all": "Tous les statuts",
+        "suggested_match": "Correspondance suggérée",
+        "needs_review": "À revoir",
+        "matched": "Rapproché",
+        "unmatched": "Non rapproché"
+      },
+      "confidence": {
+        "all": "Toute confiance",
+        "high": "Élevée",
+        "medium": "Moyenne",
+        "low": "Faible"
+      },
+      "period": {
+        "any": "Toutes les dates",
+        "month": "Ce mois",
+        "last_month": "Mois dernier"
+      },
+      "amount": {
+        "all": "Tous les montants",
+        "exact_match": "Montant exact",
+        "partial_match": "Montant partiel",
+        "amount_mismatch": "Écart de montant"
+      },
+      "sort": {
+        "newest": "Plus récent",
+        "oldest": "Plus ancien",
+        "highest": "Montant le plus élevé",
+        "lowest": "Montant le plus bas",
+        "confidence_high": "Confiance la plus élevée",
+        "confidence_low": "Confiance la plus faible",
+        "closest_amount": "Montant le plus proche"
+      },
+      "columns": {
+        "date": "Date",
+        "bank": "Opération bancaire",
+        "amount": "Montant",
+        "invoice": "Facture suggérée",
+        "reason": "Motif",
+        "status": "Statut",
+        "action": "Action"
+      },
+      "actions": {
+        "view": "Voir"
+      },
+      "invoice": {
+        "noneTitle": "Aucune correspondance fiable",
+        "none": "Sélectionnez une facture manuellement",
+        "remaining": "Reste dû {amount}",
+        "matched": "Rapprochée"
+      },
+      "reasons": {
+        "amount_exact": "Montant exact",
+        "amount_partial": "Montant partiel",
+        "amount_mismatch": "Écart de montant",
+        "amount_exceeds": "Montant supérieur au reste dû",
+        "invoice_number_found": "Numéro de facture trouvé",
+        "customer_name_match": "Nom client correspondant",
+        "customer_name_uncertain": "Nom client incertain",
+        "no_invoice_reference": "Aucune référence de facture",
+        "partial_payment_candidate": "Candidat paiement partiel"
+      },
+      "mobile": {
+        "suggested": "Correspondance : {invoice} · Reste : {remaining}"
+      },
+      "pagination": {
+        "summary": "{from}–{to} sur {total} opérations",
+        "pageSize": "Lignes par page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Précédent",
+        "next": "Suivant"
+      },
+      "detail": {
+        "title": "Détail de l'opération",
+        "bank": "Opération bancaire",
+        "suggested": "Correspondance suggérée",
+        "activity": "Activité",
+        "activityEmpty": "Aucune activité pour cette opération.",
+        "reference": "Référence",
+        "account": "Compte source",
+        "invoice": "Facture",
+        "customer": "Client",
+        "remaining": "Reste dû",
+        "confidence": "Confiance"
+      },
+      "activity": {
+        "detected": "Opération bancaire détectée",
+        "matched": "Opération rapprochée de {invoice}",
+        "reviewed": "Rapprochement revu manuellement"
+      }
     },
     "methodsCard": {
       "title": "Moyens de paiement",
@@ -960,13 +1115,16 @@
       "recorded": "Paiement de {amount} enregistré",
       "matched": "Opération bancaire rapprochée de {invoice}",
       "invoice_paid": "Facture {invoice} marquée payée",
-      "reviewed": "Paiement revu"
+      "invoice_partial": "Facture {invoice} marquée partielle",
+      "reviewed": "Rapprochement confirmé manuellement"
     },
     "invoiceTab": {
       "total": "Total facture",
       "paidBefore": "Payé avant",
       "thisPayment": "Ce paiement",
+      "totalPaid": "Total payé",
       "remaining": "Reste dû",
+      "paymentState": "État de paiement de la facture",
       "open": "Ouvrir la facture",
       "missing": "La facture liée est introuvable."
     },
@@ -979,7 +1137,240 @@
     },
     "notices": {
       "recorded": "Paiement enregistré."
-    }
+    },
+    "followUp": {
+      "title": "Relance de recouvrement",
+      "missing": "Cette facture est introuvable.",
+      "outstanding": "Reste à encaisser",
+      "invoiceTotal": "Total facture",
+      "alreadyPaid": "Déjà payé",
+      "dueDate": "Échéance",
+      "overdue": "Retard",
+      "overdueDays": "{count, plural, one {# jour} other {# jours}}",
+      "notOverdue": "Pas en retard",
+      "history": "Historique des relances",
+      "historyEmpty": "Aucune relance envoyée pour le moment.",
+      "next": "Prochaine action",
+      "nextHint": "Envoyez une relance maintenant. L'enregistrement d'un paiement reste une action séparée une fois l'argent reçu.",
+      "sendNow": "Envoyer une relance",
+      "composer": "Aperçu de la relance",
+      "to": "À",
+      "subjectLabel": "Objet",
+      "subject": "Relance de paiement — {invoice}",
+      "preview": "Message",
+      "message": "Bonjour,\n\nLa facture {invoice} présente encore un solde de {amount}.\nL'échéance était le {due}.\n\nMerci de bien vouloir régler le montant restant dans les meilleurs délais.\n\nCordialement.",
+      "toneHint": "Ton standard de relance. Les relances automatiques par étapes restent à venir.",
+      "cancel": "Retour",
+      "confirmSend": "Confirmer l'envoi",
+      "sending": "Envoi…",
+      "sentNotice": "Relance de paiement envoyée.",
+      "stages": {
+        "BEFORE_DUE_3_DAYS": "Relance avant échéance",
+        "OVERDUE_7_DAYS": "Relance retard (7 jours)",
+        "OVERDUE_15_DAYS": "Relance retard (15 jours)",
+        "OVERDUE_30_DAYS": "Relance retard (30 jours)",
+        "MANUAL": "Relance manuelle"
+      },
+      "channels": {
+        "email": "E-mail"
+      }
+    },
+    "exportDone": "CSV téléchargé ({count, plural, one {# ligne} other {# lignes}}) — données mock, connexion API plus tard."
+  },
+  "products": {
+    "title": "Produits",
+    "subtitle": "Gérez les produits et services utilisés dans les devis et factures.",
+    "forbidden": "Vous n'avez pas la permission de voir les produits.",
+    "addAction": "Ajouter un produit",
+    "editAction": "Modifier le produit",
+    "save": "Enregistrer le produit",
+    "saving": "Enregistrement…",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "activate": "Marquer actif",
+    "deactivate": "Marquer inactif",
+    "search": "Rechercher nom, SKU, description…",
+    "clear": "Effacer",
+    "tabsLabel": "Type de produit",
+    "emptyTitle": "Aucun produit ou service",
+    "emptyBody": "Créez des articles catalogue réutilisables pour accélérer la création de devis.",
+    "emptyFilteredTitle": "Aucun produit ne correspond aux filtres",
+    "emptyFilteredBody": "Ajustez la recherche ou les filtres pour trouver des articles.",
+    "vatShort": "TVA {rate} %",
+    "usedDocuments": "{count, plural, =0 {Aucun document} one {# document} other {# documents}}",
+    "tabs": {
+      "all": "Tous les produits",
+      "good": "Biens",
+      "service": "Services",
+      "inactive": "Inactifs"
+    },
+    "tabsPanel": {
+      "details": "Détails",
+      "pricing": "Tarifs",
+      "usage": "Utilisation",
+      "activity": "Activité"
+    },
+    "type": {
+      "good": "Bien",
+      "service": "Service"
+    },
+    "typeHelp": {
+      "good": "Un article tangible utilisé dans les devis et factures.",
+      "service": "Une prestation ou un service vendu aux clients."
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "filters": {
+      "type": "Type",
+      "status": "Statut",
+      "category": "Catégorie",
+      "typeAll": "Tous les types",
+      "statusAll": "Tous les statuts",
+      "categoryAll": "Toutes les catégories"
+    },
+    "kpis": {
+      "total": "Total produits",
+      "used": "Produits utilisés ce mois",
+      "revenue": "CA ce mois",
+      "top": "Top produit / service",
+      "totalHint": "{active} actifs · {inactive} inactifs",
+      "usedHint": "Articles catalogue sur les lignes de devis ou facture",
+      "revenueHint": "À partir des lignes catalogue facturées",
+      "topHint": "{amount} · {uses} utilisations",
+      "topEmpty": "Aucune utilisation ce mois"
+    },
+    "columns": {
+      "product": "Produit",
+      "sku": "SKU",
+      "type": "Type",
+      "unitPrice": "Prix unitaire",
+      "category": "Catégorie",
+      "vat": "TVA",
+      "status": "Statut",
+      "usedIn": "Utilisé dans",
+      "unit": "Unité",
+      "next": "Prochaine action"
+    },
+    "pagination": {
+      "summary": "{from}–{to} sur {total} produits",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Précédent",
+      "next": "Suivant"
+    },
+    "fields": {
+      "type": "Type",
+      "name": "Nom du produit",
+      "code": "Code / SKU",
+      "description": "Description",
+      "category": "Catégorie",
+      "unit": "Unité",
+      "unitPrice": "Prix unitaire",
+      "cost": "Coût",
+      "vat": "Taux de TVA",
+      "status": "Statut",
+      "margin": "Marge",
+      "marginPct": "Marge %",
+      "createdBy": "Créé par",
+      "createdAt": "Créé",
+      "updatedAt": "Mis à jour"
+    },
+    "sections": {
+      "basic": "Informations générales",
+      "pricing": "Tarification & taxe",
+      "timestamps": "Horodatages"
+    },
+    "form": {
+      "title": "Ajouter un produit",
+      "subtitle": "Créez un article catalogue réutilisable pour les devis et factures.",
+      "nameHelp": "Nom affiché lors de la sélection dans un devis.",
+      "codeHelp": "Code interne pour identifier cet article catalogue.",
+      "priceFutureOnly": "Le nouveau prix s'applique aux prochaines lignes de devis uniquement. Les documents historiques conservent leur prix d'origine.",
+      "required": "Renseignez les champs obligatoires.",
+      "invalidPrice": "Saisissez un prix unitaire valide (0 ou plus).",
+      "invalidCost": "Le coût doit être supérieur ou égal à 0.",
+      "duplicateCode": "Ce code est déjà utilisé.",
+      "failed": "Impossible d'enregistrer le produit."
+    },
+    "pricing": {
+      "default": "Tarif par défaut",
+      "customer": "Prix spécifiques clients",
+      "empty": "Aucun prix spécifique client.",
+      "add": "Ajouter un prix client",
+      "customerField": "Client",
+      "remove": "Retirer",
+      "save": "Enregistrer le prix",
+      "pickCustomer": "Sélectionnez un client."
+    },
+    "usage": {
+      "empty": "Ce produit n'a pas encore été utilisé dans des documents.",
+      "quote": "Devis",
+      "invoice": "Facture"
+    },
+    "panel": {
+      "tabsLabel": "Détails du produit"
+    },
+    "activity": {
+      "empty": "Aucune activité pour le moment.",
+      "created": "Produit créé",
+      "updated": "Informations produit mises à jour",
+      "price_changed": "Prix par défaut modifié{detail}",
+      "customer_price_added": "Prix spécifique ajouté{detail}",
+      "customer_price_updated": "Prix spécifique mis à jour{detail}",
+      "customer_price_removed": "Prix spécifique retiré{detail}",
+      "marked_inactive": "Produit marqué inactif",
+      "marked_active": "Produit marqué actif"
+    },
+    "notices": {
+      "created": "Produit créé.",
+      "updated": "Produit mis à jour.",
+      "activated": "Produit marqué actif.",
+      "deactivated": "Produit marqué inactif.",
+      "priceRemoved": "Prix spécifique client retiré."
+    },
+    "units": {
+      "unit": "unité",
+      "hour": "heure",
+      "day": "jour",
+      "month": "mois",
+      "year": "année",
+      "m2": "m²",
+      "m": "m",
+      "kg": "kg",
+      "package": "colis"
+    },
+    "categories": {
+      "consulting": "Conseil",
+      "development": "Développement",
+      "design": "Design",
+      "marketing": "Marketing",
+      "electronics": "Électronique",
+      "accessories": "Accessoires",
+      "furniture": "Mobilier",
+      "training": "Formation",
+      "support": "Support"
+    },
+    "apply": "Appliquer",
+    "moreFilters": "Plus de filtres",
+    "footerValue": "{amount} valeur catalogue",
+    "actions": {
+      "view": "Voir",
+      "edit": "Modifier"
+    },
+    "sort": {
+      "label": "Tri",
+      "nameAsc": "Nom A–Z",
+      "nameDesc": "Nom Z–A",
+      "newest": "Plus récents",
+      "priceHigh": "Prix décroissant",
+      "priceLow": "Prix croissant",
+      "mostUsed": "Plus utilisés"
+    },
+    "saveChanges": "Enregistrer les modifications",
+    "export": "Exporter",
+    "exportDone": "CSV téléchargé ({count, plural, one {# ligne} other {# lignes}}) — données mock, connexion API plus tard."
   },
   "activity": {
     "title": "Activité",
@@ -1234,7 +1625,7 @@
       "email": "Brouillon d'email préparé pour {id}.",
       "history": "Historique ouvert pour {id}.",
       "deleted": "Devis {id} supprimé.",
-      "exported": "{count, plural, one {# devis exporté} other {# devis exportés}}."
+      "exported": "CSV téléchargé ({count, plural, one {# devis} other {# devis}}) — données mock, connexion API plus tard."
     },
     "preview": {
       "ht": "Total HT",
@@ -1265,6 +1656,8 @@
       "description": "Désignation",
       "qty": "Qté",
       "unit": "PU HT",
+      "catalog": "Catalogue produits",
+      "freeLine": "Ligne libre (sans article catalogue)",
       "missing": "Ce devis est introuvable.",
       "emptyLines": "Aucune ligne. Ajoutez la première prestation.",
       "saveDraft": "Enregistrer le brouillon",
@@ -1382,7 +1775,6 @@
     "subtitle": "Gérez vos clients, consultez leur activité et l'historique de la relation.",
     "add": "Ajouter un client",
     "export": "Exporter",
-    "exportMock": "L'export est uniquement UI en phase mock. Aucun fichier n'a été généré.",
     "importCsv": "Importer CSV",
     "editMock": "L'édition inline ouvrira le formulaire complet dans une itération suivante.",
     "created": "Client ajoute pour cette session.",
@@ -1516,7 +1908,7 @@
       "recordPayment": "Enregistrer un paiement",
       "email": "Envoyer un email",
       "more": "Plus",
-      "invoiceHint": "Les factures suivent les devis acceptés dans le flux COMPTE actuel.",
+      "invoiceHint": "Les factures suivent les devis acceptés dans le flux COMPTA actuel.",
       "invoiceAcceptedRequired": "Un devis accepté est requis avant de créer une facture.",
       "paymentHint": "L'enregistrement de paiement s'ouvre lorsqu'une facture éligible est disponible."
     },
@@ -1677,7 +2069,7 @@
       "uploadTitle": "Déposez un fichier CSV",
       "uploadHint": "Ou continuez avec l'échantillon de cette phase mock.",
       "useSample": "Utiliser l'échantillon",
-      "mapBody": "Les colonnes sont mappées vers les champs client COMPTE.",
+      "mapBody": "Les colonnes sont mappées vers les champs client COMPTA.",
       "fields": {
         "name": "Nom client",
         "email": "Email",
@@ -1696,7 +2088,8 @@
       "close": "Fermer",
       "next": "Suivant",
       "done": "Terminer"
-    }
+    },
+    "exportDone": "CSV téléchargé ({count, plural, one {# ligne} other {# lignes}}) — données mock, connexion API plus tard."
   },
   "settingsCompanies": {
     "page": {
@@ -1839,6 +2232,637 @@
     "page": {
       "title": "Securite",
       "description": "Politiques d'authentification, sessions et controles sensibles."
+    }
+  },
+  "reports": {
+    "title": "Rapports",
+    "subtitle": "Analysez le chiffre d'affaires, les créances, la performance commerciale et la conversion des devis.",
+    "forbidden": "Vous n'avez pas l'autorisation de consulter les rapports.",
+    "close": "Fermer",
+    "period": {
+      "this_month": "Ce mois",
+      "last_month": "Mois dernier",
+      "this_quarter": "Ce trimestre",
+      "last_quarter": "Trimestre dernier",
+      "this_year": "Cette année",
+      "previous_year": "Année précédente",
+      "previous_compare": "Période précédente"
+    },
+    "filters": {
+      "title": "Filtres du rapport",
+      "period": "Période",
+      "company": "Société",
+      "currency": "Devise",
+      "salesperson": "Commercial",
+      "customer": "Client",
+      "product": "Produit",
+      "more": "Plus de filtres",
+      "clearAll": "Tout effacer",
+      "apply": "Appliquer",
+      "openMobile": "Filtres",
+      "active": "Actifs",
+      "mobileHint": "Les filtres s'appliquent à tous les rapports de cette page.",
+      "allCompanies": "Toutes les sociétés",
+      "anySalesperson": "Tous les commerciaux",
+      "anyCustomer": "Tous les clients",
+      "anyProduct": "Tous les produits",
+      "anyStatus": "Tous les statuts",
+      "quoteStatus": "Statut devis",
+      "invoiceStatus": "Statut facture"
+    },
+    "quoteStatus": {
+      "draft": "Brouillon",
+      "sent": "Envoyé",
+      "review": "À approuver",
+      "accepted": "Accepté",
+      "rejected": "Refusé",
+      "expired": "Expiré"
+    },
+    "invoiceStatus": {
+      "draft": "Brouillon",
+      "to_validate": "À valider",
+      "validated": "Validée",
+      "sent": "Envoyée"
+    },
+    "kpis": {
+      "revenue": "CA facturé",
+      "margin": "Marge brute",
+      "outstanding": "Créances en cours",
+      "conversion": "Conversion devis",
+      "unavailable": "N/D",
+      "vsPrevious": "vs période précédente",
+      "costUnavailable": "Données de coût indisponibles"
+    },
+    "revenueTrend": {
+      "title": "Tendance CA & marge",
+      "subtitle": "Chiffre d'affaires facturé et marge vs période précédente.",
+      "granularity": "Granularité",
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "yearly": "Annuel",
+      "metric": "Indicateur",
+      "metricRevenue": "CA",
+      "metricMargin": "Marge",
+      "current": "Période courante",
+      "previous": "Période précédente",
+      "marginPct": "Marge %",
+      "summary": "Actuel {current} · Précédent {previous} · Marge {margin}",
+      "chartDemoNote": "Le graphique utilise une série démo continue pour la lisibilité — exports et KPI restent sur les données filtrées réelles."
+    },
+    "breakdown": {
+      "title": "Répartition du CA",
+      "subtitle": "Principaux contributeurs selon les filtres.",
+      "customer": "Client",
+      "salesperson": "Commercial",
+      "product": "Produit",
+      "company": "Société",
+      "other": "Autres",
+      "topNote": "Top 5 + Autres · Total {total}"
+    },
+    "aging": {
+      "title": "Balance âgée des créances",
+      "subtitle": "Créances restantes regroupées par ancienneté (échéance).",
+      "total": "Total créances en cours : {amount}",
+      "viewOverdue": "Voir les factures en retard",
+      "drillTitle": "{bucket}",
+      "drillBody": "Factures ouvertes dans ce bucket d'âge.",
+      "buckets": {
+        "current": "Courant",
+        "d1_30": "1–30 jours",
+        "d31_60": "31–60 jours",
+        "d61_90": "61–90 jours",
+        "d90_plus": "90+ jours"
+      },
+      "columns": {
+        "invoice": "Facture",
+        "customer": "Client",
+        "issue": "Date d'émission",
+        "due": "Échéance",
+        "days": "Jours de retard",
+        "total": "Total facture",
+        "paid": "Payé",
+        "remaining": "Restant"
+      }
+    },
+    "pipeline": {
+      "title": "Pipeline devis",
+      "subtitle": "Devis de la période sélectionnée par statut.",
+      "metric": "Indicateur",
+      "count": "Nombre",
+      "value": "Valeur"
+    },
+    "sales": {
+      "title": "Performance commerciale",
+      "subtitle": "CA, conversion et encours par commercial.",
+      "columns": {
+        "salesperson": "Commercial",
+        "revenue": "CA",
+        "quotesWon": "Devis gagnés",
+        "conversion": "Conversion",
+        "outstanding": "Encours"
+      }
+    },
+    "products": {
+      "title": "Top produits & services",
+      "subtitle": "Performance historique des lignes de facture.",
+      "columns": {
+        "product": "Produit / Service",
+        "type": "Type",
+        "revenue": "CA",
+        "usage": "Usage",
+        "avgPrice": "Prix moyen",
+        "margin": "Marge"
+      },
+      "types": {
+        "good": "Bien",
+        "service": "Service"
+      }
+    },
+    "library": {
+      "title": "Exports & comptabilité",
+      "subtitle": "Prévisualisez vos rapports avant de les télécharger. Tous les exports incluent les filtres actuels.",
+      "breakdownCsv": "CSV répartition",
+      "excelNote": "L'export Excel est reporté pour cette étape FE — le CSV est disponible. L'export comptable FEC n'est pas implémenté.",
+      "meta": {
+        "byPeriod": "Par période",
+        "byInvoice": "Par facture",
+        "byQuote": "Par devis",
+        "bySalesperson": "Par commercial",
+        "byProduct": "Par produit",
+        "specialExport": "Export spécial"
+      },
+      "revenue": {
+        "title": "Rapport de CA",
+        "body": "Exporter le CA facturé et la comparaison à la période précédente."
+      },
+      "aging": {
+        "title": "Rapport balance âgée",
+        "body": "Exporter les créances en cours groupées par buckets d'âge."
+      },
+      "pipeline": {
+        "title": "Rapport pipeline devis",
+        "body": "Exporter les devis avec statut, client et montant."
+      },
+      "sales": {
+        "title": "Rapport performance commerciale",
+        "body": "Exporter CA, conversion et activité par commercial."
+      },
+      "products": {
+        "title": "Rapport performance produits",
+        "body": "Exporter CA et usage par produit ou service."
+      },
+      "fec": {
+        "title": "Export comptable (FEC)",
+        "body": "Fichier FEC français, format d'export comptable officiel.",
+        "badge": "Pas encore disponible"
+      }
+    },
+    "preview": {
+      "view": "Voir",
+      "viewAria": "Prévisualiser le CSV {report}",
+      "exportAria": "Exporter {report} en CSV",
+      "exportCsvAria": "Exporter CSV",
+      "title": "Aperçu {report}",
+      "fallbackTitle": "Aperçu du rapport",
+      "subtitle": "Prévisualisez le contenu de votre fichier CSV avant de le télécharger.",
+      "fileInfo": "Informations du fichier",
+      "generatedWithFilters": "Généré avec les filtres actuels",
+      "rowCount": "{count} lignes",
+      "visibleRows": "{visible} visibles sur {total} lignes",
+      "columnCount": "{count} colonnes",
+      "search": "Rechercher dans cet aperçu...",
+      "exportCsv": "Exporter CSV",
+      "close": "Fermer",
+      "emptyTitle": "Aucune donnée à prévisualiser",
+      "emptyBody": "Aucune ligne ne correspond aux filtres actuels du rapport.",
+      "footerNote": "Ceci est un aperçu de votre fichier CSV. Les données affichées correspondent à vos filtres actuels. Exportez le CSV pour télécharger le fichier complet.",
+      "success": "CSV exporté avec succès.",
+      "filterLine": "Utilise les filtres Reports actuels",
+      "pagination": {
+        "summary": "{from}–{to} sur {total} lignes",
+        "prev": "Précédent",
+        "next": "Suivant",
+        "pageSize": "Lignes par page",
+        "rowsPerPage": "{count}"
+      },
+      "columns": {
+        "period": "Période",
+        "currency": "Devise",
+        "revenue": "CA",
+        "previousPeriod": "Période précédente",
+        "delta": "Écart",
+        "deltaPercent": "Écart %",
+        "grossMargin": "Marge brute",
+        "grossMarginPercent": "Marge brute %",
+        "customer": "Client",
+        "salesperson": "Commercial",
+        "productName": "Nom produit",
+        "company": "Société",
+        "sharePercent": "Part %",
+        "invoiceNumber": "N° facture",
+        "issueDate": "Date d'émission",
+        "dueDate": "Date d'échéance",
+        "daysOverdue": "Jours de retard",
+        "agingBucket": "Bucket d'âge",
+        "invoiceTotal": "Total facture",
+        "alreadyPaid": "Déjà payé",
+        "remainingBalance": "Solde restant",
+        "quoteNumber": "N° devis",
+        "createdDate": "Date de création",
+        "validUntil": "Valable jusqu'au",
+        "status": "Statut",
+        "ht": "HT",
+        "ttc": "TTC",
+        "quotesCreated": "Devis créés",
+        "quotesWon": "Devis gagnés",
+        "conversionRate": "Taux de conversion",
+        "outstanding": "Encours",
+        "productCode": "Code produit",
+        "type": "Type",
+        "unit": "Unité",
+        "usage": "Usage / quantité",
+        "averagePrice": "Prix de vente moyen",
+        "cost": "Coût"
+      }
+    },
+    "export": {
+      "menu": "Exporter",
+      "csv": "Exporter CSV",
+      "generating": "Génération…",
+      "empty": "Aucune donnée à exporter pour les filtres actuels.",
+      "forbidden": "Vous n'avez pas l'autorisation d'exporter les rapports.",
+      "items": {
+        "revenue": "CSV CA",
+        "breakdown": "CSV répartition",
+        "aging": "CSV créances",
+        "pipeline": "CSV pipeline devis",
+        "sales": "CSV commercial",
+        "products": "CSV produits"
+      }
+    },
+    "empty": {
+      "reportTitle": "Aucune donnée",
+      "reportBody": "Aucune donnée ne correspond aux filtres sélectionnés."
+    }
+  },
+  "automation": {
+    "title": "Automatisation",
+    "subtitle": "Automatisez les workflows finance et vente répétitifs tout en gardant le contrôle des validations.",
+    "new": "Nouvelle automatisation",
+    "forbidden": "Vous n'avez pas l'autorisation de voir l'automatisation.",
+    "tabsLabel": "Sections automatisation",
+    "search": "Rechercher une automatisation…",
+    "tabs": {
+      "overview": "Vue d'ensemble",
+      "automations": "Automatisations",
+      "activity": "Activité"
+    },
+    "kpis": {
+      "active": "Automatisations actives",
+      "activeHelper": "sur {total} configurées",
+      "actions": "Actions ce mois",
+      "actionsHelper": "Éléments traités ce mois",
+      "attention": "À traiter",
+      "attentionHelper": "Éléments de revue ouverts",
+      "success": "Taux de succès",
+      "successHelper": "Exécutions réussies / terminées"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "En pause",
+      "error": "Erreur",
+      "draft": "Brouillon"
+    },
+    "runStatus": {
+      "success": "Succès",
+      "needs_review": "À revoir",
+      "failed": "Échec",
+      "skipped": "Ignoré",
+      "running": "En cours"
+    },
+    "mode": {
+      "automatic": "Automatique",
+      "suggestApprove": "Suggérer & approuver",
+      "autoWithReview": "Auto + revue"
+    },
+    "category": {
+      "finance": "Finance",
+      "sales": "Ventes"
+    },
+    "filters": {
+      "status": "Statut",
+      "type": "Type",
+      "allStatuses": "Tous les statuts",
+      "allTypes": "Tous les types"
+    },
+    "list": {
+      "title": "Automatisations",
+      "subtitle": "{count} workflows",
+      "columns": {
+        "name": "Nom",
+        "trigger": "Déclencheur",
+        "mode": "Mode",
+        "lastRun": "Dernière exécution",
+        "outcome": "Résultat",
+        "status": "Statut"
+      }
+    },
+    "empty": {
+      "title": "Aucune automatisation",
+      "body": "Commencez par un modèle pour automatiser les tâches finance et vente répétitives."
+    },
+    "items": {
+      "bank": {
+        "name": "Rapprochement bancaire",
+        "description": "Associer automatiquement les transactions bancaires aux factures et créer/lier les paiements.",
+        "trigger": "Sync bancaire quotidienne",
+        "triggerHelper": "Chaque jour à 08:00",
+        "outcome": "{matched} rapprochées · {review} à revoir",
+        "outcomeEmpty": "Pas encore d'exécution"
+      },
+      "reminders": {
+        "name": "Relances de paiement",
+        "description": "Envoyer des relances pour les factures à échéance ou en retard.",
+        "trigger": "Planning d'échéance",
+        "triggerHelper": "-3 / +7 / +15 / +30 jours",
+        "outcome": "{sent} envoyées · {skipped} ignorées",
+        "outcomeEmpty": "Pas encore d'exécution"
+      },
+      "quotes": {
+        "name": "Suivi de devis",
+        "description": "Relancer les devis envoyés sans réponse ou proches de l'expiration.",
+        "trigger": "Sans réponse / expiration proche",
+        "triggerHelper": "Après N jours ou avant expiration",
+        "outcome": "{suggestions} suggestions · {sent} envoyés",
+        "outcomeEmpty": "Pas encore d'exécution"
+      }
+    },
+    "detail": {
+      "emptyTitle": "Sélectionnez une automatisation",
+      "emptyBody": "Choisissez un workflow à gauche pour voir son déclencheur, ses règles et sa dernière exécution.",
+      "tabsLabel": "Onglets détail",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "history": "Historique",
+        "settings": "Paramètres",
+        "logs": "Journaux"
+      },
+      "workflow": "Workflow",
+      "details": "Détails",
+      "lastExecution": "Dernière exécution",
+      "company": "Société : {company}",
+      "trigger": "Déclencheur",
+      "mode": "Mode d'exécution",
+      "lastRun": "Dernière exécution",
+      "nextRun": "Prochaine exécution",
+      "processed": "{processed} traités · {succeeded} réussis · {skipped} ignorés · {review} à revoir · {failed} en échec",
+      "noRuns": "Cette automatisation n'a pas encore été exécutée.",
+      "viewRun": "Voir",
+      "pause": "Mettre en pause",
+      "resume": "Reprendre"
+    },
+    "workflow": {
+      "bank": {
+        "triggerTitle": "Déclencheur",
+        "triggerBody": "Tous les jours à 08:00 — récupérer les nouvelles transactions (sync démo, pas d'Open Banking live).",
+        "matchTitle": "Appariement",
+        "matchBody": "Associer les factures ouvertes via numéro, montant et nom client.",
+        "decisionTitle": "Décision",
+        "decisionBody": "Confiance élevée : automatique. Cas incertains : revue comptable.",
+        "paymentTitle": "Paiement",
+        "paymentBody": "Créer ou lier le paiement pour les rapprochements confirmés.",
+        "invoiceTitle": "Facture",
+        "invoiceBody": "Mettre à jour la facture en Partiel ou Payé selon le solde.",
+        "reviewTitle": "Exceptions",
+        "reviewBody": "Notifier le comptable des transactions non résolues."
+      },
+      "reminders": {
+        "triggerTitle": "Déclencheur",
+        "triggerBody": "Planning d'échéance pour la société courante.",
+        "scheduleTitle": "Planning",
+        "scheduleBody": "3 jours avant échéance, puis +7 / +15 / +30 jours de retard, ton plus ferme.",
+        "checkTitle": "Arrêt si payée",
+        "checkBody": "Si la facture est déjà payée, ignorer et arrêter automatiquement.",
+        "prepareTitle": "Préparer la relance",
+        "prepareBody": "Rédiger l'e-mail de relance pour la facture éligible.",
+        "modeTitle": "Mode d'exécution",
+        "modeBody": "Automatique envoie tout de suite. Suggérer & approuver attend une confirmation.",
+        "logTitle": "Journaliser",
+        "logBody": "Consigner envoyé, ignoré ou en attente d'approbation."
+      },
+      "quotes": {
+        "statusTitle": "Statut devis",
+        "statusBody": "Seuls les devis Envoyés sont éligibles.",
+        "triggerTitle": "Condition",
+        "triggerBody": "Sans réponse après N jours, ou devis proche de l'expiration.",
+        "prepareTitle": "Préparer le suivi",
+        "prepareBody": "Rédiger un message de suivi pour le commercial.",
+        "modeTitle": "Mode d'exécution",
+        "modeBody": "Suggérer & approuver par défaut. Automatique seulement si le tenant l'autorise.",
+        "actionTitle": "Notifier / envoyer",
+        "actionBody": "Notifier le commercial ou envoyer après approbation.",
+        "logTitle": "Journaliser",
+        "logBody": "Conserver une trace auditable des suggestions et envois."
+      }
+    },
+    "settings": {
+      "bankDemoNote": "La sync bancaire utilise des transactions démo. Aucune connexion Open Banking live n'est affirmée.",
+      "schedule": "Planning",
+      "time": "Heure",
+      "matchUsing": "Critères de rapprochement",
+      "invoiceNumber": "Numéro de facture dans le libellé",
+      "amount": "Montant",
+      "customerName": "Nom du client",
+      "execution": "Exécution",
+      "highConfidence": "Confiance élevée → Automatique",
+      "uncertain": "Incertain → Revue",
+      "reminderSchedule": "Planning des relances",
+      "beforeDue3": "3 jours avant échéance",
+      "overdue7": "7 jours de retard",
+      "overdue15": "15 jours de retard",
+      "overdue30": "30 jours de retard",
+      "stopWhenPaid": "Arrêter automatiquement si la facture est payée",
+      "mode": "Mode d'exécution",
+      "noResponseDays": "Sans réponse après (jours)",
+      "beforeExpirationDays": "Jours avant expiration"
+    },
+    "confirm": {
+      "cancel": "Annuler",
+      "confirmMode": "Passer en automatique",
+      "modeTitle": "Autoriser les actions externes automatiques ?",
+      "modeBody": "Cette automatisation pourra exécuter des actions externes sans validation manuelle."
+    },
+    "attention": {
+      "title": "À traiter",
+      "subtitle": "Revue humaine avant actions externes ou incertaines.",
+      "emptyTitle": "Tout est à jour",
+      "emptyBody": "Aucune action d'automatisation ne nécessite votre attention.",
+      "review": "Revoir"
+    },
+    "review": {
+      "bank": {
+        "title": "{count} transactions bancaires",
+        "reason": "Confiance de rapprochement trop faible"
+      },
+      "reminders": {
+        "title": "{count} e-mails de relance",
+        "reason": "En attente d'approbation"
+      },
+      "quotes": {
+        "title": "{count} brouillons de suivi devis",
+        "reason": "Prêts à revoir"
+      }
+    },
+    "runs": {
+      "title": "Exécutions récentes",
+      "subtitle": "Exécutions techniques des workflows actifs.",
+      "empty": "Aucune exécution pour le moment.",
+      "view": "Voir",
+      "columns": {
+        "when": "Date & heure",
+        "automation": "Automatisation",
+        "trigger": "Déclencheur",
+        "result": "Résultat",
+        "processed": "Traités",
+        "duration": "Durée",
+        "status": "Statut"
+      },
+      "bank": {
+        "summary": "{matched} rapprochées · {review} à revoir",
+        "summaryOk": "{matched} rapprochées",
+        "failed": "Échec de la sync bancaire",
+        "errorSync": "Le flux bancaire démo n'a pas pu être rafraîchi. Les éléments de revue historiques sont inchangés.",
+        "log": {
+          "fetched": "{count} transactions bancaires récupérées",
+          "matched": "{count} transactions rapprochées",
+          "review": "{count} transactions à revoir",
+          "syncStart": "Démarrage de la sync démo",
+          "syncFail": "Échec de la sync démo"
+        }
+      },
+      "reminders": {
+        "summary": "{drafts} brouillons · {skipped} ignorées",
+        "log": {
+          "checked": "{count} factures vérifiées",
+          "drafts": "{count} brouillons de relance préparés",
+          "skipped": "{count} factures payées ignorées"
+        }
+      },
+      "quotes": {
+        "summary": "{suggestions} suggestions · {sent} envoyés",
+        "log": {
+          "checked": "{count} devis vérifiés",
+          "suggestions": "{count} suggestions de suivi créées",
+          "sent": "{count} suivis enregistrés comme envoyés"
+        }
+      }
+    },
+    "runDetail": {
+      "title": "Détail d'exécution",
+      "trigger": "Déclencheur",
+      "started": "Démarrée à",
+      "finished": "Terminée à",
+      "duration": "Durée",
+      "processed": "Éléments traités",
+      "succeeded": "Réussis",
+      "skipped": "Ignorés",
+      "needsReview": "À revoir",
+      "failed": "Échoués",
+      "logs": "Journal opérationnel"
+    },
+    "activity": {
+      "title": "Activité d'automatisation",
+      "subtitle": "Actions résultantes et validations.",
+      "empty": "Aucune activité pour le moment.",
+      "result": {
+        "success": "Fait",
+        "needs_review": "Revue",
+        "skipped": "Ignoré",
+        "failed": "Échec",
+        "approved": "Approuvé"
+      },
+      "bankReview": {
+        "title": "Rapprochements à revoir",
+        "body": "{count} transactions attendent une confirmation comptable."
+      },
+      "reminderDraft": {
+        "title": "Brouillon de relance",
+        "body": "{invoice} · {customer}"
+      },
+      "quoteApproved": {
+        "title": "Suivi de devis approuvé",
+        "body": "{quote}"
+      },
+      "bankMatched": {
+        "title": "Rapprochement confirmé",
+        "body": "{invoice} · {amount}"
+      },
+      "reminderSent": {
+        "title": "Relance envoyée",
+        "body": "{invoice} · {customer}"
+      },
+      "paused": {
+        "title": "Automatisation en pause",
+        "body": "Les prochaines exécutions planifiées n'auront pas lieu tant qu'elle n'est pas reprise."
+      },
+      "resumed": {
+        "title": "Automatisation reprise",
+        "body": "Le workflow est de nouveau actif."
+      },
+      "modeChanged": {
+        "title": "Mode d'exécution mis à jour",
+        "body": "Le nouveau mode s'applique à la prochaine exécution éligible."
+      },
+      "created": {
+        "title": "Automatisation activée",
+        "body": "Un modèle de workflow a été configuré et activé."
+      }
+    },
+    "wizard": {
+      "title": "Nouvelle automatisation",
+      "subtitle": "Choisissez un modèle PRD, configurez-le, puis activez-le.",
+      "steps": {
+        "template": "Modèle",
+        "configure": "Configurer",
+        "review": "Revue"
+      },
+      "templates": {
+        "bank_reconciliation": {
+          "title": "Rapprochement bancaire",
+          "body": "Synchroniser et rapprocher automatiquement les transactions avec les factures.",
+          "flow": "Sync banque → Règles → Revue incertaine → Paiement"
+        },
+        "payment_reminders": {
+          "title": "Séquence de relances",
+          "body": "Envoyer des relances pour les factures à échéance ou en retard.",
+          "flow": "Planning → Vérifier facture → Envoyer / approuver → Stop si payée"
+        },
+        "quote_follow_up": {
+          "title": "Suivi de devis",
+          "body": "Relancer les devis envoyés sans réponse ou proches de l'expiration.",
+          "flow": "Statut → Déclencheur → Brouillon → Approuver/envoyer"
+        }
+      },
+      "bankConfigNote": "Les rapprochements à haute confiance restent automatiques. Les cas incertains passent toujours en revue. Flux bancaire démo uniquement — pas de connexion Open Banking live.",
+      "summary": {
+        "name": "Nom",
+        "mode": "Mode",
+        "company": "Société"
+      },
+      "back": "Retour",
+      "continue": "Continuer",
+      "activate": "Activer l'automatisation",
+      "errors": {
+        "template": "Choisissez un modèle pour continuer.",
+        "trigger": "Configurez les déclencheurs de suivi avant l'activation."
+      }
+    },
+    "toast": {
+      "activated": "Automatisation activée.",
+      "openReconciliation": "Ouverture du rapprochement paiements pour revue.",
+      "openReminder": "Ouverture des paiements pour revoir le brouillon de relance.",
+      "openQuote": "Ouverture des devis pour revoir le brouillon de suivi.",
+      "forbiddenReview": "Vous n'avez pas l'autorisation d'approuver les actions d'automatisation."
     }
   }
 }

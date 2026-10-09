@@ -8,6 +8,8 @@ import {
 import { ledgerToday } from "@/features/quotes/model";
 import { formatMoneyFromCents, formatPercent } from "@/lib/money";
 
+import { collectionStatus } from "./model";
+
 export type PaymentKpis = {
   collectedCents: number;
   outstandingCents: number;
@@ -43,8 +45,7 @@ export function getPaymentKpis(
 
   const open = invoices.filter((invoice) => {
     if (!isInvoiceLocked(invoice)) return false;
-    const status = derivePaymentStatus(invoice, payments, ledgerToday);
-    return status === "unpaid" || status === "partial" || status === "overdue";
+    return remainingCentsFor(invoice, payments) > 0;
   });
 
   const outstandingCents = open.reduce(
@@ -53,7 +54,7 @@ export function getPaymentKpis(
   );
 
   const partial = invoices.filter(
-    (invoice) => derivePaymentStatus(invoice, payments, ledgerToday) === "partial",
+    (invoice) => collectionStatus(invoice, payments) === "partial",
   );
   const partialCents = partial.reduce(
     (sum, invoice) => sum + remainingCentsFor(invoice, payments),
@@ -61,7 +62,7 @@ export function getPaymentKpis(
   );
 
   const overdue = invoices.filter(
-    (invoice) => derivePaymentStatus(invoice, payments, ledgerToday) === "overdue",
+    (invoice) => collectionStatus(invoice, payments) === "overdue",
   );
   const overdueCents = overdue.reduce(
     (sum, invoice) => sum + remainingCentsFor(invoice, payments),

@@ -102,8 +102,12 @@ export function InvoiceTable({
 
             return (
               <tr
-                className={cn("dashboard-list__row", active && "bg-[#eef4ff]")}
+                className={cn(
+                  "dashboard-list__row cursor-pointer",
+                  active && "bg-[#eef4ff]",
+                )}
                 key={invoice.id}
+                onClick={() => onOpen(invoice.id)}
               >
                 <td className={cn(cell, "relative")}>
                   {active ? (
@@ -114,18 +118,17 @@ export function InvoiceTable({
                     checked={checked}
                     className="h-3.5 w-3.5 accent-[#044ce2]"
                     onChange={() => onToggleCheck(invoice.id)}
+                    onClick={(event) => event.stopPropagation()}
                     type="checkbox"
                   />
                 </td>
                 <td className={cell}>
-                  <button
-                    className="dashboard-list__primary dashboard-list__link max-w-full truncate text-left tabular-nums"
-                    onClick={() => onOpen(invoice.id)}
+                  <span
+                    className="dashboard-list__primary dashboard-list__link block max-w-full truncate text-left tabular-nums"
                     title={invoiceDisplayNumber(invoice)}
-                    type="button"
                   >
                     {invoiceDisplayNumber(invoice)}
-                  </button>
+                  </span>
                 </td>
                 <td className={cell}>
                   <span className="dashboard-list__primary" title={invoice.customerName}>
@@ -178,7 +181,10 @@ export function InvoiceTable({
                 <td className={cell}>
                   <button
                     className="action-motion soft-button h-7 rounded-[8px] px-2 text-[11px] font-semibold text-[#044ce2]"
-                    onClick={() => onNextAction(invoice.id)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onNextAction(invoice.id);
+                    }}
                     type="button"
                   >
                     {t(`actions.${next}`)}

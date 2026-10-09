@@ -74,9 +74,6 @@ export function InvoiceKpisStrip({ kpis }: { kpis: InvoiceKpis }) {
             <strong className="block text-[22px] leading-[1.1] font-bold tracking-[-0.03em] text-[#102342] tabular-nums">
               <CountUp value={formatInvoiceKpiValue(kpis[card.valueKey])} />
             </strong>
-            <p className="mt-px truncate text-[10px] leading-tight text-[#7a899e]">
-              {t(`${card.key}Hint`)}
-            </p>
           </div>
         </article>
       ))}

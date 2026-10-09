@@ -1,10 +1,10 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useRef, type RefObject } from "react";
 
-import { CardHeader, LegendDot } from "@/components/dashboard/overview/dashboard-card";
-import { StatusDonut } from "@/components/dashboard/overview/status-donut";
-import { useRevealOnce } from "@/components/dashboard/overview/use-reveal-once";
+import { CardHeader } from "@/components/dashboard/overview/dashboard-card";
 import {
   invoiceDisplayNumber,
   remainingCentsFor,
@@ -12,12 +12,13 @@ import {
   type InvoicePayment,
   type InvoiceRecord,
 } from "@/features/invoices/model";
-import { formatMoneyFromCents, formatPercent } from "@/lib/money";
-import { cn } from "@/lib/utils";
+import { formatMoneyFromCents } from "@/lib/money";
 
-import { collectionHealth, paymentMethodBreakdown } from "../kpis";
-import { PAYMENT_METHOD_ORDER } from "../model";
-import { paymentMethodColor } from "../status";
+import {
+  deriveQueueStatus,
+  pendingBankTransactions,
+  previewBankTransactions,
+} from "../reconciliation";
 
 export function PaymentRail({
   invoices,
@@ -26,6 +27,8 @@ export function PaymentRail({
   canReconcile,
   onMatch,
   onReview,
+  onViewAll,
+  viewAllRef,
 }: {
   invoices: InvoiceRecord[];
   payments: InvoicePayment[];
@@ -33,24 +36,22 @@ export function PaymentRail({
   canReconcile: boolean;
   onMatch: (id: string) => void;
   onReview: (id: string) => void;
+  onViewAll: () => void;
+  viewAllRef?: RefObject<HTMLButtonElement | null>;
 }) {
   return (
-    <aside className="flex min-h-0 min-w-0 flex-col gap-3 lg:grid lg:grid-cols-2 xl:flex xl:w-[min(100%,320px)] 2xl:w-[300px]">
-      <div className="order-1 lg:col-span-2 xl:contents">
+    <aside className="flex h-full min-h-0 w-full min-w-0 flex-col gap-3">
+      <div className="min-h-0 xl:flex xl:min-h-0 xl:flex-1 xl:flex-col">
         <ReconciliationQueue
           canReconcile={canReconcile}
           invoices={invoices}
           payments={payments}
           queue={queue}
+          viewAllRef={viewAllRef}
           onMatch={onMatch}
           onReview={onReview}
+          onViewAll={onViewAll}
         />
-      </div>
-      <div className="order-3 xl:order-2">
-        <PaymentMethodsCard payments={payments} />
-      </div>
-      <div className="order-2 xl:order-3">
-        <CollectionHealthCard invoices={invoices} payments={payments} />
       </div>
     </aside>
   );
@@ -63,6 +64,8 @@ function ReconciliationQueue({
   canReconcile,
   onMatch,
   onReview,
+  onViewAll,
+  viewAllRef,
 }: {
   queue: BankTransaction[];
   invoices: InvoiceRecord[];
@@ -70,32 +73,56 @@ function ReconciliationQueue({
   canReconcile: boolean;
   onMatch: (id: string) => void;
   onReview: (id: string) => void;
+  onViewAll: () => void;
+  viewAllRef?: RefObject<HTMLButtonElement | null>;
 }) {
   const t = useTranslations("payments.queue");
   const locale = useLocale();
   const dateFmt = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
-  const invoicesById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
+  const invoicesById = useMemo(
+    () => new Map(invoices.map((invoice) => [invoice.id, invoice])),
+    [invoices],
+  );
+  const pending = useMemo(() => pendingBankTransactions(queue), [queue]);
+  const preview = useMemo(
+    () => previewBankTransactions(queue, invoicesById, payments),
+    [invoicesById, payments, queue],
+  );
+  const localViewAllRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = viewAllRef ?? localViewAllRef;
 
   return (
     <section
       aria-labelledby="payment-queue-title"
-      className="dashboard-card dashboard-list flex min-h-0 flex-col overflow-hidden lg:col-span-2 xl:col-span-1"
+      className="dashboard-card dashboard-list flex min-h-0 flex-1 flex-col overflow-hidden lg:col-span-2 xl:col-span-1"
     >
       <div className="dashboard-list__header">
-        <CardHeader title={t("title")} titleId="payment-queue-title" />
+        <CardHeader title={t("title")} titleId="payment-queue-title">
+          <button
+            ref={triggerRef}
+            aria-label={t("viewAllAria")}
+            className="dashboard-link inline-flex items-center gap-0.5 text-[11px]"
+            type="button"
+            onClick={onViewAll}
+          >
+            {t("viewAll")}
+            <ChevronRight aria-hidden="true" className="h-3 w-3" />
+          </button>
+        </CardHeader>
       </div>
-      {queue.length === 0 ? (
+      {pending.length === 0 ? (
         <div className="px-3.5 py-3">
           <p className="text-xs font-semibold text-[#238567]">{t("emptyTitle")}</p>
           <p className="mt-0.5 text-[11px] leading-5 text-[#7d8aa0]">{t("emptyBody")}</p>
         </div>
       ) : (
-        <ul className="border-t border-[rgb(217_227_238/0.72)]">
-          {queue.map((item) => {
+        <ul className="dashboard-scroll min-h-0 max-h-[240px] flex-1 overflow-y-auto overscroll-contain border-t border-[rgb(217_227_238/0.72)] xl:max-h-none">
+          {preview.map((item) => {
             const suggested = item.suggestedInvoiceId
               ? invoicesById.get(item.suggestedInvoiceId)
               : undefined;
-            const needsReview = item.status === "needs_review" || !suggested;
+            const status = deriveQueueStatus(item, suggested, payments);
+            const needsReview = status === "needs_review" || status === "unmatched";
             return (
               <li
                 className="dashboard-list__row flex flex-col items-stretch gap-1.5 py-2.5"
@@ -140,109 +167,6 @@ function ReconciliationQueue({
           })}
         </ul>
       )}
-    </section>
-  );
-}
-
-function PaymentMethodsCard({ payments }: { payments: InvoicePayment[] }) {
-  const t = useTranslations("payments");
-  const rows = paymentMethodBreakdown(payments)
-    .slice()
-    .sort(
-      (left, right) =>
-        PAYMENT_METHOD_ORDER.indexOf(left.method) - PAYMENT_METHOD_ORDER.indexOf(right.method),
-    );
-  const totalCents = rows.reduce((sum, row) => sum + row.amountCents, 0);
-  const segments = rows.map((row) => ({
-    key: row.method,
-    label: t(`methods.${row.method}`),
-    amount: row.amountCents,
-    color: paymentMethodColor[row.method] ?? "#7f93b0",
-  }));
-
-  return (
-    <StatusDonut
-      centerLabel={t("methodsCard.center")}
-      centerValue={formatMoneyFromCents(totalCents)}
-      formatSegmentValue={(amount) => formatMoneyFromCents(Math.round(amount))}
-      id="payment-methods-donut"
-      segments={segments}
-      title={t("methodsCard.title")}
-    />
-  );
-}
-
-function CollectionHealthCard({
-  invoices,
-  payments,
-}: {
-  invoices: InvoiceRecord[];
-  payments: InvoicePayment[];
-}) {
-  const t = useTranslations("payments.health");
-  const [barsRef, barsRevealed] = useRevealOnce<HTMLUListElement>(0.15);
-  const health = collectionHealth(invoices, payments);
-  const rows = [
-    {
-      key: "onTime",
-      label: t("onTime"),
-      ratio: health.onTimeRatio,
-      color: "var(--dashboard-success, #1fb36e)",
-    },
-    {
-      key: "partial",
-      label: t("partial"),
-      ratio: health.partialRatio,
-      color: "var(--dashboard-warning, #f59b2d)",
-    },
-    {
-      key: "overdue",
-      label: t("overdue"),
-      ratio: health.overdueRatio,
-      color: "var(--dashboard-danger, #e24b45)",
-    },
-  ];
-
-  return (
-    <section
-      aria-labelledby="collection-health-title"
-      className="dashboard-card dashboard-list flex min-h-0 flex-col overflow-hidden"
-    >
-      <div className="dashboard-list__header">
-        <CardHeader title={t("title")} titleId="collection-health-title" />
-      </div>
-      <ul
-        className="border-t border-[rgb(217_227_238/0.72)] px-1 py-1"
-        data-revealed={barsRevealed}
-        ref={barsRef}
-      >
-        {rows.map((row, index) => {
-          const width = formatPercent(row.ratio).replace(",", ".");
-          return (
-            <li className="dashboard-list__row gap-2" key={row.key}>
-              <LegendDot color={row.color} />
-              <span className="min-w-0 flex-1">
-                <span className="dashboard-list__primary">{row.label}</span>
-                <span
-                  aria-hidden="true"
-                  className="mt-1 block h-[5px] overflow-hidden rounded-full bg-[rgb(222_230_240/0.75)]"
-                >
-                  <span
-                    className={cn("block h-full rounded-full origin-left", barsRevealed && "grow-x")}
-                    key={barsRevealed ? `${row.key}-grow` : row.key}
-                    style={{
-                      width: barsRevealed ? width : "0%",
-                      backgroundColor: row.color,
-                      animationDelay: `${80 + index * 60}ms`,
-                    }}
-                  />
-                </span>
-              </span>
-              <strong className="dashboard-list__amount shrink-0">{formatPercent(row.ratio)}</strong>
-            </li>
-          );
-        })}
-      </ul>
     </section>
   );
 }

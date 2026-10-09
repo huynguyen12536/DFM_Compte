@@ -57,13 +57,6 @@ export function PaymentKpisStrip({ kpis }: { kpis: PaymentKpis }) {
     overdue: formatPaymentKpiDelta(kpis.overdueDeltaRatio),
   };
 
-  const hints = {
-    collected: t("collectedHint"),
-    outstanding: t("outstandingHint", { count: kpis.outstandingCount }),
-    partial: t("partialHint", { count: kpis.partialCount }),
-    overdue: t("overdueHint", { count: kpis.overdueCount }),
-  };
-
   return (
     <section className="dashboard-grid-2 dashboard-grid-2--kpi shrink-0">
       {cards.map((card) => (
@@ -91,9 +84,6 @@ export function PaymentKpisStrip({ kpis }: { kpis: PaymentKpis }) {
             <strong className="block text-[22px] leading-[1.1] font-bold tracking-[-0.03em] text-[#102342] tabular-nums">
               <CountUp value={values[card.key]} />
             </strong>
-            <p className="mt-px truncate text-[10px] leading-tight text-[#7a899e]">
-              {hints[card.key]}
-            </p>
           </div>
         </article>
       ))}

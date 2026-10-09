@@ -21,6 +21,8 @@ export type QuoteLine = {
   label: string;
   qty: number;
   unitHtCents: number;
+  /** Optional catalog link — historical lines keep their own unitHtCents snapshot. */
+  productId?: string;
 };
 
 export type QuoteActivity = {

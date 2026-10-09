@@ -10,6 +10,7 @@ import { SoftToast } from "@/components/compte/soft-toast";
 import { can } from "@/features/settings/can";
 import { systemRoles } from "@/features/settings/mocks/roles";
 import { useRouter } from "@/i18n/navigation";
+import { centsToCsvEuro, downloadCsv, mockExportFilename } from "@/lib/csv-export";
 import { formatMoneyFromCents } from "@/lib/money";
 
 import { QuoteAnalytics } from "./components/quote-analytics";
@@ -279,29 +280,37 @@ export function QuotesWorkspace() {
     setNotice(t("notices.deleted", { id }));
   }
 
+  function exportQuotesCsv(scope: "filtered" | "selected" = "filtered") {
+    const source =
+      scope === "selected" && selectedIds.length > 0
+        ? quotes.filter((quote) => selectedIds.includes(quote.id))
+        : filtered;
+    const headers = [
+      "id",
+      "customer",
+      "status",
+      "owner_id",
+      "valid_until",
+      "total_eur",
+      "created_at",
+      "data_source",
+    ];
+    const rows = source.map((quote) => [
+      quote.id,
+      customerLabel(quote.customerId),
+      quote.status,
+      quote.ownerId,
+      quote.validUntil,
+      centsToCsvEuro(quoteTotals(quote).ttcCents),
+      quote.createdAt,
+      "mock",
+    ]);
+    const { rowCount } = downloadCsv(mockExportFilename("quotes"), headers, rows);
+    setNotice(t("notices.exported", { count: rowCount }));
+  }
+
   function exportSelected() {
-    const rows = selectedIds.length
-      ? quotes.filter((quote) => selectedIds.includes(quote.id))
-      : filtered;
-    const csv = [
-      ["id", "customer", "status", "ttc"].join(","),
-      ...rows.map((quote) =>
-        [
-          quote.id,
-          customerLabel(quote.customerId),
-          quote.status,
-          (quoteTotals(quote).ttcCents / 100).toFixed(2),
-        ].join(","),
-      ),
-    ].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "quotes.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-    setNotice(t("notices.exported", { count: rows.length }));
+    exportQuotesCsv(selectedIds.length > 0 ? "selected" : "filtered");
   }
 
   const hasActiveFilters =
@@ -333,6 +342,7 @@ export function QuotesWorkspace() {
                 setCreateCustomerId(null);
                 setCreateOpen(true);
               }}
+              onExport={() => exportQuotesCsv("filtered")}
               onFiltersChange={(patch) => {
                 setPage(0);
                 setFilters((current) => ({ ...current, ...patch }));

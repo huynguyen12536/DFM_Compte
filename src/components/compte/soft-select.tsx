@@ -1,9 +1,10 @@
 "use client";
 
 import { Check, ChevronDown } from "lucide-react";
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { useOutsideDismiss } from "@/lib/use-outside-dismiss";
 import { cn } from "@/lib/utils";
 
 export type SoftSelectOption = {
@@ -57,9 +58,11 @@ export function SoftSelect({
   } | null>(null);
   const selected = options.find((option) => option.value === value) ?? options[0];
 
-  function close() {
+  const close = useCallback(() => {
     setOpen(false);
-  }
+  }, []);
+
+  const dismissRoots = useMemo(() => [rootRef, menuRef], []);
 
   function openMenu() {
     setOpen(true);
@@ -75,12 +78,14 @@ export function SoftSelect({
       const trigger = triggerRef.current;
       if (!trigger) return;
       const rect = trigger.getBoundingClientRect();
+      const width = rect.width;
       const spaceBelow = Math.max(72, window.innerHeight - rect.bottom - MENU_GAP - MENU_EDGE);
       const maxHeight = Math.min(MENU_MAX_CAP, spaceBelow);
+      const maxLeft = Math.max(MENU_EDGE, window.innerWidth - width - MENU_EDGE);
       setMenuBox({
         top: rect.bottom + MENU_GAP,
-        left: rect.left,
-        width: rect.width,
+        left: Math.min(Math.max(MENU_EDGE, rect.left), maxLeft),
+        width,
         maxHeight,
       });
     }
@@ -95,41 +100,23 @@ export function SoftSelect({
     };
   }, [open, options.length]);
 
-  useEffect(() => {
+  useOutsideDismiss({
+    active: open,
+    onDismiss: close,
+    roots: dismissRoots,
+  });
+
+  useLayoutEffect(() => {
     if (!open) return;
-
-    function onPointerDown(event: PointerEvent) {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (rootRef.current?.contains(target)) return;
-      if (menuRef.current?.contains(target)) return;
-      close();
-    }
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopPropagation();
-      close();
-    }
 
     function onOtherOpen(event: Event) {
       const detail = (event as CustomEvent<{ id: string }>).detail;
       if (detail?.id !== instanceId) close();
     }
 
-    const timer = window.setTimeout(() => {
-      document.addEventListener("pointerdown", onPointerDown, true);
-    }, 0);
-    document.addEventListener("keydown", onKeyDown, true);
     window.addEventListener(OPEN_EVENT, onOtherOpen);
-    return () => {
-      window.clearTimeout(timer);
-      document.removeEventListener("pointerdown", onPointerDown, true);
-      document.removeEventListener("keydown", onKeyDown, true);
-      window.removeEventListener(OPEN_EVENT, onOtherOpen);
-    };
-  }, [open, instanceId]);
+    return () => window.removeEventListener(OPEN_EVENT, onOtherOpen);
+  }, [open, instanceId, close]);
 
   return (
     <div
@@ -211,13 +198,12 @@ export function SoftSelect({
                       )}
                       role="option"
                       type="button"
-                      onPointerDown={(event) => {
+                      onMouseDown={(event) => {
+                        // Keep focus on trigger; select on click.
                         event.preventDefault();
-                        event.stopPropagation();
                       }}
                       onClick={(event) => {
                         event.preventDefault();
-                        event.stopPropagation();
                         onChange(option.value);
                         close();
                       }}

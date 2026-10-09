@@ -1,8 +1,8 @@
 "use client";
 
-import { MoreHorizontal, ReceiptText, Users, X } from "lucide-react";
+import { ReceiptText, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import {
   AnimatedActiveIndicator,
@@ -11,7 +11,9 @@ import {
 } from "@/components/compte/animated-selection";
 import { IconTile, StatusBadge } from "@/components/dashboard/tone";
 import {
+  derivePaymentStatus,
   invoiceDisplayNumber,
+  invoiceTotals,
   paidCentsFor,
   remainingCentsFor,
   type BankTransaction,
@@ -19,6 +21,7 @@ import {
   type InvoiceRecord,
   type PaymentActivity,
 } from "@/features/invoices/model";
+import { ledgerToday } from "@/features/quotes/model";
 import { formatMoneyFromCents } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +40,6 @@ export function PaymentDetailsPanel({
   activities,
   onClose,
   onOpenInvoice,
-  onOpenCustomer,
 }: {
   payment: InvoicePayment;
   invoice: InvoiceRecord | undefined;
@@ -46,34 +48,11 @@ export function PaymentDetailsPanel({
   activities: PaymentActivity[];
   onClose: () => void;
   onOpenInvoice: () => void;
-  onOpenCustomer: () => void;
 }) {
   const t = useTranslations("payments");
   const locale = useLocale();
   const [tab, setTab] = useState<PanelTab>("details");
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
   const listStatus = paymentListStatus(payment, invoice, ledgerPayments);
-
-  useEffect(() => {
-    if (!moreOpen) return;
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (!moreRef.current?.contains(event.target as Node)) {
-        setMoreOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMoreOpen(false);
-    };
-
-    document.addEventListener("pointerdown", onPointerDown, true);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown, true);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [moreOpen]);
   const dateFmt = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
@@ -90,7 +69,14 @@ export function PaymentDetailsPanel({
   const paidBefore = invoice
     ? Math.max(0, paidCentsFor(invoice.id, ledgerPayments) - payment.amountCents)
     : 0;
+  const totalPaid = invoice ? paidCentsFor(invoice.id, ledgerPayments) : 0;
   const remaining = invoice ? remainingCentsFor(invoice, ledgerPayments) : 0;
+  const invoiceTotal = invoice ? invoiceTotals(invoice).ttcCents : 0;
+  const invoicePaymentState = invoice
+    ? derivePaymentStatus(invoice, ledgerPayments, ledgerToday)
+    : null;
+  const createdAt = payment.createdAt ?? activities[activities.length - 1]?.at;
+  const createdBy = payment.createdBy ?? activities[activities.length - 1]?.actorName;
 
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
@@ -111,57 +97,14 @@ export function PaymentDetailsPanel({
                 {formatMoneyFromCents(payment.amountCents)}
               </p>
             </div>
-            <div className="relative flex shrink-0 items-center gap-1" ref={moreRef}>
-              <button
-                aria-expanded={moreOpen}
-                aria-haspopup="menu"
-                aria-label={t("menu.trigger")}
-                className="action-motion soft-button grid h-8 w-8 place-items-center rounded-[8px] text-[#66758d]"
-                onClick={() => setMoreOpen((value) => !value)}
-                type="button"
-              >
-                <MoreHorizontal aria-hidden="true" className="h-4 w-4" />
-              </button>
-              <button
-                aria-label={t("close")}
-                className="action-motion soft-button grid h-8 w-8 place-items-center rounded-[8px] text-[#66758d]"
-                onClick={onClose}
-                type="button"
-              >
-                <X aria-hidden="true" className="h-4 w-4" />
-              </button>
-              {moreOpen ? (
-                <div
-                  className="absolute top-[calc(100%+4px)] right-0 z-20 w-44 rounded-[10px] border border-white/80 bg-white/95 p-1 shadow-[6px_10px_24px_rgba(78,108,145,0.12)]"
-                  role="menu"
-                >
-                  <button
-                    className="flex w-full items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-xs font-semibold text-[#405069] hover:bg-[#f5f8fd]"
-                    role="menuitem"
-                    type="button"
-                    onClick={() => {
-                      setMoreOpen(false);
-                      onOpenInvoice();
-                    }}
-                  >
-                    <ReceiptText aria-hidden="true" className="h-3.5 w-3.5 text-[#044ce2]" />
-                    {t("menu.invoice")}
-                  </button>
-                  <button
-                    className="flex w-full items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-xs font-semibold text-[#405069] hover:bg-[#f5f8fd]"
-                    role="menuitem"
-                    type="button"
-                    onClick={() => {
-                      setMoreOpen(false);
-                      onOpenCustomer();
-                    }}
-                  >
-                    <Users aria-hidden="true" className="h-3.5 w-3.5 text-[#044ce2]" />
-                    {t("menu.customer")}
-                  </button>
-                </div>
-              ) : null}
-            </div>
+            <button
+              aria-label={t("close")}
+              className="action-motion soft-button grid h-8 w-8 shrink-0 place-items-center rounded-[8px] text-[#66758d]"
+              onClick={onClose}
+              type="button"
+            >
+              <X aria-hidden="true" className="h-4 w-4" />
+            </button>
           </div>
         </header>
 
@@ -181,10 +124,7 @@ export function PaymentDetailsPanel({
                     active ? "text-[#2458d6]" : "text-[#7d8aa0] hover:text-[#405069]",
                   )}
                   key={item}
-                  onClick={() => {
-                    setMoreOpen(false);
-                    setTab(item);
-                  }}
+                  onClick={() => setTab(item)}
                   role="tab"
                   type="button"
                 >
@@ -212,8 +152,11 @@ export function PaymentDetailsPanel({
               </p>
               <dl className="mt-2 space-y-1.5 text-sm">
                 <Row label={t("columns.reference")} value={payment.reference} />
-                <Row label={t("customer")} value={invoice?.customerName ?? "—"} />
                 <Row label={t("columns.amount")} value={formatMoneyFromCents(payment.amountCents)} />
+                <Row
+                  label={t("columns.date")}
+                  value={dateFmt.format(new Date(`${payment.date}T00:00:00`))}
+                />
                 <Row
                   label={t("methodLabel")}
                   value={
@@ -223,12 +166,18 @@ export function PaymentDetailsPanel({
                     </span>
                   }
                 />
+                <Row label={t("customer")} value={invoice?.customerName ?? "—"} />
                 <Row
-                  label={t("columns.date")}
-                  value={dateFmt.format(new Date(`${payment.date}T00:00:00`))}
+                  label={t("invoice")}
+                  value={invoice ? invoiceDisplayNumber(invoice) : "—"}
                 />
+                <Row label={t("record.reference")} value={payment.externalReference ?? "—"} />
                 <Row label={t("record.bankReference")} value={payment.bankReference ?? "—"} />
-                <Row label={t("record.notes")} value={payment.notes ?? "—"} />
+                <Row label={t("details.createdBy")} value={createdBy ?? "—"} />
+                <Row
+                  label={t("details.createdAt")}
+                  value={createdAt ? dateTime.format(new Date(createdAt)) : "—"}
+                />
               </dl>
             </section>
           </div>
@@ -243,18 +192,23 @@ export function PaymentDetailsPanel({
                 </p>
                 <dl className="mt-2 space-y-1.5 text-sm">
                   <Row label={t("invoice")} value={invoiceDisplayNumber(invoice)} />
-                  <Row
-                    label={t("invoiceTab.total")}
-                    value={formatMoneyFromCents(
-                      paidBefore + payment.amountCents + remaining,
-                    )}
-                  />
+                  <Row label={t("customer")} value={invoice.customerName} />
+                  <Row label={t("invoiceTab.total")} value={formatMoneyFromCents(invoiceTotal)} />
                   <Row label={t("invoiceTab.paidBefore")} value={formatMoneyFromCents(paidBefore)} />
                   <Row
                     label={t("invoiceTab.thisPayment")}
                     value={formatMoneyFromCents(payment.amountCents)}
                   />
+                  <Row label={t("invoiceTab.totalPaid")} value={formatMoneyFromCents(totalPaid)} />
                   <Row label={t("invoiceTab.remaining")} value={formatMoneyFromCents(remaining)} />
+                  <Row
+                    label={t("invoiceTab.paymentState")}
+                    value={
+                      invoicePaymentState
+                        ? t(`invoiceState.${invoicePaymentState}`)
+                        : "—"
+                    }
+                  />
                 </dl>
                 <button
                   className="action-motion soft-button mt-3 h-9 rounded-[9px] px-3 text-xs font-semibold text-[#044ce2]"

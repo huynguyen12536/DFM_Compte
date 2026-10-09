@@ -3,10 +3,13 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { AmountInput } from "@/components/compte/amount-input";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { FormSheet } from "@/components/forms/form-sheet";
 import {
   invoiceDisplayNumber,
+  invoiceTotals,
+  paidCentsFor,
   remainingCentsFor,
   type InvoicePaymentMethod,
   type InvoicePayment,
@@ -17,10 +20,19 @@ import { formatMoneyFromCents, parseAmount } from "@/lib/money";
 
 import { PAYMENT_METHOD_ORDER } from "../model";
 
+function formatAmountInput(cents: number) {
+  const absolute = Math.abs(Math.round(cents));
+  const whole = Math.floor(absolute / 100);
+  const fraction = String(absolute % 100).padStart(2, "0");
+  const grouped = String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return `${grouped},${fraction}`;
+}
+
 export function RecordPaymentSheet({
   open,
   invoices,
   payments,
+  prefillInvoiceId,
   saving,
   error,
   onClose,
@@ -29,6 +41,7 @@ export function RecordPaymentSheet({
   open: boolean;
   invoices: InvoiceRecord[];
   payments: InvoicePayment[];
+  prefillInvoiceId?: string | null;
   saving: boolean;
   error: string | null;
   onClose: () => void;
@@ -44,8 +57,15 @@ export function RecordPaymentSheet({
 }) {
   const t = useTranslations("payments.record");
   const methodsT = useTranslations("payments");
-  const [invoiceId, setInvoiceId] = useState(invoices[0]?.id ?? "");
-  const [amount, setAmount] = useState("");
+  const initialInvoiceId =
+    (prefillInvoiceId && invoices.some((item) => item.id === prefillInvoiceId)
+      ? prefillInvoiceId
+      : invoices[0]?.id) ?? "";
+  const initialInvoice = invoices.find((item) => item.id === initialInvoiceId);
+  const [invoiceId, setInvoiceId] = useState(initialInvoiceId);
+  const [amount, setAmount] = useState(
+    initialInvoice ? formatAmountInput(remainingCentsFor(initialInvoice, payments)) : "",
+  );
   const [date, setDate] = useState(ledgerToday);
   const [method, setMethod] = useState<InvoicePaymentMethod>("transfer");
   const [reference, setReference] = useState("");
@@ -55,6 +75,8 @@ export function RecordPaymentSheet({
 
   const invoice = invoices.find((item) => item.id === invoiceId);
   const remaining = invoice ? remainingCentsFor(invoice, payments) : 0;
+  const alreadyPaid = invoice ? paidCentsFor(invoice.id, payments) : 0;
+  const invoiceTotal = invoice ? invoiceTotals(invoice).ttcCents : 0;
 
   const options = useMemo(
     () =>
@@ -142,21 +164,39 @@ export function RecordPaymentSheet({
             onChange={(value) => {
               setInvoiceId(value);
               setLocalError(null);
+              const next = invoices.find((item) => item.id === value);
+              setAmount(next ? formatAmountInput(remainingCentsFor(next, payments)) : "");
             }}
           />
           {invoice ? (
-            <p className="text-[11px] text-[#7d8aa0]">
-              {t("remaining", { amount: formatMoneyFromCents(remaining) })}
-            </p>
+            <dl className="grid grid-cols-3 gap-2 rounded-[9px] border border-[#edf2f8] px-3 py-2.5 text-[11px]">
+              <div>
+                <dt className="text-[#7d8aa0]">{t("invoiceTotal")}</dt>
+                <dd className="mt-0.5 font-semibold tabular-nums text-[#24334c]">
+                  {formatMoneyFromCents(invoiceTotal)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[#7d8aa0]">{t("alreadyPaid")}</dt>
+                <dd className="mt-0.5 font-semibold tabular-nums text-[#24334c]">
+                  {formatMoneyFromCents(alreadyPaid)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[#7d8aa0]">{t("remainingLabel")}</dt>
+                <dd className="mt-0.5 font-semibold tabular-nums text-[#24334c]">
+                  {formatMoneyFromCents(remaining)}
+                </dd>
+              </div>
+            </dl>
           ) : null}
           <label className="block">
             <span className="text-[11px] font-semibold text-[#66758d]">{t("amount")} *</span>
-            <input
+            <AmountInput
               className="soft-input mt-1 h-10 w-full rounded-[9px] px-3 text-sm text-[#24334c]"
-              inputMode="decimal"
-              onChange={(event) => setAmount(event.target.value)}
               placeholder="0,00"
               value={amount}
+              onValueChange={setAmount}
             />
           </label>
           <label className="block">
