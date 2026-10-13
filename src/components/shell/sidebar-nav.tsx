@@ -59,7 +59,7 @@ const mainNav: SidebarNavItem[] = [
 
 const opsNav: SidebarNavItem[] = [
   { labelKey: "nav.automation", icon: Sparkles, href: "/automation" },
-  { labelKey: "nav.projects", icon: FolderKanban },
+  { labelKey: "nav.projects", icon: FolderKanban, href: "/projects" },
   { labelKey: "nav.templates", icon: Mail },
   { labelKey: "nav.integrations", icon: Link2 },
   {

@@ -91,7 +91,7 @@ export function setAutomationStatus(id: string, status: AutomationStatus) {
 }
 
 export function pauseAutomation(id: string) {
-  setAutomationStatus(id, "paused");
+  patchAutomation(id, { status: "paused", nextRunAt: null });
   pushActivity({
     automationId: id,
     titleKey: "activity.paused.title",
@@ -139,7 +139,18 @@ export function updateAutomationConfiguration(
   id: string,
   configuration: Record<string, unknown>,
 ) {
-  patchAutomation(id, { configuration });
+  const current = state.automations.find((item) => item.id === id);
+  if (!current) return;
+  const time =
+    typeof configuration.time === "string"
+      ? configuration.time
+      : current.scheduleCronLabel;
+  patchAutomation(id, {
+    configuration,
+    scheduleCronLabel: time,
+    nextRunAt:
+      current.status === "active" ? nextMorningIso(time) : current.nextRunAt,
+  });
 }
 
 export function resolveReviewItem(id: string) {
@@ -156,6 +167,8 @@ export function activateAutomationFromTemplate(input: {
   type: AutomationDefinition["type"];
   executionMode: ExecutionMode;
   configuration: Record<string, unknown>;
+  displayName?: string;
+  scheduleTime?: string;
 }) {
   const templates: Record<
     AutomationDefinition["type"],
@@ -199,13 +212,18 @@ export function activateAutomationFromTemplate(input: {
     },
   };
 
+  const scheduleTime = input.scheduleTime ?? templates[input.type].scheduleCronLabel;
   const existing = state.automations.find((item) => item.type === input.type);
   if (existing) {
     patchAutomation(existing.id, {
       status: "active",
       executionMode: input.executionMode,
-      configuration: input.configuration,
-      nextRunAt: nextMorningIso(existing.scheduleCronLabel),
+      configuration: {
+        ...input.configuration,
+        name: input.displayName ?? input.configuration.name,
+      },
+      scheduleCronLabel: scheduleTime,
+      nextRunAt: nextMorningIso(scheduleTime),
     });
     return existing.id;
   }
@@ -221,9 +239,13 @@ export function activateAutomationFromTemplate(input: {
     executionMode: input.executionMode,
     companyId: "co-dfm-europe",
     companyName: "DFM-Europe",
+    scheduleCronLabel: scheduleTime,
     lastRunAt: null,
-    nextRunAt: nextMorningIso(meta.scheduleCronLabel),
-    configuration: input.configuration,
+    nextRunAt: nextMorningIso(scheduleTime),
+    configuration: {
+      ...input.configuration,
+      name: input.displayName ?? input.configuration.name,
+    },
     createdAt: now,
     updatedAt: now,
   };

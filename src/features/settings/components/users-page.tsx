@@ -218,13 +218,13 @@ export function UsersPage() {
               <table className="w-full min-w-[820px] table-fixed border-separate border-spacing-0 text-left">
                 <thead className="dashboard-list__head">
                   <tr>
-                    <th className="w-[20%]">{t("columns.user")}</th>
+                    <th className="w-[18%]">{t("columns.user")}</th>
                     <th className="w-[18%]">{t("columns.email")}</th>
-                    <th className="w-[16%]">{t("columns.companies")}</th>
+                    <th className="w-[14%]">{t("columns.companies")}</th>
                     <th className="w-[14%]">{t("columns.role")}</th>
                     <th className="w-[10%]">{t("columns.status")}</th>
                     <th className="w-[10%]">{t("columns.activity")}</th>
-                    <th className="w-[12%]">
+                    <th className="w-[116px] min-w-[116px]">
                       <span className="sr-only">{t("columns.actions")}</span>
                     </th>
                   </tr>
@@ -281,7 +281,10 @@ export function UsersPage() {
                         <td>
                           <span className="dashboard-list__secondary">{user.lastActivityLabel}</span>
                         </td>
-                        <td onClick={(event) => event.stopPropagation()}>
+                        <td
+                          className="whitespace-nowrap"
+                          onClick={(event) => event.stopPropagation()}
+                        >
                           <UserActionsMenu
                             member={{
                               id: user.id,

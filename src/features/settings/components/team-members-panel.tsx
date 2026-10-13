@@ -187,7 +187,7 @@ export function TeamMembersPanel({
                   <th className="w-[16%]">{t("team.columns.role")}</th>
                   <th className="w-[12%]">{t("team.columns.status")}</th>
                   <th className="w-[14%]">{t("team.columns.activity")}</th>
-                  <th className="w-12">
+                  <th className="w-[7.5rem]">
                     <span className="sr-only">{t("team.columns.actions")}</span>
                   </th>
                 </tr>
@@ -261,7 +261,10 @@ export function TeamMembersPanel({
                       <td>
                         <span className="dashboard-list__secondary">{member.lastActivityLabel}</span>
                       </td>
-                      <td onClick={(event) => event.stopPropagation()}>
+                      <td
+                        className="whitespace-nowrap"
+                        onClick={(event) => event.stopPropagation()}
+                      >
                         <UserActionsMenu member={member} />
                       </td>
                     </tr>

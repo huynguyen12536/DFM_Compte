@@ -43,7 +43,7 @@ export function ProductPerformanceReport({
       empty={rows.length === 0}
       emptyTitle={t("empty.reportTitle")}
       emptyBody={t("empty.reportBody")}
-      bodyClassName="flex min-h-0 flex-col overflow-hidden !p-0"
+      bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden p-0"
       action={
         <ReportExportButton
           generatingLabel={t("export.generating")}
@@ -52,7 +52,10 @@ export function ProductPerformanceReport({
         />
       }
     >
-      <ReportTableScroll maxHeightClassName="max-h-[280px] sm:max-h-[320px] xl:max-h-[380px]">
+      <ReportTableScroll
+        className="h-full min-h-0 flex-1"
+        maxHeightClassName="max-h-[280px] sm:max-h-[320px] xl:max-h-none"
+      >
         <table className="w-full min-w-[520px] border-collapse text-left text-[11px]">
           <thead className="sticky top-0 z-[1] bg-[#f8fafc]/96 text-[10px] font-semibold tracking-wide text-[#7d8aa0] uppercase backdrop-blur-sm">
             <tr>

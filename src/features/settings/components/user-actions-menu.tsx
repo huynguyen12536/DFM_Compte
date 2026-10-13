@@ -56,7 +56,7 @@ export function UserActionsMenu({
   return (
     <div
       aria-label={t("open", { name: member.name })}
-      className="inline-flex max-w-full flex-wrap items-center justify-end gap-1"
+      className="inline-flex flex-nowrap items-center justify-end gap-1"
       role="group"
     >
       {visible.map((action) => {

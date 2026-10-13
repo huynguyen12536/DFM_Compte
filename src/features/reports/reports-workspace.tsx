@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { SoftToast } from "@/components/compte/soft-toast";
 import { can } from "@/features/settings/can";
 import { systemRoles } from "@/features/settings/mocks/roles";
-import { useMediaQuery } from "@/lib/use-media-query";
 
 import { hydrateLedger } from "@/features/quotes/store";
 
@@ -60,7 +59,6 @@ export function ReportsWorkspace() {
 
   const canRead = can(activePermissions, "report.read");
   const canExport = can(activePermissions, "report.export");
-  const isXl = useMediaQuery("(min-width: 1280px)");
 
   const derived = useDerivedReports(filters, {
     granularity,
@@ -233,58 +231,13 @@ export function ReportsWorkspace() {
         </div>
 
         {/*
-          Columns share one bottom edge. Aging and pipeline stay content-sized;
-          the last card in the shorter column grows so the page background
-          does not show under Sales. Stacked below xl: Aging → Pipeline → Sales → Products.
+          Form-style stretch: Aging | Pipeline stay content-sized, then
+          Sales | Products share one fixed row so both cards stretch equally
+          and their table scrolls fill to the card foot (no dead white gap).
+          Below xl the same cards stack: Aging → Pipeline → Sales → Products.
         */}
-        {isXl ? (
-          <div className="dashboard-enter enter-4 grid min-w-0 grid-cols-[minmax(0,2fr)_minmax(300px,0.9fr)] items-stretch gap-[var(--dashboard-gap)]">
-            {/*
-              Sales is taken out of flow so its long table does not inflate the
-              row. The right column (pipeline + products) sets height; Sales
-              fills leftover space and its scroll reaches the card foot.
-            */}
-            <div className="flex min-h-0 min-w-0 flex-col gap-[var(--dashboard-gap)]">
-              <ReceivableAgingReport
-                buckets={derived.aging}
-                details={derived.agingDetails}
-                drillBucket={drillBucket}
-                totalCents={agingTotal}
-                onCloseDrill={() => setDrillBucket(null)}
-                onDrill={setDrillBucket}
-                onEmptyExport={onEmptyExport}
-              />
-              <div className="relative min-h-0 min-w-0 flex-1">
-                <div className="absolute inset-0 flex min-h-0 flex-col">
-                  <SalesPerformanceReport
-                    className="h-full min-h-0"
-                    currency={filters.currency}
-                    range={derived.range}
-                    rows={derived.sales}
-                    onEmptyExport={onEmptyExport}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex min-h-0 min-w-0 flex-col gap-[var(--dashboard-gap)]">
-              <QuotePipelineReport
-                metric={pipelineMetric}
-                pipelineQuotes={derived.pipelineQuotes}
-                range={derived.range}
-                rows={derived.pipeline}
-                onEmptyExport={onEmptyExport}
-                onMetricChange={setPipelineMetric}
-              />
-              <ProductPerformanceReport
-                currency={filters.currency}
-                range={derived.range}
-                rows={derived.products}
-                onEmptyExport={onEmptyExport}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="dashboard-enter enter-4 flex min-w-0 flex-col gap-[var(--dashboard-gap)]">
+        <div className="dashboard-enter enter-4 flex min-w-0 flex-col gap-[var(--dashboard-gap)]">
+          <div className="grid min-w-0 grid-cols-1 items-stretch gap-[var(--dashboard-gap)] xl:grid-cols-[minmax(0,2fr)_minmax(300px,0.9fr)]">
             <ReceivableAgingReport
               buckets={derived.aging}
               details={derived.agingDetails}
@@ -302,20 +255,32 @@ export function ReportsWorkspace() {
               onEmptyExport={onEmptyExport}
               onMetricChange={setPipelineMetric}
             />
-            <SalesPerformanceReport
-              currency={filters.currency}
-              range={derived.range}
-              rows={derived.sales}
-              onEmptyExport={onEmptyExport}
-            />
-            <ProductPerformanceReport
-              currency={filters.currency}
-              range={derived.range}
-              rows={derived.products}
-              onEmptyExport={onEmptyExport}
-            />
           </div>
-        )}
+          <div className="grid min-w-0 grid-cols-1 items-stretch gap-[var(--dashboard-gap)] xl:h-[520px] xl:grid-cols-[minmax(0,2fr)_minmax(300px,0.9fr)]">
+            <div className="relative min-h-0 min-w-0 xl:h-full">
+              <div className="flex min-h-0 flex-col xl:absolute xl:inset-0">
+                <SalesPerformanceReport
+                  className="min-h-0 xl:h-full"
+                  currency={filters.currency}
+                  range={derived.range}
+                  rows={derived.sales}
+                  onEmptyExport={onEmptyExport}
+                />
+              </div>
+            </div>
+            <div className="relative min-h-0 min-w-0 xl:h-full">
+              <div className="flex min-h-0 flex-col xl:absolute xl:inset-0">
+                <ProductPerformanceReport
+                  className="min-h-0 xl:h-full"
+                  currency={filters.currency}
+                  range={derived.range}
+                  rows={derived.products}
+                  onEmptyExport={onEmptyExport}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="dashboard-enter enter-6 shrink-0">
           <ExportsAccountingSection

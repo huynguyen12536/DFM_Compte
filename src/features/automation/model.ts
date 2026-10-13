@@ -45,6 +45,52 @@ export type AutomationDefinition = {
   updatedAt: string;
 };
 
+export type AutomationRunActivityType =
+  | "system"
+  | "business"
+  | "review"
+  | "approval"
+  | "notification"
+  | "email"
+  | "payment"
+  | "invoice"
+  | "quote"
+  | "skip"
+  | "error";
+
+export type AutomationRunActivityStatus =
+  | "success"
+  | "info"
+  | "warning"
+  | "error"
+  | "skip";
+
+export type AutomationRunActivityAction =
+  | "bank_review"
+  | "reminder_review"
+  | "quote_review";
+
+export type AutomationRunActivity = {
+  id: string;
+  runId: string;
+  /** Display time within the run (HH:mm:ss). */
+  at: string;
+  type: AutomationRunActivityType;
+  status: AutomationRunActivityStatus;
+  titleKey: string;
+  titleParams?: Record<string, number | string>;
+  descriptionKey?: string;
+  descriptionParams?: Record<string, number | string>;
+  entityLabel?: string;
+  actor?: string;
+  meta?: { labelKey: string; value: string }[];
+  action?: {
+    kind: AutomationRunActivityAction;
+    labelKey: string;
+    count?: number;
+  };
+};
+
 export type AutomationRun = {
   id: string;
   automationId: string;
@@ -61,7 +107,7 @@ export type AutomationRun = {
   summaryKey: string;
   summaryParams?: Record<string, number | string>;
   errorSummaryKey?: string;
-  logLines: { at: string; messageKey: string; params?: Record<string, number | string> }[];
+  activities: AutomationRunActivity[];
 };
 
 export type AutomationReviewItem = {

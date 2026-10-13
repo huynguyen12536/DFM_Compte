@@ -350,6 +350,10 @@
         "label": "Reports",
         "description": "KPIs and exports"
       },
+      "projects": {
+        "label": "Projects and costs",
+        "description": "Project profitability, expenses and approvals"
+      },
       "templates": {
         "label": "Templates",
         "description": "Email and PDF templates"
@@ -412,6 +416,15 @@
       "reports": {
         "view": "View reports",
         "export": "Export reports"
+      },
+      "projects": {
+        "view": "View projects",
+        "create": "Create projects",
+        "edit": "Update projects and document links",
+        "finance": "View project costs, profit and margin",
+        "expenseView": "View expenses",
+        "expenseCreate": "Create expenses and upload receipts",
+        "expenseApprove": "Approve or reject expenses"
       },
       "templates": {
         "email": "Manage email templates",
@@ -2514,8 +2527,11 @@
     "search": "Search automations…",
     "tabs": {
       "overview": "Overview",
-      "automations": "Automations",
-      "activity": "Activity"
+      "automations": "Automations"
+    },
+    "overview": {
+      "activeTitle": "Active automations",
+      "activeSubtitle": "Workflows currently enabled for this company."
     },
     "kpis": {
       "active": "Active automations",
@@ -2530,6 +2546,7 @@
     "status": {
       "active": "Active",
       "paused": "Paused",
+      "inactive": "Inactive",
       "error": "Error",
       "draft": "Draft"
     },
@@ -2539,6 +2556,15 @@
       "failed": "Failed",
       "skipped": "Skipped",
       "running": "Running"
+    },
+    "runStages": {
+      "done": "Completed",
+      "warning": "Needs attention",
+      "failed": "Failed",
+      "skipped": "Skipped",
+      "pending": "Not reached",
+      "running": "In progress",
+      "stageLabel": "Stage: {stage}"
     },
     "mode": {
       "automatic": "Automatic",
@@ -2553,18 +2579,28 @@
       "status": "Status",
       "type": "Type",
       "allStatuses": "All statuses",
-      "allTypes": "All types"
+      "allTypes": "All types",
+      "allAutomations": "All automations",
+      "active": "Active",
+      "inactive": "Inactive",
+      "needsAttention": "Needs attention",
+      "tabsLabel": "Filter automations"
     },
     "list": {
       "title": "Automations",
       "subtitle": "{count} workflows",
+      "lastRunToday": "Today {time}",
+      "lastRunYesterday": "Yesterday {time}",
+      "openActions": "Open automation",
       "columns": {
         "name": "Name",
+        "description": "Description",
         "trigger": "Trigger",
         "mode": "Mode",
         "lastRun": "Last run",
         "outcome": "Outcome",
-        "status": "Status"
+        "status": "Status",
+        "actions": "Actions"
       }
     },
     "empty": {
@@ -2617,7 +2653,9 @@
       "nextRun": "Next run",
       "processed": "{processed} processed · {succeeded} succeeded · {skipped} skipped · {review} review · {failed} failed",
       "noRuns": "This automation has not run yet.",
+      "logsHint": "Business-readable activity from the latest run.",
       "viewRun": "View",
+      "close": "Close details",
       "pause": "Pause automation",
       "resume": "Resume automation"
     },
@@ -2690,7 +2728,10 @@
       "cancel": "Cancel",
       "confirmMode": "Switch to automatic",
       "modeTitle": "Allow automatic external actions?",
-      "modeBody": "This automation may perform external actions without manual approval."
+      "modeBody": "This automation may perform external actions without manual approval.",
+      "bankAutoTitle": "Enable automatic reconciliation?",
+      "bankAutoBody": "Confirmed matches may create/link Payments and update invoice collection status without manual approval.",
+      "bankAutoConfirm": "Enable automatic"
     },
     "attention": {
       "title": "Needs attention",
@@ -2715,15 +2756,17 @@
     },
     "runs": {
       "title": "Recent automation runs",
-      "subtitle": "Technical executions across active workflows.",
+      "subtitle": "Latest executions from all automations.",
       "empty": "No executions yet.",
       "view": "View",
+      "viewAll": "View all runs",
       "columns": {
         "when": "Date & time",
         "automation": "Automation",
         "trigger": "Trigger",
         "result": "Result",
         "processed": "Processed",
+        "stages": "Stages",
         "duration": "Duration",
         "status": "Status"
       },
@@ -2759,6 +2802,9 @@
     },
     "runDetail": {
       "title": "Run details",
+      "back": "Back to automation",
+      "close": "Close run details",
+      "summary": "Run summary",
       "trigger": "Trigger",
       "started": "Started at",
       "finished": "Completed at",
@@ -2768,7 +2814,76 @@
       "skipped": "Skipped",
       "needsReview": "Needs review",
       "failed": "Failed",
-      "logs": "Operational log"
+      "activity": "Run activity",
+      "logs": "Run activity"
+    },
+    "runActivity": {
+      "empty": "No run selected.",
+      "emptyTitle": "No run activity yet",
+      "emptyBody": "This execution has no recorded activity.",
+      "actions": {
+        "reviewBank": "Review {count} transactions",
+        "reviewDrafts": "Review drafts",
+        "reviewQuotes": "Review follow-ups"
+      },
+      "meta": {
+        "by": "Confirmed by: {actor}",
+        "amount": "Amount",
+        "status": "Status",
+        "remaining": "Remaining",
+        "to": "To",
+        "reason": "Reason"
+      },
+      "bank": {
+        "fetchedTitle": "Bank transactions fetched",
+        "fetchedBody": "{count} transactions loaded",
+        "matchedTitle": "Invoice matches confirmed",
+        "matchedBody": "{count} transactions matched",
+        "reviewTitle": "Review required",
+        "reviewBody": "{count} transactions could not be confidently matched",
+        "syncStartTitle": "Bank sync started",
+        "syncStartBody": "Connecting to the demo bank feed",
+        "syncFailTitle": "Bank sync failed",
+        "syncFailBody": "Unable to fetch transactions from the demo bank feed",
+        "matchConfirmedTitle": "Match confirmed",
+        "matchConfirmedBody": "Manual review confirmed the suggested match",
+        "paymentLinkedTitle": "Payment linked",
+        "paymentLinkedBody": "Payment recorded against the matched invoice",
+        "paymentsLinkedTitle": "Payments linked",
+        "paymentsLinkedBody": "{count} payments created or linked",
+        "invoiceUpdatedTitle": "Invoice updated",
+        "invoiceUpdatedBody": "Collection status recalculated from remaining balance",
+        "invoicesUpdatedTitle": "Invoices updated",
+        "invoicesUpdatedBody": "{count} invoices marked Partial or Paid"
+      },
+      "reminders": {
+        "checkedTitle": "Checked invoices",
+        "checkedBody": "{count} invoices evaluated",
+        "draftsTitle": "Reminder drafts prepared",
+        "draftsBody": "{count} reminder drafts created",
+        "skippedTitle": "Paid invoices skipped",
+        "skippedBody": "{count} invoices skipped · Reason: already paid",
+        "approvalTitle": "Approval required",
+        "approvalBody": "{count} drafts waiting for review",
+        "approvedTitle": "Reminder approved",
+        "approvedBody": "Draft approved for sending",
+        "sentTitle": "Reminder sent",
+        "sentBody": "Reminder email delivered"
+      },
+      "quotes": {
+        "checkedTitle": "Sent quotes checked",
+        "checkedBody": "{count} quotes evaluated",
+        "candidatesTitle": "Follow-up candidates found",
+        "candidatesBody": "{count} quotes",
+        "draftsTitle": "Follow-up drafts prepared",
+        "draftsBody": "{count} drafts ready for review",
+        "sentTitle": "Follow-ups recorded as sent",
+        "sentBody": "{count} follow-up messages sent",
+        "approvedTitle": "Follow-up approved",
+        "approvedBody": "Sales follow-up approved for sending",
+        "followUpSentTitle": "Follow-up sent",
+        "followUpSentBody": "Message delivered to the customer"
+      }
     },
     "activity": {
       "title": "Automation activity",
@@ -2819,8 +2934,8 @@
       }
     },
     "wizard": {
-      "title": "New automation",
-      "subtitle": "Choose a PRD-backed template, configure it, then activate.",
+      "title": "Create automation",
+      "subtitle": "Choose a workflow and configure how it should run.",
       "steps": {
         "template": "Template",
         "configure": "Configure",
@@ -2828,41 +2943,470 @@
       },
       "templates": {
         "bank_reconciliation": {
-          "title": "Bank reconciliation",
-          "body": "Automatically sync and match bank transactions with invoices.",
-          "flow": "Bank sync → Match rules → Review uncertainty → Update payment"
+          "title": "Bank payment reconciliation",
+          "body": "Match incoming bank transactions with open invoices and update payments.",
+          "flow": "Bank sync → Find invoice → Match decision → Payment → Invoice update → Review exceptions"
         },
         "payment_reminders": {
           "title": "Payment reminder sequence",
-          "body": "Send reminders for upcoming and overdue invoices.",
-          "flow": "Schedule → Check invoice → Send / approve → Stop when paid"
+          "body": "Automatically prepare or send reminders for upcoming and overdue invoices.",
+          "flow": "Due date → Check payment → Reminder schedule → Approval / automatic → Send → Stop when Paid"
         },
         "quote_follow_up": {
           "title": "Quote follow-up",
-          "body": "Follow up sent quotes with no response or nearing expiration.",
-          "flow": "Check status → Trigger → Draft → Approve/send"
+          "body": "Follow up sent quotes with no response or approaching expiration.",
+          "flow": "Sent quote → Eligibility check → Draft follow-up → Approval / automatic → Notify/send"
         }
       },
       "bankConfigNote": "High-confidence matches stay automatic. Uncertain matches always require review. Demo bank feed only — not a live Open Banking connection.",
       "summary": {
         "name": "Name",
+        "template": "Template",
         "mode": "Mode",
-        "company": "Company"
+        "company": "Company",
+        "trigger": "Trigger",
+        "nextRun": "Next run"
       },
+      "autoWarning": "This automation can perform actions without manual approval, such as creating payments, updating invoices, or sending emails.",
+      "useTemplate": "Use template",
       "back": "Back",
       "continue": "Continue",
       "activate": "Activate automation",
       "errors": {
         "template": "Choose a template to continue.",
-        "trigger": "Configure the follow-up triggers before activating."
+        "name": "Enter an automation name.",
+        "schedule": "Choose a valid daily run time.",
+        "reminderStages": "Select at least one reminder stage.",
+        "reminderDays": "Reminder stage days must be zero or greater.",
+        "reminderDuplicate": "Reminder stages cannot use the same timing twice.",
+        "trigger": "Enable at least one valid follow-up trigger."
       }
+    },
+    "pipeline": {
+      "title": "Pipeline preview",
+      "subtitle": "System-defined steps update as you change configuration.",
+      "badge": {
+        "scheduled": "Scheduled",
+        "automatic": "Automatic",
+        "suggest_approve": "Suggest & approve",
+        "needs_review": "Needs review",
+        "system": "System action"
+      },
+      "bank": {
+        "trigger": "Bank sync",
+        "match": "Find invoice",
+        "decision": "Match decision",
+        "payment": "Create / link Payment",
+        "invoice": "Update invoice",
+        "review": "Review exceptions"
+      },
+      "reminders": {
+        "check": "Check invoice due state",
+        "stop": "Stop when Paid",
+        "schedule": "Reminder schedule",
+        "prepare": "Prepare reminder",
+        "send": "Send",
+        "log": "Log result"
+      },
+      "quotes": {
+        "status": "Sent quote",
+        "trigger": "Eligibility check",
+        "prepare": "Draft follow-up",
+        "mode": "Approval / automatic",
+        "action": "Notify / send",
+        "log": "Activity logged"
+      }
+    },
+    "config": {
+      "general": "General",
+      "name": "Automation name",
+      "company": "Company",
+      "bankSource": "Bank source",
+      "source": "Source",
+      "demoTransactions": "Demo transactions",
+      "demoWarning": "This automation is currently using demo transactions. Live Open Banking is not connected.",
+      "schedule": "Schedule",
+      "daily": "Daily",
+      "dailyPrd": "Bank sync runs once per day according to the PRD.",
+      "dailyHelper": "Synchronization runs once per day.",
+      "reviewUncertainHelper": "Uncertain bank matches are sent to accounting review.",
+      "stopWhenPaidHelper": "Reminders stop automatically once the invoice is paid.",
+      "quoteEligibleHelper": "Only eligible sent quotes are processed.",
+      "weekdays": "Weekdays",
+      "weekly": "Weekly",
+      "hour": "Hour",
+      "minute": "Minute",
+      "timezone": "Timezone",
+      "nextRun": "Next run",
+      "matchingRules": "Matching rules",
+      "matchingSignals": "Matching signals",
+      "matchingHelper": "These signals are evaluated together when finding invoice candidates.",
+      "signalRequired": "Required matching signal",
+      "signalInvoiceBody": "Finds invoice references in bank transaction text.",
+      "signalAmountBody": "Compares transaction amount with invoice/payment balance.",
+      "signalNameBody": "Helps identify candidate customer/invoice.",
+      "systemDefined": "System-defined",
+      "requiredPipeline": "Required pipeline behavior",
+      "matchDecision": "Match decision",
+      "highConfidence": "High-confidence match",
+      "highConfidenceBody": "Defines whether a confident match can update financial state automatically.",
+      "highConfidenceSystemBody": "Confirmed matches continue to Payment and Invoice update.",
+      "uncertainMatch": "Uncertain match",
+      "uncertainBody": "Accountant confirmation is required before financial data is updated.",
+      "sendToReview": "Send to review",
+      "actionsAfterMatch": "Actions after confirmed match",
+      "actionLink": "Link bank transaction → Invoice",
+      "actionPayment": "Create / link Payment",
+      "actionBalance": "Recalculate paid amount and remaining balance",
+      "actionStatus": "Update collection status",
+      "partialPaidHelper": "Remaining > 0 → Partial. Remaining = 0 → Paid.",
+      "required": "Required",
+      "systemRule": "System rule",
+      "companyLocked": "Current company context.",
+      "nameHelper": "Displayed name for this automation in the workspace.",
+      "runTimeHelper": "Choose when the daily reconciliation should start.",
+      "timezoneHelper": "Timezone used to calculate the next run.",
+      "assignReviewHelper": "Uncertain matches will be assigned to this person or team.",
+      "autoCloseReviewHelper": "Closes the review item after a confirmed match so the queue stays clean.",
+      "channels": "Channels",
+      "currentSource": "Current source",
+      "demoBadge": "Demo",
+      "connectBank": "Connect bank",
+      "connectBankSoon": "Bank connection will open from Integrations when available.",
+      "openBanking": "Open Banking",
+      "openBankingNotConnected": "Not connected",
+      "reviewNotifications": "Review & notifications",
+      "reviewInformation": "Review information",
+      "reviewPayloadHelper": "When an uncertain match occurs, the reviewer receives:",
+      "reviewPayload": {
+        "date": "Bank transaction date",
+        "amount": "Transaction amount",
+        "label": "Bank label / reference",
+        "invoice": "Suggested invoice",
+        "customer": "Suggested customer",
+        "signals": "Match reason / signals",
+        "remaining": "Current invoice remaining balance"
+      },
+      "assignReview": "Assign uncertain matches to",
+      "accountant": "Accountant",
+      "accountingTeam": "Accounting team",
+      "notifyReviewers": "Notify reviewer",
+      "notifyReviewersHelper": "Send a review alert when an uncertain match is detected.",
+      "notifyInApp": "In-app",
+      "notifyEmailChannel": "Email",
+      "autoCloseReview": "Auto-close review item after confirmed match",
+      "recipientHelper": "Who receives the reminder email for eligible invoices.",
+      "templateHelper": "Base email template used when preparing the reminder.",
+      "automationStopsWhen": "Automation stops when",
+      "notifications": "Notifications",
+      "notifyOwnerOnSend": "Notify account owner after reminder sent",
+      "notifyAccountantOnFail": "Notify accountant when delivery fails",
+      "primaryContact": "Primary contact",
+      "reminderTemplateFirm": "Firm reminder template",
+      "reminderTemplateFinal": "Final reminder template",
+      "quoteTemplateShort": "Short quote follow-up",
+      "quoteOwnerValue": "Assigned salesperson / Quote owner",
+      "stopCondition": "Stop conditions",
+      "stopWhenPaidBody": "Reminders always stop when the invoice is Paid.",
+      "delivery": "Email content",
+      "deliveryApproval": "Delivery & approval",
+      "recipient": "Recipient",
+      "billingContact": "Billing contact",
+      "channel": "Channel",
+      "email": "Email",
+      "template": "Template",
+      "reminderTemplate": "Current reminder template",
+      "language": "Language",
+      "customerLanguage": "Auto — customer language",
+      "reminderScheduleHelper": "Configure the four PRD reminder stages. At least one stage must stay enabled.",
+      "stageN": "Stage {n}",
+      "whenDays": "Days",
+      "relativeTo": "Relative to due date",
+      "beforeDue": "Before due date",
+      "afterDue": "After due date",
+      "tone": "Tone",
+      "toneGentle": "Gentle",
+      "toneStandard": "Standard",
+      "toneFirm": "Firm",
+      "toneFinal": "Final reminder",
+      "modeSuggestHelper": "Prepare reminder → Needs Attention → Approve → Send",
+      "modeAutomaticHelper": "Prepare reminder → Send automatically",
+      "quoteTriggers": "Triggers",
+      "eligibility": "Quote eligibility",
+      "quoteStatus": "Quote status",
+      "sentOnly": "Only Sent quotes are eligible.",
+      "stopRules": "Stop rules",
+      "stopAccepted": "Accepted — stop",
+      "stopRejected": "Rejected — stop",
+      "stopInvoiced": "Invoiced — stop",
+      "noResponseTrigger": "No-response trigger",
+      "enableNoResponse": "Follow up after no response",
+      "noResponseHelper": "Maps to PRD: no response after N days.",
+      "expiryTrigger": "Expiration trigger",
+      "enableExpiry": "Near expiration",
+      "expiryHelper": "Operational threshold before quote expiration.",
+      "quoteAction": "Primary action",
+      "action": "Configured action",
+      "prepareFollowUp": "Prepare / send customer follow-up",
+      "notifySalesperson": "Notify salesperson",
+      "actionNotifyHelper": "Notify the assigned salesperson / quote owner.",
+      "actionFollowUpHelper": "Prepare or send a customer follow-up email.",
+      "quoteOwner": "Recipient",
+      "quoteOwnerHelper": "Uses the quote owner from the quote record.",
+      "quoteTemplate": "Quote follow-up template"
+    },
+    "settingsPanel": {
+      "title": "Configuration",
+      "helper": "Adjust how this automation works. Changes apply to future runs.",
+      "cancel": "Cancel",
+      "save": "Save changes",
+      "saved": "Automation settings updated.",
+      "showPreview": "Show",
+      "hidePreview": "Hide",
+      "discardTitle": "Discard unsaved changes?",
+      "discardBody": "You have unsaved Automation settings.",
+      "keepEditing": "Keep editing",
+      "discard": "Discard changes",
+      "readOnly": "Read-only access. You can view this automation, but you cannot change its configuration."
+    },
+    "preview": {
+      "email": "Preview email",
+      "notification": "Preview notification",
+      "reviewItem": "Preview review item",
+      "noSend": "Preview only — nothing is sent.",
+      "to": "To",
+      "subject": "Subject",
+      "body": "Body",
+      "reviewSubject": "Uncertain bank match needs review",
+      "reviewBody": "Assigned to: {reviewer}\n\nTransaction date: 08 Oct 2026\nAmount: 1 280,00 €\nBank label: VIR FAC20260019 MAISON LUMIERE\nSuggested invoice: FAC20260019\nSuggested customer: Maison Lumière\nRemaining balance: 1 280,00 €\nSignals: invoice number · amount · customer name",
+      "reminderTo": "Claire Dupont · claire@example.com",
+      "reminderSubject": "Reminder — Invoice FAC20260019",
+      "reminderBody": "Hello Claire Dupont,\n\nThis is a reminder regarding your open invoice.\n\nInvoice: FAC20260019\nAmount: 4 250,00 €\nAlready paid: 0,00 €\nRemaining: 4 250,00 €\nDue date: 15 Oct 2026\n\nVariables: {invoice_number} {amount} {remaining} {due_date}\n\nPlease settle the remaining balance at your earliest convenience.\n\nThank you.",
+      "quoteNotifySubject": "Quote needs follow-up",
+      "quoteNotifyBody": "Quote DEV20260147\nMaison Lumière\n\nNo response for: {days} days\nValid until: 12 Oct 2026\nAssigned salesperson: Jean Martin",
+      "quoteEmailSubject": "Following up on your quote",
+      "quoteEmailBody": "Hello,\n\nI wanted to follow up on quote DEV20260147 sent earlier.\n\nPlease let us know if you have any questions.\n\nBest regards"
     },
     "toast": {
       "activated": "Automation activated.",
+      "saved": "Configuration saved.",
       "openReconciliation": "Opening payments reconciliation for review.",
       "openReminder": "Opening payments to review the reminder draft.",
       "openQuote": "Opening quotes to review the follow-up draft.",
       "forbiddenReview": "You do not have permission to approve automation actions."
+    }
+  },
+  "projects": {
+    "title": "Projects and costs",
+    "subtitle": "Track project revenue, costs, expenses and profitability in one place.",
+    "forbidden": "You do not have permission to view projects.",
+    "forbiddenExpense": "You do not have permission to view expenses.",
+    "tabsLabel": "Projects sections",
+    "tabs": {
+      "projects": "Projects",
+      "expenses": "Expenses",
+      "approvals": "Approvals"
+    },
+    "actions": {
+      "newProject": "New project",
+      "newExpense": "New expense",
+      "more": "More actions",
+      "archive": "Archive"
+    },
+    "kpis": {
+      "total": "Total projects",
+      "totalHelper": "Visible non-archived projects",
+      "active": "Active projects",
+      "activeHelper": "Currently in progress",
+      "revenue": "Project revenue",
+      "revenueHelper": "From linked validated invoices",
+      "costs": "Project costs",
+      "costsHelper": "Approved project expenses",
+      "margin": "Gross margin",
+      "marginHelper": "Profit {profit}",
+      "na": "N/A"
+    },
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "completed": "Completed",
+      "on_hold": "On hold",
+      "archived": "Archived"
+    },
+    "filters": {
+      "searchProjects": "Search by project, code or customer…",
+      "searchExpenses": "Search expense, supplier, project…",
+      "status": "Status",
+      "customer": "Customer",
+      "company": "Company",
+      "project": "Project",
+      "allStatuses": "All statuses",
+      "allCustomers": "All customers",
+      "allProjects": "All projects"
+    },
+    "columns": {
+      "code": "Project code",
+      "name": "Project name",
+      "customer": "Customer",
+      "status": "Status",
+      "quotes": "Quotes",
+      "invoices": "Invoices",
+      "revenue": "Revenue",
+      "costs": "Costs",
+      "profit": "Profit",
+      "margin": "Margin",
+      "lastActivity": "Last activity"
+    },
+    "empty": {
+      "title": "No Projects yet",
+      "body": "Create a Project to group Quotes, Invoices and Expenses and track profitability."
+    },
+    "analytics": {
+      "profitability": "Project profitability",
+      "profitabilityHint": "Top projects by gross margin",
+      "revenueVsCosts": "Revenue vs Costs",
+      "revenueVsCostsHint": "Grouped comparison by project"
+    },
+    "finance": {
+      "masked": "•••"
+    },
+    "form": {
+      "createTitle": "New project",
+      "create": "Create project",
+      "cancel": "Cancel",
+      "close": "Close",
+      "name": "Project name",
+      "customer": "Customer",
+      "selectCustomer": "Select customer",
+      "code": "Project code",
+      "codeHint": "PRJ-2026-00X",
+      "description": "Description",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "status": "Status",
+      "statusNote": "Status lifecycle is a UX/domain assumption — not explicitly defined in the PRD.",
+      "required": "Project name and customer are required."
+    },
+    "detail": {
+      "tabsLabel": "Project detail sections",
+      "tabs": {
+        "overview": "Overview",
+        "quotes": "Quotes",
+        "invoices": "Invoices",
+        "costs": "Costs",
+        "activity": "Activity"
+      },
+      "info": "Project information",
+      "financial": "Financial summary",
+      "linked": "Linked documents",
+      "noDescription": "No description provided.",
+      "quoted": "Quoted value",
+      "invoiced": "Invoiced value",
+      "collected": "Collected amount",
+      "outstanding": "Outstanding",
+      "expenses": "Expenses",
+      "linkQuote": "Link quote",
+      "linkInvoice": "Link invoice",
+      "selectQuote": "Select a quote",
+      "selectInvoice": "Select an invoice",
+      "quoteNumber": "Quote number",
+      "invoiceNumber": "Invoice number",
+      "date": "Date",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "htTtc": "HT / TTC",
+      "owner": "Owner",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "viewQuote": "View quote",
+      "viewInvoice": "View invoice",
+      "noQuotes": "No quotes linked yet.",
+      "noInvoices": "No invoices linked yet.",
+      "noCosts": "No expenses linked yet.",
+      "noActivity": "No activity yet.",
+      "invoiceImmutable": "Linking does not unlock editing of validated invoices."
+    },
+    "expense": {
+      "createTitle": "New expense",
+      "date": "Date",
+      "amount": "Amount",
+      "vat": "VAT",
+      "category": "Category",
+      "supplier": "Supplier",
+      "project": "Project",
+      "description": "Description",
+      "submittedBy": "Submitted by",
+      "receipt": "Receipt",
+      "receiptHint": "Upload an image or PDF. OCR will suggest values for review.",
+      "upload": "Upload receipt",
+      "noReceipt": "No receipt",
+      "noProject": "No project",
+      "noDescription": "No description",
+      "untitled": "Untitled expense",
+      "required": "Date and amount are required.",
+      "saveDraft": "Save draft",
+      "submit": "Submit for approval",
+      "categories": {
+        "travel": "Travel",
+        "materials": "Materials",
+        "subcontracting": "Subcontracting",
+        "other": "Other"
+      },
+      "status": {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "pending_approval": "Pending approval",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "ocr": {
+        "idle": "No receipt uploaded yet.",
+        "uploading": "Uploading receipt…",
+        "processing": "Extracting receipt information…",
+        "success": "OCR suggestions applied — review before saving.",
+        "failed": "Could not extract receipt information.",
+        "badge": "OCR"
+      },
+      "summary": {
+        "total": "Total",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    },
+    "approvals": {
+      "empty": "No expenses waiting for approval.",
+      "review": "Review",
+      "reviewTitle": "Review expense",
+      "approve": "Approve",
+      "reject": "Reject",
+      "confirmReject": "Confirm rejection",
+      "reason": "Rejection reason",
+      "reasonRequired": "A rejection reason is required.",
+      "rejectedReason": "Rejected: {reason}"
+    },
+    "activity": {
+      "created": "Project created",
+      "statusChanged": "Project status changed",
+      "statusChangedBody": "New status: {status}",
+      "quoteLinked": "Quote linked",
+      "quoteLinkedBody": "Quote {quote} linked to this project",
+      "invoiceLinked": "Invoice linked",
+      "invoiceLinkedBody": "Invoice {invoice} linked to this project",
+      "expenseSubmitted": "Expense submitted",
+      "expenseSubmittedBody": "Expense {amount} submitted for approval",
+      "expenseApproved": "Expense approved",
+      "expenseApprovedBody": "Expense {amount} approved by {actor}",
+      "expenseRejected": "Expense rejected",
+      "expenseRejectedBody": "Rejected: {reason}"
+    },
+    "toast": {
+      "projectCreated": "Project created.",
+      "expenseCreated": "Expense saved.",
+      "archived": "Project archived.",
+      "approvalUpdated": "Expense approval updated.",
+      "openQuote": "Opening quote details.",
+      "openInvoice": "Opening invoice details."
     }
   }
 }

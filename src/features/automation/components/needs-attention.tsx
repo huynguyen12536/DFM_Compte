@@ -33,22 +33,32 @@ export function NeedsAttentionPanel({
   items,
   automations,
   onReview,
+  limit,
 }: {
   items: AutomationReviewItem[];
   automations: AutomationDefinition[];
   onReview: (item: AutomationReviewItem) => void;
+  /** Cap visible items on Overview; badge still shows total open count. */
+  limit?: number;
 }) {
   const t = useTranslations("automation");
   const locale = useLocale();
   const openItems = items.filter((item) => item.status === "open");
+  const visibleItems =
+    typeof limit === "number" ? openItems.slice(0, Math.max(0, limit)) : openItems;
   const byId = new Map(automations.map((item) => [item.id, item]));
 
   return (
-    <section className="dashboard-card flex min-h-0 min-w-0 flex-col overflow-hidden">
+    <section className="dashboard-card flex h-[min(420px,52vh)] min-h-[280px] min-w-0 flex-col overflow-hidden">
       <div className="shrink-0 border-b border-[#edf2f8] px-3.5 py-2.5">
         <h2 className="dashboard-card-title flex items-center gap-1.5">
           <CircleAlert aria-hidden="true" className="h-3.5 w-3.5 text-[#b96d24]" />
           {t("attention.title")}
+          {openItems.length > 0 ? (
+            <span className="rounded-full bg-[#fff1df] px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-[#b96d24]">
+              {openItems.length}
+            </span>
+          ) : null}
         </h2>
         <p className="dashboard-label mt-0.5 text-[11px]">{t("attention.subtitle")}</p>
       </div>
@@ -61,8 +71,8 @@ export function NeedsAttentionPanel({
           </p>
         </div>
       ) : (
-        <ul className="dashboard-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2.5">
-          {openItems.map((item) => {
+        <ul className="dashboard-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain p-2.5">
+          {visibleItems.map((item) => {
             const Icon = reviewIcon[item.type];
             const automation = byId.get(item.automationId);
             return (

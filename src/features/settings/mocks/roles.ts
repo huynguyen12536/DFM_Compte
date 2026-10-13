@@ -39,6 +39,13 @@ const tenantAdminPermissions: PermissionId[] = [
   "automation.read",
   "automation.manage",
   "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "project.finance",
+  "expense.read",
+  "expense.create",
+  "expense.approve",
   "security.session.manage",
   "audit.read",
   // Bank is Phase 2 — catalog shows it, default tenant admin may manage when module is enabled.
@@ -60,6 +67,13 @@ const businessOwnerPermissions: PermissionId[] = [
   "automation.read",
   "automation.manage",
   "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "project.finance",
+  "expense.read",
+  "expense.create",
+  "expense.approve",
   "audit.read",
 ];
 
@@ -79,9 +93,16 @@ const accountantPermissions: PermissionId[] = [
   "report.export",
   "automation.read",
   "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "project.finance",
+  "expense.read",
+  "expense.create",
+  "expense.approve",
 ];
 
-/** Sales: OWN scope defaults. No invoice.validate. */
+/** Sales: OWN scope defaults. No invoice.validate. No project cost/margin. */
 const salesPermissions: PermissionId[] = [
   "customer.read",
   "customer.create",
@@ -95,6 +116,11 @@ const salesPermissions: PermissionId[] = [
   "report.read",
   "automation.read",
   "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "expense.read",
+  "expense.create",
 ];
 
 /** Viewer: read-only. */
@@ -107,6 +133,8 @@ const viewerPermissions: PermissionId[] = [
   "payment.read",
   "report.read",
   "automation.read",
+  "project.read",
+  "expense.read",
 ];
 
 export const systemRoles: Role[] = [

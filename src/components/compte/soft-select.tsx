@@ -135,9 +135,9 @@ export function SoftSelect({
         aria-haspopup="listbox"
         aria-label={label}
         className={cn(
-          "soft-input flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] px-2.5 text-left text-xs font-semibold text-[#24334c] outline-none",
+          "soft-input flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] !bg-white px-2.5 text-left text-xs font-semibold text-[#24334c] outline-none",
           open && "ring-1 ring-[#044ce2]/30",
-          disabled && "cursor-not-allowed opacity-70",
+          disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
           triggerClassName,
         )}
         disabled={disabled}

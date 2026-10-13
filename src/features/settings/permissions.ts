@@ -20,6 +20,8 @@ export const SENSITIVE_PERMISSIONS = new Set<PermissionId>([
   "company.archive",
   "company.manage",
   "security.session.manage",
+  "project.finance",
+  "expense.approve",
 ]);
 
 function action(
@@ -149,6 +151,32 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     actions: [
       action("report.view", "actions.reports.view", "report.read", ["report", "kpi", "view"]),
       action("report.export", "actions.reports.export", "report.export", ["report", "export"]),
+    ],
+  },
+  {
+    id: "projects",
+    labelKey: "groups.projects.label",
+    descriptionKey: "groups.projects.description",
+    actions: [
+      action("project.view", "actions.projects.view", "project.read", ["project", "view"]),
+      action("project.create", "actions.projects.create", "project.create", ["project", "create"]),
+      action("project.edit", "actions.projects.edit", "project.update", ["project", "edit", "link"]),
+      action("project.finance", "actions.projects.finance", "project.finance", [
+        "project",
+        "cost",
+        "margin",
+        "profit",
+      ], { sensitive: true }),
+      action("expense.view", "actions.projects.expenseView", "expense.read", ["expense", "view"]),
+      action("expense.create", "actions.projects.expenseCreate", "expense.create", [
+        "expense",
+        "create",
+        "receipt",
+      ]),
+      action("expense.approve", "actions.projects.expenseApprove", "expense.approve", [
+        "expense",
+        "approve",
+      ], { sensitive: true }),
     ],
   },
   {

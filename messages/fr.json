@@ -350,6 +350,10 @@
         "label": "Rapports",
         "description": "KPI et exports"
       },
+      "projects": {
+        "label": "Projets et coûts",
+        "description": "Rentabilité projet, dépenses et validations"
+      },
       "templates": {
         "label": "Modeles",
         "description": "Modeles e-mail et PDF"
@@ -412,6 +416,15 @@
       "reports": {
         "view": "Voir les rapports",
         "export": "Exporter des rapports"
+      },
+      "projects": {
+        "view": "Voir les projets",
+        "create": "Créer des projets",
+        "edit": "Modifier les projets et liaisons de documents",
+        "finance": "Voir les coûts, le profit et la marge projet",
+        "expenseView": "Voir les dépenses",
+        "expenseCreate": "Créer des dépenses et téléverser des reçus",
+        "expenseApprove": "Approuver ou rejeter des dépenses"
       },
       "templates": {
         "email": "Gerer les modeles e-mail",
@@ -2514,8 +2527,11 @@
     "search": "Rechercher une automatisation…",
     "tabs": {
       "overview": "Vue d'ensemble",
-      "automations": "Automatisations",
-      "activity": "Activité"
+      "automations": "Automatisations"
+    },
+    "overview": {
+      "activeTitle": "Automatisations actives",
+      "activeSubtitle": "Workflows actuellement activés pour cette entreprise."
     },
     "kpis": {
       "active": "Automatisations actives",
@@ -2530,6 +2546,7 @@
     "status": {
       "active": "Active",
       "paused": "En pause",
+      "inactive": "Inactive",
       "error": "Erreur",
       "draft": "Brouillon"
     },
@@ -2539,6 +2556,15 @@
       "failed": "Échec",
       "skipped": "Ignoré",
       "running": "En cours"
+    },
+    "runStages": {
+      "done": "Terminé",
+      "warning": "Attention requise",
+      "failed": "Échec",
+      "skipped": "Ignoré",
+      "pending": "Non atteint",
+      "running": "En cours",
+      "stageLabel": "Étape : {stage}"
     },
     "mode": {
       "automatic": "Automatique",
@@ -2553,18 +2579,28 @@
       "status": "Statut",
       "type": "Type",
       "allStatuses": "Tous les statuts",
-      "allTypes": "Tous les types"
+      "allTypes": "Tous les types",
+      "allAutomations": "Toutes les automatisations",
+      "active": "Actives",
+      "inactive": "Inactives",
+      "needsAttention": "À traiter",
+      "tabsLabel": "Filtrer les automatisations"
     },
     "list": {
       "title": "Automatisations",
       "subtitle": "{count} workflows",
+      "lastRunToday": "Aujourd'hui {time}",
+      "lastRunYesterday": "Hier {time}",
+      "openActions": "Ouvrir l'automatisation",
       "columns": {
         "name": "Nom",
+        "description": "Description",
         "trigger": "Déclencheur",
         "mode": "Mode",
         "lastRun": "Dernière exécution",
         "outcome": "Résultat",
-        "status": "Statut"
+        "status": "Statut",
+        "actions": "Actions"
       }
     },
     "empty": {
@@ -2617,7 +2653,9 @@
       "nextRun": "Prochaine exécution",
       "processed": "{processed} traités · {succeeded} réussis · {skipped} ignorés · {review} à revoir · {failed} en échec",
       "noRuns": "Cette automatisation n'a pas encore été exécutée.",
+      "logsHint": "Activité métier de la dernière exécution.",
       "viewRun": "Voir",
+      "close": "Fermer le détail",
       "pause": "Mettre en pause",
       "resume": "Reprendre"
     },
@@ -2690,7 +2728,10 @@
       "cancel": "Annuler",
       "confirmMode": "Passer en automatique",
       "modeTitle": "Autoriser les actions externes automatiques ?",
-      "modeBody": "Cette automatisation pourra exécuter des actions externes sans validation manuelle."
+      "modeBody": "Cette automatisation pourra exécuter des actions externes sans validation manuelle.",
+      "bankAutoTitle": "Activer le rapprochement automatique ?",
+      "bankAutoBody": "Les rapprochements confirmés pourront créer/lier des paiements et mettre à jour le statut de recouvrement sans validation manuelle.",
+      "bankAutoConfirm": "Activer l'automatique"
     },
     "attention": {
       "title": "À traiter",
@@ -2715,15 +2756,17 @@
     },
     "runs": {
       "title": "Exécutions récentes",
-      "subtitle": "Exécutions techniques des workflows actifs.",
+      "subtitle": "Dernières exécutions de toutes les automatisations.",
       "empty": "Aucune exécution pour le moment.",
       "view": "Voir",
+      "viewAll": "Voir toutes les exécutions",
       "columns": {
         "when": "Date & heure",
         "automation": "Automatisation",
         "trigger": "Déclencheur",
         "result": "Résultat",
         "processed": "Traités",
+        "stages": "Étapes",
         "duration": "Durée",
         "status": "Statut"
       },
@@ -2759,6 +2802,9 @@
     },
     "runDetail": {
       "title": "Détail d'exécution",
+      "back": "Retour à l'automatisation",
+      "close": "Fermer le détail d'exécution",
+      "summary": "Résumé d'exécution",
       "trigger": "Déclencheur",
       "started": "Démarrée à",
       "finished": "Terminée à",
@@ -2768,7 +2814,76 @@
       "skipped": "Ignorés",
       "needsReview": "À revoir",
       "failed": "Échoués",
-      "logs": "Journal opérationnel"
+      "activity": "Activité de l'exécution",
+      "logs": "Activité de l'exécution"
+    },
+    "runActivity": {
+      "empty": "Aucune exécution sélectionnée.",
+      "emptyTitle": "Aucune activité pour cette exécution",
+      "emptyBody": "Cette exécution n'a pas encore d'activité enregistrée.",
+      "actions": {
+        "reviewBank": "Revoir {count} transactions",
+        "reviewDrafts": "Revoir les brouillons",
+        "reviewQuotes": "Revoir les suivis"
+      },
+      "meta": {
+        "by": "Confirmé par : {actor}",
+        "amount": "Montant",
+        "status": "Statut",
+        "remaining": "Reste à payer",
+        "to": "À",
+        "reason": "Motif"
+      },
+      "bank": {
+        "fetchedTitle": "Transactions bancaires récupérées",
+        "fetchedBody": "{count} transactions chargées",
+        "matchedTitle": "Rapprochements confirmés",
+        "matchedBody": "{count} transactions rapprochées",
+        "reviewTitle": "Revue requise",
+        "reviewBody": "{count} transactions n'ont pas pu être rapprochées avec confiance",
+        "syncStartTitle": "Sync bancaire démarrée",
+        "syncStartBody": "Connexion au flux bancaire démo",
+        "syncFailTitle": "Échec de la sync bancaire",
+        "syncFailBody": "Impossible de récupérer les transactions du flux bancaire démo",
+        "matchConfirmedTitle": "Rapprochement confirmé",
+        "matchConfirmedBody": "La revue manuelle a confirmé le rapprochement proposé",
+        "paymentLinkedTitle": "Paiement lié",
+        "paymentLinkedBody": "Paiement enregistré sur la facture rapprochée",
+        "paymentsLinkedTitle": "Paiements liés",
+        "paymentsLinkedBody": "{count} paiements créés ou liés",
+        "invoiceUpdatedTitle": "Facture mise à jour",
+        "invoiceUpdatedBody": "Statut d'encaissement recalculé selon le reste à payer",
+        "invoicesUpdatedTitle": "Factures mises à jour",
+        "invoicesUpdatedBody": "{count} factures marquées Partiel ou Payé"
+      },
+      "reminders": {
+        "checkedTitle": "Factures vérifiées",
+        "checkedBody": "{count} factures évaluées",
+        "draftsTitle": "Brouillons de relance préparés",
+        "draftsBody": "{count} brouillons créés",
+        "skippedTitle": "Factures payées ignorées",
+        "skippedBody": "{count} factures ignorées · Motif : déjà payées",
+        "approvalTitle": "Approbation requise",
+        "approvalBody": "{count} brouillons en attente de revue",
+        "approvedTitle": "Relance approuvée",
+        "approvedBody": "Brouillon approuvé pour envoi",
+        "sentTitle": "Relance envoyée",
+        "sentBody": "E-mail de relance remis"
+      },
+      "quotes": {
+        "checkedTitle": "Devis envoyés vérifiés",
+        "checkedBody": "{count} devis évalués",
+        "candidatesTitle": "Candidats de suivi trouvés",
+        "candidatesBody": "{count} devis",
+        "draftsTitle": "Brouillons de suivi préparés",
+        "draftsBody": "{count} brouillons prêts à revoir",
+        "sentTitle": "Suivis enregistrés comme envoyés",
+        "sentBody": "{count} messages de suivi envoyés",
+        "approvedTitle": "Suivi approuvé",
+        "approvedBody": "Suivi commercial approuvé pour envoi",
+        "followUpSentTitle": "Suivi envoyé",
+        "followUpSentBody": "Message remis au client"
+      }
     },
     "activity": {
       "title": "Activité d'automatisation",
@@ -2819,8 +2934,8 @@
       }
     },
     "wizard": {
-      "title": "Nouvelle automatisation",
-      "subtitle": "Choisissez un modèle PRD, configurez-le, puis activez-le.",
+      "title": "Créer une automatisation",
+      "subtitle": "Choisissez un workflow et configurez son exécution.",
       "steps": {
         "template": "Modèle",
         "configure": "Configurer",
@@ -2828,41 +2943,470 @@
       },
       "templates": {
         "bank_reconciliation": {
-          "title": "Rapprochement bancaire",
-          "body": "Synchroniser et rapprocher automatiquement les transactions avec les factures.",
-          "flow": "Sync banque → Règles → Revue incertaine → Paiement"
+          "title": "Rapprochement des paiements bancaires",
+          "body": "Rapprocher les transactions bancaires entrantes avec les factures ouvertes et mettre à jour les paiements.",
+          "flow": "Sync banque → Trouver facture → Décision → Paiement → MAJ facture → Revue exceptions"
         },
         "payment_reminders": {
-          "title": "Séquence de relances",
-          "body": "Envoyer des relances pour les factures à échéance ou en retard.",
-          "flow": "Planning → Vérifier facture → Envoyer / approuver → Stop si payée"
+          "title": "Séquence de relances de paiement",
+          "body": "Préparer ou envoyer automatiquement des relances pour les factures à venir et en retard.",
+          "flow": "Échéance → Vérifier paiement → Planning → Approbation / auto → Envoyer → Stop si Payée"
         },
         "quote_follow_up": {
           "title": "Suivi de devis",
           "body": "Relancer les devis envoyés sans réponse ou proches de l'expiration.",
-          "flow": "Statut → Déclencheur → Brouillon → Approuver/envoyer"
+          "flow": "Devis envoyé → Éligibilité → Brouillon → Approbation / auto → Notifier/envoyer"
         }
       },
       "bankConfigNote": "Les rapprochements à haute confiance restent automatiques. Les cas incertains passent toujours en revue. Flux bancaire démo uniquement — pas de connexion Open Banking live.",
       "summary": {
         "name": "Nom",
+        "template": "Modèle",
         "mode": "Mode",
-        "company": "Société"
+        "company": "Société",
+        "trigger": "Déclencheur",
+        "nextRun": "Prochaine exécution"
       },
+      "autoWarning": "Cette automatisation peut exécuter des actions sans validation manuelle, comme créer des paiements, mettre à jour des factures ou envoyer des e-mails.",
+      "useTemplate": "Utiliser le modèle",
       "back": "Retour",
       "continue": "Continuer",
       "activate": "Activer l'automatisation",
       "errors": {
         "template": "Choisissez un modèle pour continuer.",
-        "trigger": "Configurez les déclencheurs de suivi avant l'activation."
+        "name": "Saisissez un nom d'automatisation.",
+        "schedule": "Choisissez une heure d'exécution quotidienne valide.",
+        "reminderStages": "Sélectionnez au moins une étape de relance.",
+        "reminderDays": "Les jours d'étape doivent être supérieurs ou égaux à zéro.",
+        "reminderDuplicate": "Deux étapes ne peuvent pas avoir le même timing.",
+        "trigger": "Activez au moins un déclencheur de suivi valide."
       }
+    },
+    "pipeline": {
+      "title": "Aperçu du pipeline",
+      "subtitle": "Les étapes définies par le système se mettent à jour avec la configuration.",
+      "badge": {
+        "scheduled": "Planifié",
+        "automatic": "Automatique",
+        "suggest_approve": "Suggestion & approbation",
+        "needs_review": "À revoir",
+        "system": "Action système"
+      },
+      "bank": {
+        "trigger": "Sync bancaire",
+        "match": "Trouver la facture",
+        "decision": "Décision de rapprochement",
+        "payment": "Créer / lier le paiement",
+        "invoice": "Mettre à jour la facture",
+        "review": "Revue des exceptions"
+      },
+      "reminders": {
+        "check": "Vérifier l'échéance",
+        "stop": "Arrêter si Payée",
+        "schedule": "Planning des relances",
+        "prepare": "Préparer la relance",
+        "send": "Envoyer",
+        "log": "Journaliser le résultat"
+      },
+      "quotes": {
+        "status": "Devis envoyé",
+        "trigger": "Contrôle d'éligibilité",
+        "prepare": "Brouillon de suivi",
+        "mode": "Approbation / automatique",
+        "action": "Notifier / envoyer",
+        "log": "Activité journalisée"
+      }
+    },
+    "config": {
+      "general": "Général",
+      "name": "Nom de l'automatisation",
+      "company": "Société",
+      "bankSource": "Source bancaire",
+      "source": "Source",
+      "demoTransactions": "Transactions démo",
+      "demoWarning": "Cette automatisation utilise actuellement des transactions démo. L'Open Banking live n'est pas connecté.",
+      "schedule": "Planning",
+      "daily": "Quotidien",
+      "dailyPrd": "La sync bancaire s'exécute une fois par jour selon le PRD.",
+      "dailyHelper": "La synchronisation s'exécute une fois par jour.",
+      "reviewUncertainHelper": "Les rapprochements incertains sont envoyés en revue comptable.",
+      "stopWhenPaidHelper": "Les relances s'arrêtent automatiquement lorsque la facture est payée.",
+      "quoteEligibleHelper": "Seuls les devis envoyés éligibles sont traités.",
+      "weekdays": "Jours ouvrés",
+      "weekly": "Hebdomadaire",
+      "hour": "Heure",
+      "minute": "Minute",
+      "timezone": "Fuseau horaire",
+      "nextRun": "Prochaine exécution",
+      "matchingRules": "Règles de rapprochement",
+      "matchingSignals": "Signaux de rapprochement",
+      "matchingHelper": "Ces signaux sont évalués ensemble pour trouver les factures candidates.",
+      "signalRequired": "Signal de rapprochement obligatoire",
+      "signalInvoiceBody": "Repère les références de facture dans le libellé bancaire.",
+      "signalAmountBody": "Compare le montant de la transaction au solde facture/paiement.",
+      "signalNameBody": "Aide à identifier le client / la facture candidate.",
+      "systemDefined": "Défini par le système",
+      "requiredPipeline": "Comportement pipeline obligatoire",
+      "matchDecision": "Décision de rapprochement",
+      "highConfidence": "Rapprochement à haute confiance",
+      "highConfidenceBody": "Définit si un rapprochement confiant peut mettre à jour l'état financier automatiquement.",
+      "highConfidenceSystemBody": "Les rapprochements confirmés continuent vers Paiement et mise à jour Facture.",
+      "uncertainMatch": "Rapprochement incertain",
+      "uncertainBody": "La confirmation comptable est requise avant toute mise à jour financière.",
+      "sendToReview": "Envoyer en revue",
+      "actionsAfterMatch": "Actions après rapprochement confirmé",
+      "actionLink": "Lier la transaction bancaire → Facture",
+      "actionPayment": "Créer / lier le paiement",
+      "actionBalance": "Recalculer montant payé et reste à payer",
+      "actionStatus": "Mettre à jour le statut de recouvrement",
+      "partialPaidHelper": "Reste > 0 → Partiel. Reste = 0 → Payée.",
+      "required": "Obligatoire",
+      "systemRule": "Règle système",
+      "companyLocked": "Contexte société actuel.",
+      "nameHelper": "Nom affiché de cette automatisation dans l'espace de travail.",
+      "runTimeHelper": "Choisissez l'heure de démarrage du rapprochement quotidien.",
+      "timezoneHelper": "Fuseau utilisé pour calculer la prochaine exécution.",
+      "assignReviewHelper": "Les cas incertains seront assignés à cette personne ou équipe.",
+      "autoCloseReviewHelper": "Ferme l'élément de revue après confirmation pour garder la file propre.",
+      "channels": "Canaux",
+      "currentSource": "Source actuelle",
+      "demoBadge": "Démo",
+      "connectBank": "Connecter une banque",
+      "connectBankSoon": "La connexion bancaire s'ouvrira depuis Intégrations lorsqu'elle sera disponible.",
+      "openBanking": "Open Banking",
+      "openBankingNotConnected": "Non connecté",
+      "reviewNotifications": "Revue & notifications",
+      "reviewInformation": "Informations de revue",
+      "reviewPayloadHelper": "Lorsqu'un rapprochement incertain survient, le relecteur reçoit :",
+      "reviewPayload": {
+        "date": "Date de la transaction bancaire",
+        "amount": "Montant de la transaction",
+        "label": "Libellé / référence bancaire",
+        "invoice": "Facture suggérée",
+        "customer": "Client suggéré",
+        "signals": "Raison / signaux de rapprochement",
+        "remaining": "Reste à payer de la facture"
+      },
+      "assignReview": "Assigner les cas incertains à",
+      "accountant": "Comptable",
+      "accountingTeam": "Équipe comptable",
+      "notifyReviewers": "Notifier le relecteur",
+      "notifyReviewersHelper": "Envoyer une alerte de revue lorsqu'un cas incertain est détecté.",
+      "notifyInApp": "In-app",
+      "notifyEmailChannel": "E-mail",
+      "autoCloseReview": "Fermer l'élément après confirmation du rapprochement",
+      "recipientHelper": "Qui reçoit l'e-mail de relance pour les factures éligibles.",
+      "templateHelper": "Modèle e-mail de base utilisé pour préparer la relance.",
+      "automationStopsWhen": "L'automatisation s'arrête lorsque",
+      "notifications": "Notifications",
+      "notifyOwnerOnSend": "Notifier le propriétaire après envoi de relance",
+      "notifyAccountantOnFail": "Notifier le comptable en cas d'échec d'envoi",
+      "primaryContact": "Contact principal",
+      "reminderTemplateFirm": "Modèle de relance ferme",
+      "reminderTemplateFinal": "Modèle de dernier rappel",
+      "quoteTemplateShort": "Suivi devis court",
+      "quoteOwnerValue": "Commercial assigné / Propriétaire du devis",
+      "stopCondition": "Conditions d'arrêt",
+      "stopWhenPaidBody": "Les relances s'arrêtent toujours lorsque la facture est Payée.",
+      "delivery": "Contenu e-mail",
+      "deliveryApproval": "Envoi & approbation",
+      "recipient": "Destinataire",
+      "billingContact": "Contact facturation",
+      "channel": "Canal",
+      "email": "E-mail",
+      "template": "Modèle",
+      "reminderTemplate": "Modèle de relance actuel",
+      "language": "Langue",
+      "customerLanguage": "Auto — langue client",
+      "reminderScheduleHelper": "Configurez les quatre étapes PRD. Au moins une étape doit rester active.",
+      "stageN": "Étape {n}",
+      "whenDays": "Jours",
+      "relativeTo": "Par rapport à l'échéance",
+      "beforeDue": "Avant échéance",
+      "afterDue": "Après échéance",
+      "tone": "Ton",
+      "toneGentle": "Doux",
+      "toneStandard": "Standard",
+      "toneFirm": "Ferme",
+      "toneFinal": "Dernier rappel",
+      "modeSuggestHelper": "Préparer → À traiter → Approuver → Envoyer",
+      "modeAutomaticHelper": "Préparer → Envoyer automatiquement",
+      "quoteTriggers": "Déclencheurs",
+      "eligibility": "Éligibilité devis",
+      "quoteStatus": "Statut devis",
+      "sentOnly": "Seuls les devis Envoyés sont éligibles.",
+      "stopRules": "Règles d'arrêt",
+      "stopAccepted": "Accepté — arrêt",
+      "stopRejected": "Refusé — arrêt",
+      "stopInvoiced": "Facturé — arrêt",
+      "noResponseTrigger": "Déclencheur sans réponse",
+      "enableNoResponse": "Relancer après absence de réponse",
+      "noResponseHelper": "Correspond au PRD : sans réponse après N jours.",
+      "expiryTrigger": "Déclencheur d'expiration",
+      "enableExpiry": "Proche de l'expiration",
+      "expiryHelper": "Seuil opérationnel avant expiration du devis.",
+      "quoteAction": "Action principale",
+      "action": "Action configurée",
+      "prepareFollowUp": "Préparer / envoyer le suivi client",
+      "notifySalesperson": "Notifier le commercial",
+      "actionNotifyHelper": "Notifier le commercial / propriétaire du devis.",
+      "actionFollowUpHelper": "Préparer ou envoyer un e-mail de suivi client.",
+      "quoteOwner": "Destinataire",
+      "quoteOwnerHelper": "Utilise le propriétaire du devis.",
+      "quoteTemplate": "Modèle de suivi devis"
+    },
+    "settingsPanel": {
+      "title": "Configuration",
+      "helper": "Ajustez le fonctionnement de cette automatisation. Les changements s'appliquent aux prochaines exécutions.",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saved": "Paramètres d'automatisation mis à jour.",
+      "showPreview": "Afficher",
+      "hidePreview": "Masquer",
+      "discardTitle": "Abandonner les modifications ?",
+      "discardBody": "Vous avez des paramètres d'automatisation non enregistrés.",
+      "keepEditing": "Continuer l'édition",
+      "discard": "Abandonner les modifications",
+      "readOnly": "Accès en lecture seule. Vous pouvez consulter cette automatisation, mais pas modifier sa configuration."
+    },
+    "preview": {
+      "email": "Aperçu e-mail",
+      "notification": "Aperçu notification",
+      "reviewItem": "Aperçu élément de revue",
+      "noSend": "Aperçu uniquement — rien n'est envoyé.",
+      "to": "À",
+      "subject": "Objet",
+      "body": "Corps",
+      "reviewSubject": "Rapprochement bancaire incertain à revoir",
+      "reviewBody": "Assigné à : {reviewer}\n\nDate transaction : 08 oct. 2026\nMontant : 1 280,00 €\nLibellé : VIR FAC20260019 MAISON LUMIERE\nFacture suggérée : FAC20260019\nClient suggéré : Maison Lumière\nReste à payer : 1 280,00 €\nSignaux : n° facture · montant · nom client",
+      "reminderTo": "Claire Dupont · claire@example.com",
+      "reminderSubject": "Relance — Facture FAC20260019",
+      "reminderBody": "Bonjour Claire Dupont,\n\nCeci est une relance concernant votre facture ouverte.\n\nFacture : FAC20260019\nMontant : 4 250,00 €\nDéjà payé : 0,00 €\nReste : 4 250,00 €\nÉchéance : 15 oct. 2026\n\nVariables : {invoice_number} {amount} {remaining} {due_date}\n\nMerci de régler le solde restant dès que possible.\n\nCordialement.",
+      "quoteNotifySubject": "Suivi de devis requis",
+      "quoteNotifyBody": "Devis DEV20260147\nMaison Lumière\n\nSans réponse depuis : {days} jours\nValable jusqu'au : 12 oct. 2026\nCommercial assigné : Jean Martin",
+      "quoteEmailSubject": "Suite à votre devis",
+      "quoteEmailBody": "Bonjour,\n\nJe souhaitais faire le point sur le devis DEV20260147 envoyé précédemment.\n\nN'hésitez pas si vous avez des questions.\n\nCordialement"
     },
     "toast": {
       "activated": "Automatisation activée.",
+      "saved": "Configuration enregistrée.",
       "openReconciliation": "Ouverture du rapprochement paiements pour revue.",
       "openReminder": "Ouverture des paiements pour revoir le brouillon de relance.",
       "openQuote": "Ouverture des devis pour revoir le brouillon de suivi.",
       "forbiddenReview": "Vous n'avez pas l'autorisation d'approuver les actions d'automatisation."
+    }
+  },
+  "projects": {
+    "title": "Projets et coûts",
+    "subtitle": "Suivez le chiffre d'affaires, les coûts, les dépenses et la rentabilité des projets en un seul endroit.",
+    "forbidden": "Vous n'avez pas l'autorisation de consulter les projets.",
+    "forbiddenExpense": "Vous n'avez pas l'autorisation de consulter les dépenses.",
+    "tabsLabel": "Sections projets",
+    "tabs": {
+      "projects": "Projets",
+      "expenses": "Dépenses",
+      "approvals": "Validations"
+    },
+    "actions": {
+      "newProject": "Nouveau projet",
+      "newExpense": "Nouvelle dépense",
+      "more": "Plus d'actions",
+      "archive": "Archiver"
+    },
+    "kpis": {
+      "total": "Total projets",
+      "totalHelper": "Projets visibles non archivés",
+      "active": "Projets actifs",
+      "activeHelper": "En cours",
+      "revenue": "CA projets",
+      "revenueHelper": "Depuis les factures validées liées",
+      "costs": "Coûts projets",
+      "costsHelper": "Dépenses projet approuvées",
+      "margin": "Marge brute",
+      "marginHelper": "Profit {profit}",
+      "na": "N/A"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "active": "Actif",
+      "completed": "Terminé",
+      "on_hold": "En pause",
+      "archived": "Archivé"
+    },
+    "filters": {
+      "searchProjects": "Rechercher par projet, code ou client…",
+      "searchExpenses": "Rechercher dépense, fournisseur, projet…",
+      "status": "Statut",
+      "customer": "Client",
+      "company": "Société",
+      "project": "Projet",
+      "allStatuses": "Tous les statuts",
+      "allCustomers": "Tous les clients",
+      "allProjects": "Tous les projets"
+    },
+    "columns": {
+      "code": "Code projet",
+      "name": "Nom du projet",
+      "customer": "Client",
+      "status": "Statut",
+      "quotes": "Devis",
+      "invoices": "Factures",
+      "revenue": "CA",
+      "costs": "Coûts",
+      "profit": "Profit",
+      "margin": "Marge",
+      "lastActivity": "Dernière activité"
+    },
+    "empty": {
+      "title": "Aucun projet pour le moment",
+      "body": "Créez un projet pour regrouper devis, factures et dépenses et suivre la rentabilité."
+    },
+    "analytics": {
+      "profitability": "Rentabilité des projets",
+      "profitabilityHint": "Meilleurs projets par marge brute",
+      "revenueVsCosts": "CA vs coûts",
+      "revenueVsCostsHint": "Comparaison groupée par projet"
+    },
+    "finance": {
+      "masked": "•••"
+    },
+    "form": {
+      "createTitle": "Nouveau projet",
+      "create": "Créer le projet",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "name": "Nom du projet",
+      "customer": "Client",
+      "selectCustomer": "Sélectionner un client",
+      "code": "Code projet",
+      "codeHint": "PRJ-2026-00X",
+      "description": "Description",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "status": "Statut",
+      "statusNote": "Le cycle de vie du statut est une hypothèse UX/domaine — non explicitement défini dans le PRD.",
+      "required": "Le nom du projet et le client sont obligatoires."
+    },
+    "detail": {
+      "tabsLabel": "Sections détail projet",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "quotes": "Devis",
+        "invoices": "Factures",
+        "costs": "Coûts",
+        "activity": "Activité"
+      },
+      "info": "Informations projet",
+      "financial": "Synthèse financière",
+      "linked": "Documents liés",
+      "noDescription": "Aucune description.",
+      "quoted": "Valeur devisée",
+      "invoiced": "Valeur facturée",
+      "collected": "Encaissé",
+      "outstanding": "Reste à encaisser",
+      "expenses": "Dépenses",
+      "linkQuote": "Lier un devis",
+      "linkInvoice": "Lier une facture",
+      "selectQuote": "Sélectionner un devis",
+      "selectInvoice": "Sélectionner une facture",
+      "quoteNumber": "N° devis",
+      "invoiceNumber": "N° facture",
+      "date": "Date",
+      "issueDate": "Date d'émission",
+      "dueDate": "Échéance",
+      "htTtc": "HT / TTC",
+      "owner": "Responsable",
+      "paid": "Payé",
+      "remaining": "Reste",
+      "viewQuote": "Voir le devis",
+      "viewInvoice": "Voir la facture",
+      "noQuotes": "Aucun devis lié.",
+      "noInvoices": "Aucune facture liée.",
+      "noCosts": "Aucune dépense liée.",
+      "noActivity": "Aucune activité.",
+      "invoiceImmutable": "La liaison n'autorise pas la modification des factures validées."
+    },
+    "expense": {
+      "createTitle": "Nouvelle dépense",
+      "date": "Date",
+      "amount": "Montant",
+      "vat": "TVA",
+      "category": "Catégorie",
+      "supplier": "Fournisseur",
+      "project": "Projet",
+      "description": "Description",
+      "submittedBy": "Soumis par",
+      "receipt": "Reçu",
+      "receiptHint": "Téléversez une image ou un PDF. L'OCR suggère des valeurs à revoir.",
+      "upload": "Téléverser un reçu",
+      "noReceipt": "Aucun reçu",
+      "noProject": "Aucun projet",
+      "noDescription": "Aucune description",
+      "untitled": "Dépense sans titre",
+      "required": "La date et le montant sont obligatoires.",
+      "saveDraft": "Enregistrer brouillon",
+      "submit": "Soumettre pour validation",
+      "categories": {
+        "travel": "Déplacement",
+        "materials": "Matériaux",
+        "subcontracting": "Sous-traitance",
+        "other": "Autre"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "submitted": "Soumis",
+        "pending_approval": "En attente",
+        "approved": "Approuvé",
+        "rejected": "Rejeté"
+      },
+      "ocr": {
+        "idle": "Aucun reçu téléversé.",
+        "uploading": "Téléversement…",
+        "processing": "Extraction des informations…",
+        "success": "Suggestions OCR appliquées — vérifiez avant d'enregistrer.",
+        "failed": "Impossible d'extraire les informations du reçu.",
+        "badge": "OCR"
+      },
+      "summary": {
+        "total": "Total",
+        "pending": "En attente",
+        "approved": "Approuvées",
+        "rejected": "Rejetées"
+      }
+    },
+    "approvals": {
+      "empty": "Aucune dépense en attente de validation.",
+      "review": "Examiner",
+      "reviewTitle": "Examiner la dépense",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "confirmReject": "Confirmer le rejet",
+      "reason": "Motif de rejet",
+      "reasonRequired": "Un motif de rejet est obligatoire.",
+      "rejectedReason": "Rejeté : {reason}"
+    },
+    "activity": {
+      "created": "Projet créé",
+      "statusChanged": "Statut du projet modifié",
+      "statusChangedBody": "Nouveau statut : {status}",
+      "quoteLinked": "Devis lié",
+      "quoteLinkedBody": "Devis {quote} lié à ce projet",
+      "invoiceLinked": "Facture liée",
+      "invoiceLinkedBody": "Facture {invoice} liée à ce projet",
+      "expenseSubmitted": "Dépense soumise",
+      "expenseSubmittedBody": "Dépense {amount} soumise pour validation",
+      "expenseApproved": "Dépense approuvée",
+      "expenseApprovedBody": "Dépense {amount} approuvée par {actor}",
+      "expenseRejected": "Dépense rejetée",
+      "expenseRejectedBody": "Rejet : {reason}"
+    },
+    "toast": {
+      "projectCreated": "Projet créé.",
+      "expenseCreated": "Dépense enregistrée.",
+      "archived": "Projet archivé.",
+      "approvalUpdated": "Validation de dépense mise à jour.",
+      "openQuote": "Ouverture du devis.",
+      "openInvoice": "Ouverture de la facture."
     }
   }
 }

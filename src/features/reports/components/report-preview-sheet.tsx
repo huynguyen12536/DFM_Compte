@@ -51,7 +51,9 @@ function formatPreviewCell(
       const cents = parseMoneyEuro(value);
       if (cents === null) return cellText(value);
       return (
-        <span className="tabular-nums">{formatMoneyFromCents(cents)}</span>
+        <span className="whitespace-nowrap tabular-nums">
+          {formatMoneyFromCents(cents)}
+        </span>
       );
     }
     case "delta_money": {
@@ -61,7 +63,7 @@ function formatPreviewCell(
       return (
         <span
           className={cn(
-            "tabular-nums",
+            "whitespace-nowrap tabular-nums",
             cents > 0 && "text-[#1f7a45]",
             cents < 0 && "text-[#b54841]",
             cents === 0 && "text-[#7d8aa0]",
@@ -74,7 +76,9 @@ function formatPreviewCell(
     case "percent": {
       const n = parseNumber(value);
       if (n === null) return cellText(value);
-      return <span className="tabular-nums">{formatPercent(n / 100)}</span>;
+      return (
+        <span className="whitespace-nowrap tabular-nums">{formatPercent(n / 100)}</span>
+      );
     }
     case "delta_percent": {
       const n = parseNumber(value);
@@ -83,7 +87,7 @@ function formatPreviewCell(
       return (
         <span
           className={cn(
-            "tabular-nums",
+            "whitespace-nowrap tabular-nums",
             n > 0 && "text-[#1f7a45]",
             n < 0 && "text-[#b54841]",
             n === 0 && "text-[#7d8aa0]",
@@ -94,7 +98,9 @@ function formatPreviewCell(
       );
     }
     case "number":
-      return <span className="tabular-nums">{cellText(value)}</span>;
+      return (
+        <span className="whitespace-nowrap tabular-nums">{cellText(value)}</span>
+      );
     case "bucket":
       return bucketLabel(cellText(value));
     case "date":
@@ -341,8 +347,8 @@ export function ReportPreviewSheet({
           ) : (
             <>
               <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-[12px] border border-[#edf2f8]">
-                <div className="max-h-[min(52vh,520px)] overflow-auto">
-                  <table className="w-full min-w-[640px] border-collapse text-left text-[11px]">
+                <div className="report-preview-table-scroll max-h-[min(52vh,520px)] overflow-auto">
+                  <table className="w-max min-w-full border-collapse text-left text-[11px]">
                     <thead className="sticky top-0 z-[1] bg-[#f7f9fc]">
                       <tr>
                         {columns.map((column) => {
@@ -354,7 +360,7 @@ export function ReportPreviewSheet({
                               scope="col"
                             >
                               <button
-                                className="inline-flex items-center gap-1 hover:text-[#405069]"
+                                className="inline-flex items-center gap-1 whitespace-nowrap hover:text-[#405069]"
                                 type="button"
                                 onClick={() => toggleSort(column)}
                               >
@@ -379,13 +385,13 @@ export function ReportPreviewSheet({
                           {columns.map((column, colIndex) => (
                             <td
                               className={cn(
-                                "px-2.5 py-2 align-middle text-[#24334c]",
+                                "px-2.5 py-2 align-middle whitespace-nowrap text-[#24334c]",
                                 (column.kind === "money" ||
                                   column.kind === "percent" ||
                                   column.kind === "number" ||
                                   column.kind === "delta_money" ||
                                   column.kind === "delta_percent") &&
-                                  "text-right",
+                                  "text-right tabular-nums",
                               )}
                               key={column.id}
                             >

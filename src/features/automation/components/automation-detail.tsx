@@ -4,10 +4,11 @@ import {
   Bell,
   FileText,
   Landmark,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   AnimatedActiveIndicator,
@@ -15,7 +16,6 @@ import {
 } from "@/components/compte/animated-selection";
 import { ConfirmDialog } from "@/components/compte/confirm-dialog";
 import { IconTile, StatusBadge } from "@/components/dashboard/tone";
-import { SoftSelect } from "@/components/compte/soft-select";
 import { cn } from "@/lib/utils";
 import type { Tone } from "@/mocks/dashboard/types";
 
@@ -23,8 +23,17 @@ import { formatDuration } from "../kpis";
 import type {
   AutomationDefinition,
   AutomationRun,
-  ExecutionMode,
 } from "../model";
+import {
+  buildLivePipeline,
+  configFromRecord,
+  toStoredConfiguration,
+  validateWizardConfig,
+  type WizardBankConfig,
+  type WizardConfig,
+  type WizardQuoteConfig,
+  type WizardReminderConfig,
+} from "../pipeline";
 import {
   automationStatusTone,
   executionModeLabelKey,
@@ -36,7 +45,13 @@ import {
   setAutomationExecutionMode,
   updateAutomationConfiguration,
 } from "../store";
-import { AutomationWorkflow } from "./automation-workflow";
+import {
+  BankConfigForm,
+  QuoteConfigForm,
+  ReminderConfigForm,
+} from "./config-forms";
+import { PipelinePreview } from "./pipeline-preview";
+import { RunActivityTimeline } from "./run-activity-timeline";
 
 const typeIcon: Record<AutomationDefinition["type"], LucideIcon> = {
   bank_reconciliation: Landmark,
@@ -68,16 +83,20 @@ export function AutomationDetail({
   runs,
   canManage,
   onViewRun,
+  onClose,
 }: {
   automation: AutomationDefinition | null;
   runs: AutomationRun[];
   canManage: boolean;
   onViewRun: (runId: string) => void;
+  onClose?: () => void;
 }) {
   const t = useTranslations("automation");
   const locale = useLocale();
   const [tab, setTab] = useState<DetailTab>("overview");
-  const [confirmMode, setConfirmMode] = useState<ExecutionMode | null>(null);
+  const [settingsDirty, setSettingsDirty] = useState(false);
+  const [pendingTab, setPendingTab] = useState<DetailTab | null>(null);
+  const [settingsKey, setSettingsKey] = useState(0);
 
   const automationRuns = useMemo(
     () =>
@@ -109,13 +128,13 @@ export function AutomationDetail({
     else resumeAutomation(automation!.id);
   }
 
-  function requestModeChange(next: ExecutionMode) {
-    if (!canManage || next === automation!.executionMode) return;
-    if (next === "automatic" && automation!.executionMode !== "automatic") {
-      setConfirmMode(next);
+  function requestTab(next: DetailTab) {
+    if (next === tab) return;
+    if (tab === "settings" && settingsDirty) {
+      setPendingTab(next);
       return;
     }
-    setAutomationExecutionMode(automation!.id, next);
+    setTab(next);
   }
 
   return (
@@ -139,31 +158,43 @@ export function AutomationDetail({
               {t("detail.company", { company: automation.companyName })}
             </p>
           </div>
-          <label className="flex shrink-0 items-center gap-1.5 pt-0.5">
-            <span className="sr-only">
-              {active ? t("detail.pause") : t("detail.resume")}
-            </span>
-            <button
-              aria-checked={active}
-              aria-label={active ? t("detail.pause") : t("detail.resume")}
-              className={cn(
-                "relative h-5 w-9 rounded-full transition-colors",
-                active ? "bg-[#044ce2]" : "bg-[#d7deea]",
-                !canManage && "cursor-not-allowed opacity-60",
-              )}
-              disabled={!canManage}
-              role="switch"
-              type="button"
-              onClick={onToggle}
-            >
-              <span
+          <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
+            <label className="flex items-center gap-1.5">
+              <span className="sr-only">
+                {active ? t("detail.pause") : t("detail.resume")}
+              </span>
+              <button
+                aria-checked={active}
+                aria-label={active ? t("detail.pause") : t("detail.resume")}
                 className={cn(
-                  "absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform",
-                  active && "translate-x-4",
+                  "relative h-5 w-9 rounded-full transition-colors",
+                  active ? "bg-[#044ce2]" : "bg-[#d7deea]",
+                  !canManage && "cursor-not-allowed opacity-60",
                 )}
-              />
-            </button>
-          </label>
+                disabled={!canManage}
+                role="switch"
+                type="button"
+                onClick={onToggle}
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform",
+                    active && "translate-x-4",
+                  )}
+                />
+              </button>
+            </label>
+            {onClose ? (
+              <button
+                aria-label={t("detail.close")}
+                className="action-motion soft-button grid h-8 w-8 place-items-center rounded-[8px] text-[#516078]"
+                type="button"
+                onClick={onClose}
+              >
+                <X aria-hidden="true" className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+          </div>
         </div>
 
         <AnimatedSelectionGroup className="mt-2 min-w-0" id="automation-detail-tabs">
@@ -184,7 +215,7 @@ export function AutomationDetail({
                   key={item}
                   role="tab"
                   type="button"
-                  onClick={() => setTab(item)}
+                  onClick={() => requestTab(item)}
                 >
                   {selected ? (
                     <AnimatedActiveIndicator
@@ -201,53 +232,47 @@ export function AutomationDetail({
         </AnimatedSelectionGroup>
       </header>
 
-      <div className="dashboard-scroll min-h-0 flex-1 overflow-y-auto px-3.5 py-3">
-        {tab === "overview" ? (
-          <div className="space-y-3" style={{ animation: "compte-tab-in 160ms ease-out" }}>
-            <section className="rounded-[10px] border border-[#edf2f8] px-3 py-3">
-              <h4 className="text-[11px] font-semibold text-[#24334c]">{t("detail.workflow")}</h4>
-              <div className="mt-2.5">
-                <AutomationWorkflow type={automation.type} />
-              </div>
-            </section>
-
-            <section className="rounded-[10px] border border-[#edf2f8] px-3 py-3">
-              <h4 className="text-[11px] font-semibold text-[#24334c]">{t("detail.details")}</h4>
-              <dl className="mt-2 space-y-1.5 text-[11px]">
-                <Row label={t("detail.trigger")} value={t(automation.triggerLabelKey)} />
-                <Row label={t("detail.mode")} value={t(executionModeLabelKey(automation.executionMode))} />
-                <Row label={t("detail.lastRun")} value={formatWhen(automation.lastRunAt, locale)} />
-                <Row label={t("detail.nextRun")} value={formatWhen(automation.nextRunAt, locale)} />
-              </dl>
-            </section>
-
-            <section className="rounded-[10px] border border-[#edf2f8] px-3 py-3">
-              <h4 className="text-[11px] font-semibold text-[#24334c]">
-                {t("detail.lastExecution")}
-              </h4>
-              {latestRun ? (
-                <div className="mt-2 space-y-1.5 text-[11px] text-[#516078]">
-                  <p>{t(latestRun.summaryKey, latestRun.summaryParams)}</p>
-                  <p className="tabular-nums">
-                    {t("detail.processed", {
-                      processed: latestRun.processed,
-                      succeeded: latestRun.succeeded,
-                      skipped: latestRun.skipped,
-                      review: latestRun.needsReview,
-                      failed: latestRun.failed,
-                    })}
-                  </p>
-                  <StatusBadge size="xs" tone={runStatusTone[latestRun.status]}>
-                    {t(`runStatus.${latestRun.status}`)}
-                  </StatusBadge>
-                </div>
-              ) : (
-                <p className="mt-2 text-[11px] text-[#98a4b5]">{t("detail.noRuns")}</p>
-              )}
-            </section>
+      {tab === "overview" ? (
+        <div
+          className="flex min-h-0 flex-1 flex-col overflow-hidden px-3.5 py-3"
+          style={{ animation: "compte-tab-in 160ms ease-out" }}
+        >
+          <div className="mb-3 grid shrink-0 grid-cols-2 gap-x-3 gap-y-1 rounded-[10px] border border-[#edf2f8] px-2.5 py-2 text-[10px] sm:grid-cols-4">
+            <MetaChip label={t("detail.trigger")} value={t(automation.triggerLabelKey)} />
+            <MetaChip
+              label={t("detail.mode")}
+              value={t(executionModeLabelKey(automation.executionMode))}
+            />
+            <MetaChip label={t("detail.lastRun")} value={formatWhen(automation.lastRunAt, locale)} />
+            <MetaChip label={t("detail.nextRun")} value={formatWhen(automation.nextRunAt, locale)} />
           </div>
-        ) : null}
 
+          <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="mb-2 flex shrink-0 items-center justify-between gap-2 px-0.5">
+              <h4 className="text-[11px] font-semibold text-[#24334c]">{t("detail.workflow")}</h4>
+              {latestRun ? (
+                <StatusBadge size="xs" tone={runStatusTone[latestRun.status]}>
+                  {t(`runStatus.${latestRun.status}`)}
+                </StatusBadge>
+              ) : null}
+            </div>
+            <div className="automation-workflow-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain">
+              <PipelinePreview
+                steps={buildLivePipeline(
+                  automation.type,
+                  configFromRecord(
+                    automation.type,
+                    automation.configuration,
+                    t(automation.nameKey),
+                  ),
+                )}
+                stretch
+              />
+            </div>
+          </section>
+        </div>
+      ) : (
+      <div className="automation-detail-scroll dashboard-scroll min-h-0 flex-1 overflow-y-auto px-3.5 py-3">
         {tab === "history" ? (
           <div style={{ animation: "compte-tab-in 160ms ease-out" }}>
             {automationRuns.length === 0 ? (
@@ -295,9 +320,10 @@ export function AutomationDetail({
         {tab === "settings" ? (
           <div className="space-y-3" style={{ animation: "compte-tab-in 160ms ease-out" }}>
             <SettingsPanel
+              key={`${automation.id}-${settingsKey}`}
               automation={automation}
               canManage={canManage}
-              onModeChange={requestModeChange}
+              onDirtyChange={setSettingsDirty}
             />
           </div>
         ) : null}
@@ -305,47 +331,45 @@ export function AutomationDetail({
         {tab === "logs" ? (
           <div style={{ animation: "compte-tab-in 160ms ease-out" }}>
             {latestRun ? (
-              <ul className="space-y-2">
-                {latestRun.logLines.map((line) => (
-                  <li
-                    className="flex gap-2 rounded-[8px] border border-[#edf2f8] px-2.5 py-2 text-[11px]"
-                    key={`${line.at}-${line.messageKey}`}
-                  >
-                    <span className="shrink-0 font-semibold tabular-nums text-[#98a4b5]">
-                      {line.at}
-                    </span>
-                    <span className="text-[#405069]">{t(line.messageKey, line.params)}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="space-y-2">
+                <p className="text-[10px] text-[#7d8aa0]">{t("detail.logsHint")}</p>
+                <RunActivityTimeline compact run={latestRun} />
+              </div>
             ) : (
               <p className="py-6 text-center text-[11px] text-[#98a4b5]">{t("detail.noRuns")}</p>
             )}
           </div>
         ) : null}
       </div>
+      )}
 
       <ConfirmDialog
-        body={t("confirm.modeBody")}
-        cancelLabel={t("confirm.cancel")}
-        confirmLabel={t("confirm.confirmMode")}
-        open={confirmMode !== null}
-        title={t("confirm.modeTitle")}
-        onCancel={() => setConfirmMode(null)}
+        body={t("settingsPanel.discardBody")}
+        cancelLabel={t("settingsPanel.keepEditing")}
+        confirmLabel={t("settingsPanel.discard")}
+        open={pendingTab !== null}
+        title={t("settingsPanel.discardTitle")}
+        onCancel={() => setPendingTab(null)}
         onConfirm={() => {
-          if (confirmMode) setAutomationExecutionMode(automation.id, confirmMode);
-          setConfirmMode(null);
+          if (pendingTab) setTab(pendingTab);
+          setPendingTab(null);
+          setSettingsDirty(false);
+          setSettingsKey((value) => value + 1);
         }}
       />
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function MetaChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-3">
-      <dt className="text-[#98a4b5]">{label}</dt>
-      <dd className="text-right font-medium text-[#405069]">{value}</dd>
+    <div className="min-w-0">
+      <p className="truncate text-[9px] font-semibold tracking-wide text-[#98a4b5] uppercase">
+        {label}
+      </p>
+      <p className="truncate font-medium text-[#405069]" title={value}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -353,141 +377,165 @@ function Row({ label, value }: { label: string; value: string }) {
 function SettingsPanel({
   automation,
   canManage,
-  onModeChange,
+  onDirtyChange,
 }: {
   automation: AutomationDefinition;
   canManage: boolean;
-  onModeChange: (mode: ExecutionMode) => void;
+  onDirtyChange: (dirty: boolean) => void;
 }) {
   const t = useTranslations("automation");
-  const config = automation.configuration;
+  const [draft, setDraft] = useState<WizardConfig>(() =>
+    configFromRecord(automation.type, automation.configuration, t(automation.nameKey)),
+  );
+  const [baseline, setBaseline] = useState<WizardConfig>(() =>
+    configFromRecord(automation.type, automation.configuration, t(automation.nameKey)),
+  );
+  const [error, setError] = useState("");
+  const [savedNotice, setSavedNotice] = useState(false);
+  const [pendingAuto, setPendingAuto] = useState(false);
 
-  if (automation.type === "bank_reconciliation") {
-    return (
-      <section className="space-y-3 rounded-[10px] border border-[#edf2f8] px-3 py-3">
-        <p className="text-[10px] text-[#b96d24]">{t("settings.bankDemoNote")}</p>
-        <Row label={t("settings.schedule")} value={String(config.schedule ?? "daily")} />
-        <Row label={t("settings.time")} value={String(config.time ?? "08:00")} />
-        <div className="space-y-1 text-[11px] text-[#516078]">
-          <p className="font-semibold text-[#24334c]">{t("settings.matchUsing")}</p>
-          <p>✓ {t("settings.invoiceNumber")}</p>
-          <p>✓ {t("settings.amount")}</p>
-          <p>✓ {t("settings.customerName")}</p>
-        </div>
-        <div className="space-y-1 text-[11px]">
-          <p className="font-semibold text-[#24334c]">{t("settings.execution")}</p>
-          <p className="text-[#516078]">{t("settings.highConfidence")}</p>
-          <p className="text-[#516078]">{t("settings.uncertain")}</p>
-        </div>
-      </section>
-    );
+  const dirty = JSON.stringify(draft) !== JSON.stringify(baseline);
+
+  useEffect(() => {
+    onDirtyChange(dirty);
+  }, [dirty, onDirtyChange]);
+
+  function cancel() {
+    setDraft(baseline);
+    setError("");
+    setSavedNotice(false);
   }
 
-  if (automation.type === "payment_reminders") {
-    const mode = String(config.mode ?? "suggest_approve");
-    return (
-      <section className="space-y-3 rounded-[10px] border border-[#edf2f8] px-3 py-3">
-        <div className="space-y-1.5 text-[11px] text-[#516078]">
-          <p className="font-semibold text-[#24334c]">{t("settings.reminderSchedule")}</p>
-          {(
-            [
-              ["beforeDue3", "settings.beforeDue3"],
-              ["overdue7", "settings.overdue7"],
-              ["overdue15", "settings.overdue15"],
-              ["overdue30", "settings.overdue30"],
-            ] as const
-          ).map(([key, labelKey]) => (
-            <label className="flex items-center gap-2" key={key}>
-              <input
-                checked={Boolean(config[key])}
-                className="accent-[#044ce2]"
-                disabled={!canManage}
-                type="checkbox"
-                onChange={(event) =>
-                  updateAutomationConfiguration(automation.id, {
-                    ...config,
-                    [key]: event.target.checked,
-                  })
-                }
-              />
-              {t(labelKey)}
-            </label>
-          ))}
-        </div>
-        <label className="flex items-center gap-2 text-[11px] text-[#516078]">
-          <input
-            checked={Boolean(config.stopWhenPaid)}
-            className="accent-[#044ce2]"
-            disabled={!canManage}
-            type="checkbox"
-            onChange={(event) =>
-              updateAutomationConfiguration(automation.id, {
-                ...config,
-                stopWhenPaid: event.target.checked,
-              })
-            }
-          />
-          {t("settings.stopWhenPaid")}
-        </label>
-        <SoftSelect
-          disabled={!canManage}
-          label={t("settings.mode")}
-          options={[
-            { value: "suggest_approve", label: t("mode.suggestApprove") },
-            { value: "automatic", label: t("mode.automatic") },
-          ]}
-          value={mode}
-          onChange={(value) => onModeChange(value as ExecutionMode)}
-        />
-      </section>
-    );
+  function applySave() {
+    const invalid = validateWizardConfig(automation.type, draft);
+    if (invalid) {
+      setError(t(invalid));
+      return;
+    }
+    const stored = toStoredConfiguration(automation.type, draft);
+    updateAutomationConfiguration(automation.id, stored);
+    if (automation.type === "bank_reconciliation") {
+      setAutomationExecutionMode(automation.id, "auto_with_review");
+    } else {
+      const mode = (draft as WizardReminderConfig | WizardQuoteConfig).mode;
+      if (mode !== automation.executionMode) {
+        setAutomationExecutionMode(
+          automation.id,
+          mode === "automatic" ? "automatic" : "suggest_approve",
+        );
+      }
+    }
+    setBaseline(draft);
+    setError("");
+    setSavedNotice(true);
   }
 
-  const mode = String(config.mode ?? "suggest_approve");
+  function needsAutoConfirm() {
+    if (automation.type === "bank_reconciliation") return false;
+    const next = (draft as WizardReminderConfig | WizardQuoteConfig).mode;
+    const prev = (baseline as WizardReminderConfig | WizardQuoteConfig).mode;
+    return next === "automatic" && prev !== "automatic";
+  }
+
+  function save() {
+    if (!canManage || !dirty) return;
+    if (needsAutoConfirm()) {
+      setPendingAuto(true);
+      return;
+    }
+    applySave();
+  }
+
   return (
-    <section className="space-y-3 rounded-[10px] border border-[#edf2f8] px-3 py-3">
-      <label className="block text-[11px]">
-        <span className="font-semibold text-[#24334c]">{t("settings.noResponseDays")}</span>
-        <input
-          className="mt-1 h-9 w-full rounded-[9px] border border-[#e1e7f1] bg-white px-2.5 tabular-nums outline-none focus:border-[#044ce2]"
-          disabled={!canManage}
-          min={1}
-          type="number"
-          value={Number(config.noResponseDays ?? 5)}
-          onChange={(event) =>
-            updateAutomationConfiguration(automation.id, {
-              ...config,
-              noResponseDays: Number(event.target.value) || 1,
-            })
-          }
-        />
-      </label>
-      <label className="block text-[11px]">
-        <span className="font-semibold text-[#24334c]">{t("settings.beforeExpirationDays")}</span>
-        <input
-          className="mt-1 h-9 w-full rounded-[9px] border border-[#e1e7f1] bg-white px-2.5 tabular-nums outline-none focus:border-[#044ce2]"
-          disabled={!canManage}
-          min={1}
-          type="number"
-          value={Number(config.beforeExpirationDays ?? 3)}
-          onChange={(event) =>
-            updateAutomationConfiguration(automation.id, {
-              ...config,
-              beforeExpirationDays: Number(event.target.value) || 1,
-            })
-          }
-        />
-      </label>
-      <SoftSelect
-        disabled={!canManage}
-        label={t("settings.mode")}
-        options={[
-          { value: "suggest_approve", label: t("mode.suggestApprove") },
-          { value: "automatic", label: t("mode.automatic") },
-        ]}
-        value={mode}
-        onChange={(value) => onModeChange(value as ExecutionMode)}
+    <div className="space-y-3">
+      <div className="sticky top-0 z-[1] flex flex-wrap items-start justify-between gap-2 rounded-[10px] border border-[#edf2f8] bg-white/95 px-3 py-2.5 backdrop-blur-sm">
+        <div className="min-w-0">
+          <h4 className="text-[12px] font-semibold text-[#063586]">
+            {t("settingsPanel.title")}
+          </h4>
+          <p className="mt-0.5 text-[10px] text-[#7d8aa0]">
+            {t("settingsPanel.helper")}
+          </p>
+        </div>
+        {canManage ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              className="action-motion soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold text-[#405069] disabled:opacity-50"
+              disabled={!dirty}
+              type="button"
+              onClick={cancel}
+            >
+              {t("settingsPanel.cancel")}
+            </button>
+            <button
+              className="action-motion soft-primary h-8 rounded-[8px] px-2.5 text-[11px] font-semibold text-white disabled:opacity-50"
+              disabled={!dirty}
+              type="button"
+              onClick={save}
+            >
+              {t("settingsPanel.save")}
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {error ? (
+        <p className="text-[11px] font-semibold text-[#c9564f]">{error}</p>
+      ) : null}
+      {savedNotice ? (
+        <p className="text-[11px] font-semibold text-[#238567]">
+          {t("settingsPanel.saved")}
+        </p>
+      ) : null}
+
+      <div className="min-w-0">
+        {automation.type === "bank_reconciliation" ? (
+          <BankConfigForm
+            config={draft as WizardBankConfig}
+            disabled={!canManage}
+            onChange={setDraft}
+          />
+        ) : null}
+        {automation.type === "payment_reminders" ? (
+          <ReminderConfigForm
+            config={draft as WizardReminderConfig}
+            disabled={!canManage}
+            onChange={setDraft}
+          />
+        ) : null}
+        {automation.type === "quote_follow_up" ? (
+          <QuoteConfigForm
+            config={draft as WizardQuoteConfig}
+            disabled={!canManage}
+            onChange={setDraft}
+          />
+        ) : null}
+      </div>
+
+      <ConfirmDialog
+        body={
+          automation.type === "bank_reconciliation"
+            ? t("confirm.bankAutoBody")
+            : t("confirm.modeBody")
+        }
+        cancelLabel={t("confirm.cancel")}
+        confirmLabel={
+          automation.type === "bank_reconciliation"
+            ? t("confirm.bankAutoConfirm")
+            : t("confirm.confirmMode")
+        }
+        open={pendingAuto}
+        title={
+          automation.type === "bank_reconciliation"
+            ? t("confirm.bankAutoTitle")
+            : t("confirm.modeTitle")
+        }
+        onCancel={() => setPendingAuto(false)}
+        onConfirm={() => {
+          setPendingAuto(false);
+          applySave();
+        }}
       />
-    </section>
+    </div>
   );
 }
