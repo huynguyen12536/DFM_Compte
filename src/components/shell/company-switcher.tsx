@@ -57,6 +57,12 @@ export function CompanySwitcher({ compact = false }: { compact?: boolean }) {
             onClick={() => {
               setCompanyId(entry.id);
               setOpen(false);
+              // Avoid sticky rail tooltip from focus returning to the trigger.
+              window.requestAnimationFrame(() => {
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+              });
             }}
           >
             <span

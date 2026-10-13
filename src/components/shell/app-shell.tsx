@@ -1,4 +1,5 @@
 import { CalendarDays, Menu } from "lucide-react";
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "@/components/brand-logo";
@@ -14,6 +15,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/shell/sidebar";
+import {
+  parseDesktopOpenCookie,
+  SIDEBAR_DESKTOP_OPEN_KEY,
+} from "@/components/shell/sidebar/sidebar-preference";
 import { ShellTitle } from "@/components/shell/shell-title";
 import { UserAccountMenu } from "@/components/shell/user-account-menu";
 
@@ -21,9 +26,13 @@ import { UserAccountMenu } from "@/components/shell/user-account-menu";
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const t = await getTranslations();
   const today = t("header.today", { date: "02/10/2026" });
+  const cookieStore = await cookies();
+  const defaultDesktopOpen = parseDesktopOpenCookie(
+    cookieStore.get(SIDEBAR_DESKTOP_OPEN_KEY)?.value,
+  );
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultDesktopOpen={defaultDesktopOpen}>
       <div className="flex h-dvh w-full overflow-hidden bg-[#f3f4f6] text-[#063586]">
         <Sidebar>
           <SidebarBody

@@ -1,9 +1,7 @@
 "use client";
 
 import { Bot, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
 
 import { BrandLogo } from "@/components/brand-logo";
 import { AnimatedSelectionGroup } from "@/components/compte/animated-selection";
@@ -21,33 +19,6 @@ import {
   type NavKey,
 } from "./sidebar-nav-data";
 import { SidebarTooltip } from "./sidebar-tooltip";
-
-function AnimatedBlock({
-  show,
-  className,
-  children,
-}: {
-  show: boolean;
-  className?: string;
-  children: ReactNode;
-}) {
-  const reduceMotion = useReducedMotion();
-  const instant = reduceMotion === true;
-
-  return (
-    <motion.div
-      animate={{
-        opacity: show ? 1 : 0,
-        height: show ? "auto" : 0,
-      }}
-      className={cn("overflow-hidden", className)}
-      initial={false}
-      transition={{ duration: instant ? 0.01 : 0.2, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-}
 
 export function SidebarChrome({
   navigationLabel,
@@ -187,11 +158,12 @@ function SidebarNavSections({
       </nav>
 
       <div className={cn("mt-7 border-t border-[#edf1f6]", collapsed ? "pt-4" : "pt-5")}>
-        <AnimatedBlock show={!collapsed}>
+        {/* Instant hide — height animation shifts rail icons and looks like active slide. */}
+        {!collapsed ? (
           <p className="px-3 pb-2 text-[11px] font-bold tracking-[0.12em] text-[#98a4b5]">
             {opsLabel}
           </p>
-        </AnimatedBlock>
+        ) : null}
         <nav aria-label={opsLabel} className="flex flex-col gap-1">
           {opsNav.map((item) => (
             <SidebarLink

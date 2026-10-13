@@ -766,6 +766,11 @@ html::-webkit-scrollbar {
   background: rgb(255 255 255 / 0.26);
 }
 
+.nav-rail--collapsed .nav-item:hover {
+  transform: none;
+  background: transparent;
+}
+
 .nav-item[aria-current="page"],
 .nav-item[aria-current="page"]:hover {
   transform: none;

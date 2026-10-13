@@ -27,8 +27,8 @@ export function IntegrationOverview({
   connection,
   status,
   scopeLabel,
-  canManage,
-  canSync,
+  canManage = false,
+  canSync = false,
   syncing,
   onConnect,
   onDisconnect,
@@ -40,12 +40,12 @@ export function IntegrationOverview({
   connection: IntegrationConnection | null;
   status: IntegrationDisplayStatus;
   scopeLabel: string;
-  canManage: boolean;
-  canSync: boolean;
+  canManage?: boolean;
+  canSync?: boolean;
   syncing?: boolean;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  onSync: () => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  onSync?: () => void;
   onManageApi?: () => void;
   onStartImport?: () => void;
 }) {
@@ -53,9 +53,20 @@ export function IntegrationOverview({
   const locale = useLocale();
   const lastSync = formatWhen(connection?.lastSyncAt, locale);
   const connectedAt = formatWhen(connection?.connectedAt, locale);
+  const authLabel = connection
+    ? t(connection.authLabelKey)
+    : t(
+        definition.authType === "oauth"
+          ? "auth.oauth"
+          : definition.authType === "api_key"
+            ? "auth.apiKey"
+            : definition.authType === "credentials"
+              ? "auth.smtp"
+              : "auth.internal",
+      );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-4">
       <div className="flex items-center gap-3 rounded-[14px] border border-[#e4ecf6] bg-[#f8fbff] p-3.5">
         <IntegrationLogo logoKey={definition.logoKey} />
         <div className="min-w-0 flex-1">
@@ -70,38 +81,26 @@ export function IntegrationOverview({
       </div>
 
       <dl className="space-y-3 text-[13px]">
-        <StackField label={t("detail.about")}>
-          <p className="leading-6 text-[#516078]">
-            {t(definition.descriptionKey)}
-          </p>
-        </StackField>
+        <StackField label={t("detail.scope")}>{scopeLabel}</StackField>
+
+        <StackField label={t("detail.authentication")}>{authLabel}</StackField>
 
         <StackField label={t("detail.capabilities")}>
-          <ul className="list-disc space-y-1 pl-4 text-[#405069]">
+          <ul className="list-disc space-y-1 pl-4 font-normal text-[#405069]">
             {definition.capabilities.map((capability) => (
               <li key={capability}>{t(`capabilities.${capability}`)}</li>
             ))}
           </ul>
         </StackField>
 
-        <StackField label={t("detail.connectionStatus")}>
-          <IntegrationStatusBadge status={status} />
+        <StackField label={t("detail.about")}>
+          <p className="font-normal leading-6 text-[#516078]">
+            {t(definition.descriptionKey)}
+          </p>
         </StackField>
 
-        <StackField label={t("detail.scope")}>{scopeLabel}</StackField>
-
-        <StackField label={t("detail.authentication")}>
-          {connection
-            ? t(connection.authLabelKey)
-            : t(
-                definition.authType === "oauth"
-                  ? "auth.oauth"
-                  : definition.authType === "api_key"
-                    ? "auth.apiKey"
-                    : definition.authType === "credentials"
-                      ? "auth.smtp"
-                      : "auth.internal",
-              )}
+        <StackField label={t("detail.connectionStatus")}>
+          <IntegrationStatusBadge status={status} />
         </StackField>
 
         {status === "connected" || status === "attention" ? (
@@ -120,7 +119,7 @@ export function IntegrationOverview({
         ) : null}
       </dl>
 
-      {definition.slug === "meg-import" && canManage ? (
+      {definition.slug === "meg-import" ? (
         <p className="rounded-[12px] bg-[#f3f6fb] px-3 py-2 text-[12px] leading-5 text-[#66758d]">
           {t("detail.megNote")}
         </p>
@@ -128,7 +127,7 @@ export function IntegrationOverview({
 
       {canManage ? (
         <div className="flex flex-wrap gap-2 pt-1">
-          {status === "ready" ? (
+          {status === "ready" && onConnect ? (
             <button
               className="action-motion soft-primary inline-flex h-9 items-center rounded-[10px] px-3.5 text-[12px] font-semibold text-white"
               type="button"
@@ -157,7 +156,7 @@ export function IntegrationOverview({
                   {t("actions.manageApi")}
                 </button>
               ) : null}
-              {canSync ? (
+              {canSync && onSync ? (
                 <button
                   className="inline-flex h-9 items-center rounded-[10px] border border-[#d5e2f4] bg-white px-3.5 text-[12px] font-semibold text-[#405069] hover:bg-[#f7faff] disabled:opacity-60"
                   disabled={syncing}
@@ -167,13 +166,15 @@ export function IntegrationOverview({
                   {syncing ? t("actions.syncing") : t("actions.syncNow")}
                 </button>
               ) : null}
-              <button
-                className="inline-flex h-9 items-center rounded-[10px] border border-[#f0cfc8] bg-[#fff7f5] px-3.5 text-[12px] font-semibold text-[#b54841] hover:bg-[#ffefeb]"
-                type="button"
-                onClick={onDisconnect}
-              >
-                {t("actions.disconnect")}
-              </button>
+              {onDisconnect ? (
+                <button
+                  className="inline-flex h-9 items-center rounded-[10px] border border-[#f0cfc8] bg-[#fff7f5] px-3.5 text-[12px] font-semibold text-[#b54841] hover:bg-[#ffefeb]"
+                  type="button"
+                  onClick={onDisconnect}
+                >
+                  {t("actions.disconnect")}
+                </button>
+              ) : null}
             </>
           ) : null}
         </div>
