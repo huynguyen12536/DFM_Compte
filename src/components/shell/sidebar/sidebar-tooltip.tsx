@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
@@ -20,22 +20,20 @@ export function SidebarTooltip({
   className?: string;
 }) {
   const tipId = useId();
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
+    null,
+  );
+
+  // Drop any open tip when the host disables tooltips (e.g. company menu opens).
+  useEffect(() => {
+    if (!enabled) setCoords(null);
+  }, [enabled]);
 
   if (!enabled) return <>{children}</>;
 
   return (
     <span
-      className={cn("relative block w-full max-w-full", className)}
-      onBlur={() => setCoords(null)}
-      onFocus={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        setCoords(
-          side === "bottom"
-            ? { top: rect.bottom + 8, left: rect.left + rect.width / 2 }
-            : { top: rect.top + rect.height / 2, left: rect.right + 10 },
-        );
-      }}
+      className={cn("relative flex w-full max-w-full justify-center", className)}
       onMouseEnter={(event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         setCoords(
@@ -46,7 +44,10 @@ export function SidebarTooltip({
       }}
       onMouseLeave={() => setCoords(null)}
     >
-      <span aria-describedby={coords ? tipId : undefined} className="block w-full max-w-full">
+      <span
+        aria-describedby={coords ? tipId : undefined}
+        className="flex max-w-full justify-center"
+      >
         {children}
       </span>
       {coords && typeof document !== "undefined"

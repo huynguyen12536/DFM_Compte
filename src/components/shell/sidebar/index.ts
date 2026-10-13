@@ -3,6 +3,7 @@ export {
   useSidebar,
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_EXPANDED_WIDTH,
+  SIDEBAR_DESKTOP_OPEN_KEY,
 } from "./sidebar-context";
 export {
   Sidebar,

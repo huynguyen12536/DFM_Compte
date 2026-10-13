@@ -16,11 +16,12 @@ import {
 import { usePathname } from "@/i18n/navigation";
 import { useMediaQuery } from "@/lib/use-media-query";
 
+import { SIDEBAR_DESKTOP_OPEN_KEY } from "./sidebar-preference";
+
 export const SIDEBAR_COLLAPSED_WIDTH = 76;
 export const SIDEBAR_EXPANDED_WIDTH = 288;
 export const SIDEBAR_DESKTOP_MQ = "(min-width: 1024px)";
-
-const SIDEBAR_DESKTOP_OPEN_KEY = "compte.sidebar.desktopOpen";
+export { SIDEBAR_DESKTOP_OPEN_KEY };
 
 function readDesktopOpenPreference(): boolean | null {
   try {
@@ -34,8 +35,15 @@ function readDesktopOpenPreference(): boolean | null {
 }
 
 function writeDesktopOpenPreference(open: boolean) {
+  const value = open ? "1" : "0";
   try {
-    window.localStorage.setItem(SIDEBAR_DESKTOP_OPEN_KEY, open ? "1" : "0");
+    window.localStorage.setItem(SIDEBAR_DESKTOP_OPEN_KEY, value);
+  } catch {
+    // ignore
+  }
+  try {
+    // Readable by AppShell via cookies() so the first SSR paint matches.
+    document.cookie = `${SIDEBAR_DESKTOP_OPEN_KEY}=${value};path=/;max-age=31536000;SameSite=Lax`;
   } catch {
     // ignore
   }
@@ -64,20 +72,21 @@ export function SidebarProvider({
   open: openControlled,
   setOpen: setOpenControlled,
   animate = true,
+  defaultDesktopOpen = true,
 }: {
   children: ReactNode;
   open?: boolean;
   setOpen?: (open: boolean) => void;
   animate?: boolean;
+  /** From SSR cookie — must match last desktop preference to avoid expand→collapse flash. */
+  defaultDesktopOpen?: boolean;
 }) {
-  // Desktop-first: start expanded so SSR rail width (288) matches chrome content.
-  // Client then restores the last desktop preference before paint when possible.
-  const [openUncontrolled, setOpenUncontrolled] = useState(true);
+  const [openUncontrolled, setOpenUncontrolled] = useState(defaultDesktopOpen);
   const [desktopPrefReady, setDesktopPrefReady] = useState(false);
   const open = openControlled ?? openUncontrolled;
   const setOpen = setOpenControlled ?? setOpenUncontrolled;
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  // Desktop-first SSR snapshot — prevents expanded chrome inside collapsed rail on reload.
+  // Desktop-first SSR snapshot — keeps rail width and chrome content aligned.
   const isDesktop = useMediaQuery(SIDEBAR_DESKTOP_MQ, true);
   const pathname = usePathname();
   const prevPath = useRef(pathname);
@@ -85,8 +94,14 @@ export function SidebarProvider({
 
   const applyDesktopPreference = useCallback(() => {
     if (openControlled !== undefined) return;
-    setOpen(readDesktopOpenPreference() ?? true);
-  }, [openControlled, setOpen]);
+    const pref = readDesktopOpenPreference();
+    if (pref === null) {
+      writeDesktopOpenPreference(open);
+      return;
+    }
+    if (pref !== open) setOpen(pref);
+    writeDesktopOpenPreference(pref);
+  }, [open, openControlled, setOpen]);
 
   // Restore preference / close drawer before paint; keep desktop↔mobile in sync.
   useLayoutEffect(() => {

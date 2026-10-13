@@ -1,6 +1,5 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -8,6 +7,7 @@ import {
   AnimatedActiveIndicator,
   AnimatedSelectionGroup,
 } from "@/components/compte/animated-selection";
+import { FormSheet } from "@/components/forms/form-sheet";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -45,6 +45,7 @@ function tabsFor(
 }
 
 export function IntegrationDetails({
+  open,
   definition,
   connection,
   status,
@@ -59,6 +60,7 @@ export function IntegrationDetails({
   onManageApi,
   onStartImport,
 }: {
+  open: boolean;
   definition: IntegrationDefinition;
   connection: IntegrationConnection | null;
   status: IntegrationDisplayStatus;
@@ -83,81 +85,136 @@ export function IntegrationDetails({
     (status === "connected" || status === "attention") &&
     (definition.category === "banking" || definition.category === "payments");
 
-  return (
-    <aside className="integration-detail-panel flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[17px] border border-[#e4ecf6] bg-white shadow-[0_1px_2px_rgba(15,23,42,.03),0_12px_34px_rgba(30,64,175,.055)]">
-      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[#e8eef7] px-4 py-4">
-        <div className="min-w-0">
-          <h2 className="truncate text-[18px] font-bold tracking-[-0.02em] text-[#173156]">
-            {t(definition.nameKey)}
-          </h2>
-          <p className="mt-1 text-[12px] leading-5 text-[#7d8aa0]">
-            {t(`categories.${definition.category}`)}
-          </p>
-        </div>
+  const showReadyAction = canManage && status === "ready";
+  const showConnectedActions =
+    canManage &&
+    (status === "connected" || status === "attention") &&
+    definition.slug !== "meg-import";
+
+  const footer =
+    showReadyAction || showConnectedActions ? (
+      <div className="flex flex-wrap justify-end gap-2">
         <button
-          aria-label={t("detail.close")}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-[9px] text-[#66758d] hover:bg-[#f3f6fb]"
+          className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
           type="button"
           onClick={onClose}
         >
-          <X aria-hidden="true" className="h-4 w-4" />
+          {t("connect.cancel")}
         </button>
-      </header>
-
-      {tabs.length > 1 ? (
-        <AnimatedSelectionGroup
-          className="shrink-0 border-b border-[#e8eef7] px-2"
-          id={`integration-detail-tabs-${definition.id}`}
-        >
-          <div
-            aria-label={t("detail.tabsLabel")}
-            className="flex min-w-0 gap-1 overflow-x-auto"
-            role="tablist"
+        {showReadyAction ? (
+          <button
+            className="action-motion soft-primary min-h-10 rounded-[10px] px-3 text-sm font-semibold text-white"
+            type="button"
+            onClick={
+              definition.slug === "meg-import" && onStartImport
+                ? onStartImport
+                : definition.slug === "rest-api" && onManageApi
+                  ? onManageApi
+                  : onConnect
+            }
           >
-            {tabs.map((item) => {
-              const active = activeTab === item;
-              return (
-                <button
-                  aria-selected={active}
-                  className={cn(
-                    "relative h-11 shrink-0 rounded-full px-3 text-[12px] font-semibold transition-colors",
-                    active ? "text-[#145be7]" : "text-[#7d8aa0] hover:text-[#405069]",
-                  )}
-                  key={item}
-                  role="tab"
-                  type="button"
-                  onClick={() => setTab(item)}
-                >
-                  {active ? (
-                    <AnimatedActiveIndicator
-                      className="rounded-full"
-                      layoutId={`integration-detail-tab-${definition.id}`}
-                      variant="soft-pill"
-                    />
-                  ) : null}
-                  <span className="relative z-[1]">{t(`detail.tabs.${item}`)}</span>
-                </button>
-              );
-            })}
-          </div>
-        </AnimatedSelectionGroup>
-      ) : null}
+            {definition.slug === "meg-import"
+              ? t("actions.startImport")
+              : definition.slug === "rest-api"
+                ? t("actions.manageApi")
+                : t("actions.connect")}
+          </button>
+        ) : null}
+        {showConnectedActions ? (
+          <>
+            {definition.slug === "rest-api" && onManageApi ? (
+              <button
+                className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
+                type="button"
+                onClick={onManageApi}
+              >
+                {t("actions.manageApi")}
+              </button>
+            ) : null}
+            {canSync ? (
+              <button
+                className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069] disabled:opacity-60"
+                disabled={syncing}
+                type="button"
+                onClick={onSync}
+              >
+                {syncing ? t("actions.syncing") : t("actions.syncNow")}
+              </button>
+            ) : null}
+            <button
+              className="min-h-10 rounded-[10px] border border-[#f0cfc8] bg-[#fff7f5] px-3 text-sm font-semibold text-[#b54841] hover:bg-[#ffefeb]"
+              type="button"
+              onClick={onDisconnect}
+            >
+              {t("actions.disconnect")}
+            </button>
+          </>
+        ) : null}
+      </div>
+    ) : undefined;
 
-      <div className="app-scroll min-h-0 flex-1 overflow-y-auto p-4">
+  return (
+    <FormSheet
+      closeLabel={t("detail.close")}
+      description={t(`categories.${definition.category}`)}
+      footer={footer}
+      open={open}
+      title={t(definition.nameKey)}
+      widthClassName="sm:max-w-[460px]"
+      onClose={onClose}
+    >
+      <div className="space-y-4 p-1">
+        {tabs.length > 1 ? (
+          <AnimatedSelectionGroup
+            className="-mx-1"
+            id={`integration-detail-tabs-${definition.id}`}
+          >
+            <div
+              aria-label={t("detail.tabsLabel")}
+              className="flex min-w-0 gap-1 overflow-x-auto"
+              role="tablist"
+            >
+              {tabs.map((item) => {
+                const active = activeTab === item;
+                return (
+                  <button
+                    aria-selected={active}
+                    className={cn(
+                      "relative h-10 shrink-0 rounded-full px-3 text-[12px] font-semibold transition-colors",
+                      active
+                        ? "text-[#145be7]"
+                        : "text-[#7d8aa0] hover:text-[#405069]",
+                    )}
+                    key={item}
+                    role="tab"
+                    type="button"
+                    onClick={() => setTab(item)}
+                  >
+                    {active ? (
+                      <AnimatedActiveIndicator
+                        className="rounded-full"
+                        layoutId={`integration-detail-tab-${definition.id}`}
+                        variant="soft-pill"
+                      />
+                    ) : null}
+                    <span className="relative z-[1]">
+                      {t(`detail.tabs.${item}`)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </AnimatedSelectionGroup>
+        ) : null}
+
         {activeTab === "overview" ? (
           <IntegrationOverview
-            canManage={canManage}
-            canSync={canSync}
+            canManage={false}
+            canSync={false}
             connection={connection}
             definition={definition}
             scopeLabel={scopeLabel}
             status={status}
-            syncing={syncing}
-            onConnect={onConnect}
-            onDisconnect={onDisconnect}
-            onManageApi={onManageApi}
-            onStartImport={onStartImport}
-            onSync={onSync}
           />
         ) : null}
         {activeTab === "activity" ? (
@@ -167,6 +224,6 @@ export function IntegrationDetails({
         {activeTab === "endpoints" ? <IntegrationWebhooksPanel /> : null}
         {activeTab === "imports" ? <IntegrationMegPanel /> : null}
       </div>
-    </aside>
+    </FormSheet>
   );
 }

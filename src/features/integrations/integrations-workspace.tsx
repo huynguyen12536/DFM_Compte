@@ -5,12 +5,9 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { SoftToast } from "@/components/compte/soft-toast";
-import { FormSheet } from "@/components/forms/form-sheet";
 import { can } from "@/features/settings/can";
 import { useCurrentCompany } from "@/features/settings/company-store";
 import { systemRoles } from "@/features/settings/mocks/roles";
-import { useMediaQuery } from "@/lib/use-media-query";
-import { cn } from "@/lib/utils";
 
 import { INTEGRATION_CATALOG } from "./catalog";
 import { ConnectIntegrationSheet } from "./components/connection/connect-integration-sheet";
@@ -68,7 +65,6 @@ export function IntegrationsWorkspace() {
   const t = useTranslations("integrations");
   const { companyId, company } = useCurrentCompany();
   const { connections, activities } = useIntegrationsState();
-  const isDesktopDetail = useMediaQuery("(min-width: 1280px)", true);
 
   const canRead = can(activePermissions, "integration.read");
   const canManageBase = can(activePermissions, "integration.manage");
@@ -76,7 +72,6 @@ export function IntegrationsWorkspace() {
 
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
   const [disconnectId, setDisconnectId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
@@ -145,28 +140,25 @@ export function IntegrationsWorkspace() {
 
   function selectIntegration(id: string) {
     setSelectedId(id);
-    if (!isDesktopDetail) setSheetOpen(true);
   }
 
   function closeDetails() {
     setSelectedId(null);
-    setSheetOpen(false);
   }
 
   function openConnect(definition: IntegrationDefinition) {
     if (definition.availability === "coming_soon") return;
     if (definition.slug === "meg-import") {
       setSelectedId(definition.id);
-      if (!isDesktopDetail) setSheetOpen(true);
       setNotice(t("toast.importReady"));
       setNoticeTone("info");
       return;
     }
     if (definition.slug === "rest-api" || definition.slug === "webhooks") {
       setSelectedId(definition.id);
-      if (!isDesktopDetail) setSheetOpen(true);
       return;
     }
+    setSelectedId(null);
     setConnectId(definition.id);
   }
 
@@ -195,7 +187,6 @@ export function IntegrationsWorkspace() {
     });
     setConnectId(null);
     setSelectedId(connectDefinition.id);
-    if (!isDesktopDetail) setSheetOpen(true);
     setNotice(t("toast.connected", { name: t(connectDefinition.nameKey) }));
     setNoticeTone("success");
   }
@@ -226,38 +217,6 @@ export function IntegrationsWorkspace() {
       </main>
     );
   }
-
-  const detailNode =
-    selected && selectedStatus ? (
-      <IntegrationDetails
-        key={selected.id}
-        activities={selectedActivities}
-        canManage={canManageDefinition(selected)}
-        connection={selectedConnection}
-        definition={selected}
-        scopeLabel={scopeLabel(selected)}
-        status={selectedStatus}
-        syncing={
-          selectedConnection
-            ? syncingId === selectedConnection.id
-            : false
-        }
-        onClose={closeDetails}
-        onConnect={() => openConnect(selected)}
-        onDisconnect={() => setDisconnectId(selected.id)}
-        onManageApi={() => {
-          setNotice(t("toast.manageApi"));
-          setNoticeTone("info");
-        }}
-        onStartImport={() => {
-          setNotice(t("toast.importReady"));
-          setNoticeTone("info");
-        }}
-        onSync={() => {
-          if (selectedConnection) void handleSync(selectedConnection.id);
-        }}
-      />
-    ) : null;
 
   return (
     <main className="dashboard-canvas flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
@@ -308,14 +267,7 @@ export function IntegrationsWorkspace() {
           />
         </div>
 
-        <section
-          className={cn(
-            "dashboard-enter enter-3 grid min-w-0 gap-5 pb-2",
-            selected && isDesktopDetail
-              ? "xl:grid-cols-[minmax(0,1fr)_minmax(380px,420px)] xl:items-start"
-              : "grid-cols-1",
-          )}
-        >
+        <section className="dashboard-enter enter-3 grid min-w-0 grid-cols-1 gap-5 pb-2">
           <div className="min-w-0">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-[#dce6f3] bg-white/60 px-6 py-16 text-center">
@@ -334,14 +286,7 @@ export function IntegrationsWorkspace() {
                 </button>
               </div>
             ) : (
-              <div
-                className={cn(
-                  "integration-grid grid gap-3.5",
-                  selected && isDesktopDetail
-                    ? "grid-cols-1 md:grid-cols-2"
-                    : "grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3",
-                )}
-              >
+              <div className="integration-grid grid grid-cols-1 gap-3.5 sm:grid-cols-2 2xl:grid-cols-3">
                 {filtered.map((definition) => {
                   const connection = connectionForDefinition(
                     definition,
@@ -366,28 +311,40 @@ export function IntegrationsWorkspace() {
               </div>
             )}
           </div>
-
-          {selected && isDesktopDetail ? (
-            <div className="sticky top-4 hidden max-h-[calc(100dvh-7.5rem)] min-h-0 self-start xl:block">
-              <div className="flex max-h-[calc(100dvh-7.5rem)] min-h-0 flex-col">
-                {detailNode}
-              </div>
-            </div>
-          ) : null}
         </section>
       </div>
 
-      <FormSheet
-        open={!isDesktopDetail && sheetOpen && Boolean(selected)}
-        showHeader={false}
-        title={selected ? t(selected.nameKey) : ""}
-        widthClassName="sm:max-w-[560px]"
-        onClose={closeDetails}
-      >
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          {detailNode}
-        </div>
-      </FormSheet>
+      {selected && selectedStatus ? (
+        <IntegrationDetails
+          key={selected.id}
+          activities={selectedActivities}
+          canManage={canManageDefinition(selected)}
+          connection={selectedConnection}
+          definition={selected}
+          open={Boolean(selected)}
+          scopeLabel={scopeLabel(selected)}
+          status={selectedStatus}
+          syncing={
+            selectedConnection
+              ? syncingId === selectedConnection.id
+              : false
+          }
+          onClose={closeDetails}
+          onConnect={() => openConnect(selected)}
+          onDisconnect={() => setDisconnectId(selected.id)}
+          onManageApi={() => {
+            setNotice(t("toast.manageApi"));
+            setNoticeTone("info");
+          }}
+          onStartImport={() => {
+            setNotice(t("toast.importReady"));
+            setNoticeTone("info");
+          }}
+          onSync={() => {
+            if (selectedConnection) void handleSync(selectedConnection.id);
+          }}
+        />
+      ) : null}
 
       <ConnectIntegrationSheet
         companyName={company?.name ?? companyId}

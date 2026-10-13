@@ -67,8 +67,12 @@ export function SidebarLink({
   const showDot = Boolean(link.count) && collapsed;
 
   const classNames = cn(
-    "nav-item group relative flex h-11 w-full min-w-0 items-center rounded-[14px] text-left text-sm transition-colors duration-150 ease-out",
-    collapsed ? "justify-center px-0" : "gap-3 px-3",
+    "nav-item group relative flex items-center rounded-[14px] text-left text-sm transition-colors duration-150 ease-out",
+    // Collapsed rail: fixed square hit-target (matches company / assistant tiles).
+    // Separate layoutId below so expand↔collapse does not morph/slide the pill.
+    collapsed
+      ? "mx-auto h-11 w-11 shrink-0 justify-center px-0"
+      : "h-11 w-full min-w-0 gap-3 px-3",
     active ? "font-semibold text-[#044ce2]" : "text-[#66758d] hover:text-[#24334c]",
     className,
   );
@@ -76,12 +80,23 @@ export function SidebarLink({
   const inner = (
     <>
       {active ? (
-        <AnimatedActiveIndicator layoutId={SIDEBAR_ACTIVE_LAYOUT_ID} variant="sidebar" />
+        collapsed ? (
+          // Static square — no shared layoutId, so collapse never morphs/slides the pill.
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0 rounded-[14px] border border-white/55 bg-[linear-gradient(145deg,rgb(249_250_251/0.88),rgb(229_231_235/0.8))] shadow-[5px_6px_14px_rgba(55,65,81,0.12),-4px_-4px_11px_rgba(255,255,255,0.55),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-md"
+          />
+        ) : (
+          <AnimatedActiveIndicator
+            layoutId={SIDEBAR_ACTIVE_LAYOUT_ID}
+            variant="sidebar"
+          />
+        )
       ) : null}
       <span
         className={cn(
           "relative z-[1] flex min-w-0 items-center transition-transform duration-[90ms] ease-out group-active:scale-[0.985]",
-          collapsed ? "w-full justify-center" : "flex-1 gap-3",
+          collapsed ? "justify-center" : "flex-1 gap-3",
         )}
       >
         <span className="relative grid h-5 w-5 shrink-0 place-items-center">
