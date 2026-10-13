@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
@@ -17,16 +18,11 @@ import {
   exportRevenueTrendCsv,
   exportSalesCsv,
 } from "./export";
-import { ExportsAccountingSection } from "./components/exports-accounting-section";
-import { ProductPerformanceReport } from "./components/product-performance-report";
-import { QuotePipelineReport } from "./components/quote-pipeline-report";
-import { ReceivableAgingReport } from "./components/receivable-aging-report";
 import { ReportExportMenu } from "./components/report-export-menu";
 import { ReportsFilterBar } from "./components/reports-filter-bar";
 import { ReportsKpiGrid } from "./components/reports-kpi-grid";
 import { RevenueBreakdownReport } from "./components/revenue-breakdown-report";
 import { RevenueTrendReport } from "./components/revenue-trend-report";
-import { SalesPerformanceReport } from "./components/sales-performance-report";
 import type {
   AgingBucketId,
   PipelineMetric,
@@ -37,6 +33,54 @@ import type {
 } from "./model";
 import { emptyReportFilters } from "./model";
 import { useDerivedReports } from "./use-reports-data";
+
+function ReportSectionSkeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={`dashboard-card loading-shimmer min-h-[240px] w-full rounded-[14px] ${className ?? ""}`}
+    />
+  );
+}
+
+const ReceivableAgingReport = dynamic(
+  () =>
+    import("./components/receivable-aging-report").then(
+      (mod) => mod.ReceivableAgingReport,
+    ),
+  { loading: () => <ReportSectionSkeleton className="min-h-[280px]" /> },
+);
+
+const QuotePipelineReport = dynamic(
+  () =>
+    import("./components/quote-pipeline-report").then(
+      (mod) => mod.QuotePipelineReport,
+    ),
+  { loading: () => <ReportSectionSkeleton className="min-h-[280px]" /> },
+);
+
+const SalesPerformanceReport = dynamic(
+  () =>
+    import("./components/sales-performance-report").then(
+      (mod) => mod.SalesPerformanceReport,
+    ),
+  { loading: () => <ReportSectionSkeleton className="min-h-[320px] xl:h-full" /> },
+);
+
+const ProductPerformanceReport = dynamic(
+  () =>
+    import("./components/product-performance-report").then(
+      (mod) => mod.ProductPerformanceReport,
+    ),
+  { loading: () => <ReportSectionSkeleton className="min-h-[320px] xl:h-full" /> },
+);
+
+const ExportsAccountingSection = dynamic(
+  () =>
+    import("./components/exports-accounting-section").then(
+      (mod) => mod.ExportsAccountingSection,
+    ),
+  { loading: () => <ReportSectionSkeleton className="min-h-[200px]" /> },
+);
 
 const activePermissions =
   systemRoles.find((role) => role.id === "tenant-admin")?.permissions ?? [];

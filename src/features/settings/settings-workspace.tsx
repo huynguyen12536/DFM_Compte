@@ -9,10 +9,9 @@ import { SettingsShell } from "./components/settings-shell";
 
 export function SettingsWorkspace() {
   const t = useTranslations("settings");
-  const nav = useTranslations("usersPermissions");
 
   return (
-    <SettingsShell description={t("body")} title={nav("nav.general")}>
+    <SettingsShell>
       <section className="dashboard-card dashboard-enter p-5">
         <h3 className="dashboard-card-title">{t("languageTitle")}</h3>
         <p className="mt-1 max-w-[58ch] text-sm leading-6 text-[#66758d]">{t("languageBody")}</p>

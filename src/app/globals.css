@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f2f6fd;
+  --background: #f3f4f6;
   --foreground: #063586;
   --surface: #ffffff;
-  --line: #e1e7f1;
+  --line: #e5e7eb;
   --accent: #044ce2;
   --accent-strong: #063586;
-  --shadow-soft: 0 14px 45px rgb(29 43 68 / 0.07);
-  --shadow-lift: 0 22px 70px rgb(29 43 68 / 0.13);
+  --shadow-soft: 0 14px 45px rgb(31 41 55 / 0.07);
+  --shadow-lift: 0 22px 70px rgb(31 41 55 / 0.13);
 
-  --dashboard-bg: #f2f6fb;
+  --dashboard-bg: #f3f4f6;
   --dashboard-surface: #ffffff;
   --dashboard-card: #ffffff;
-  --dashboard-card-soft: #f7fafd;
-  --dashboard-border: #dce5f0;
+  --dashboard-card-soft: #f9fafb;
+  --dashboard-border: #e5e7eb;
   --dashboard-text: #132642;
   --dashboard-title: #13284a;
   --dashboard-muted: #7a899e;
@@ -22,43 +22,51 @@
   --dashboard-gap: 12px;
   --dashboard-shadow: 0 3px 12px rgb(28 52 82 / 0.06), 0 1px 2px rgb(28 52 82 / 0.03);
 
-  /* Soft UI depth: light from top-left, cool shadow to bottom-right. */
-  --soft-bg: #eef5fb;
-  --soft-surface: linear-gradient(145deg, rgb(255 255 255 / 0.9), rgb(242 248 253 / 0.82));
-  --soft-surface-strong: linear-gradient(145deg, rgb(255 255 255 / 0.94), rgb(243 248 253 / 0.88));
-  --soft-highlight: rgb(255 255 255 / 0.9);
-  --soft-shadow: rgb(94 122 151 / 0.13);
-  --soft-shadow-strong: rgb(87 116 148 / 0.17);
-  --soft-border: rgb(255 255 255 / 0.82);
-  --soft-edge: rgb(176 199 224 / 0.18);
+  /* Soft UI depth: grey frosted glass ~80% opaque (match lightbox, no blue tint). */
+  --soft-bg: #f3f4f6;
+  --soft-surface: linear-gradient(
+    145deg,
+    rgb(249 250 251 / 0.88),
+    rgb(229 231 235 / 0.8)
+  );
+  --soft-surface-strong: linear-gradient(
+    145deg,
+    rgb(249 250 251 / 0.9),
+    rgb(243 244 246 / 0.82)
+  );
+  --soft-highlight: rgb(255 255 255 / 0.75);
+  --soft-shadow: rgb(55 65 81 / 0.14);
+  --soft-shadow-strong: rgb(31 41 55 / 0.18);
+  --soft-border: rgb(255 255 255 / 0.55);
+  --soft-edge: rgb(156 163 175 / 0.28);
   --soft-radius: 14px;
   --soft-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --shadow-surface:
     8px 9px 22px var(--soft-shadow),
-    -7px -7px 18px rgb(255 255 255 / 0.88),
-    inset 0 1px 0 rgb(255 255 255 / 0.92);
+    -7px -7px 18px rgb(255 255 255 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.65);
   --shadow-surface-hover:
-    11px 13px 27px rgb(87 116 148 / 0.16),
-    -8px -8px 19px rgb(255 255 255 / 0.93),
-    inset 0 1px 0 rgb(255 255 255 / 0.95);
+    11px 13px 27px rgb(55 65 81 / 0.16),
+    -8px -8px 19px rgb(255 255 255 / 0.6),
+    inset 0 1px 0 rgb(255 255 255 / 0.7);
   --shadow-kpi:
-    6px 7px 17px rgb(90 117 148 / 0.12),
-    -5px -5px 15px rgb(255 255 255 / 0.88),
-    inset 0 1px 0 rgb(255 255 255 / 0.92);
+    6px 7px 17px rgb(55 65 81 / 0.12),
+    -5px -5px 15px rgb(255 255 255 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.65);
   --shadow-mini:
-    2px 3px 7px rgb(91 119 148 / 0.055),
-    -2px -2px 5px rgb(255 255 255 / 0.72);
+    2px 3px 7px rgb(55 65 81 / 0.06),
+    -2px -2px 5px rgb(255 255 255 / 0.55);
   --shadow-raised-sm:
-    3px 4px 8px rgb(92 120 150 / 0.08),
-    -2px -2px 6px rgb(255 255 255 / 0.75);
+    3px 4px 8px rgb(55 65 81 / 0.08),
+    -2px -2px 6px rgb(255 255 255 / 0.55);
   --shadow-pressed:
-    inset 2px 2px 5px rgb(73 104 169 / 0.07),
-    inset -2px -2px 5px rgb(255 255 255 / 0.8);
-  --shadow-overlay: 0 14px 32px rgb(58 82 112 / 0.18);
+    inset 2px 2px 5px rgb(55 65 81 / 0.08),
+    inset -2px -2px 5px rgb(255 255 255 / 0.7);
+  --shadow-overlay: 0 14px 32px rgb(31 41 55 / 0.22);
   --list-row-height: 48px;
   --list-padding-x: 16px;
-  --list-divider: rgb(220 229 239 / 0.7);
-  --list-hover: rgb(237 244 251 / 0.58);
+  --list-divider: rgb(209 213 219 / 0.7);
+  --list-hover: rgb(243 244 246 / 0.72);
   --list-primary: #1b2d47;
   --list-secondary: #7a899e;
   --dashboard-primary: #2f66e8;
@@ -673,11 +681,36 @@ html::-webkit-scrollbar {
 .nav-rail {
   position: relative;
   isolation: isolate;
-  background-color: #eaf3fc;
+  background-color: #f3f4f6;
+  background-image: none;
+}
+
+/* Grey frosted rail art — keep color filter off children. */
+.nav-rail::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background-color: #f3f4f6;
   background-image: url("/nav-rail.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
+  filter: grayscale(1) brightness(1.04) contrast(0.96);
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+/* Collapsed desktop rail — floating outer card/box */
+.nav-rail--collapsed {
+  background-color: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+}
+
+.nav-rail--collapsed::before {
+  border-radius: 16px;
+  opacity: 0.45;
 }
 
 .nav-rail > * {
@@ -686,11 +719,17 @@ html::-webkit-scrollbar {
 }
 
 /* Must beat `.nav-rail > *` so the company menu overlays Overview/Customers/… */
-.nav-rail > .company-switcher {
+.nav-rail .company-switcher {
   z-index: 2;
 }
 
-.nav-rail > .company-switcher.company-switcher--open {
+.nav-rail .company-switcher.company-switcher--open {
+  z-index: 30;
+}
+
+/* Switcher is wrapped (not a direct `.nav-rail` child) — lift the wrapper's
+   stacking context so nav labels cannot paint through the open menu. */
+.nav-rail > *:has(.company-switcher--open) {
   z-index: 30;
 }
 
@@ -707,6 +746,8 @@ html::-webkit-scrollbar {
   height: 100%;
   object-fit: cover;
   object-position: center;
+  filter: grayscale(1) brightness(1.03) contrast(0.96);
+  opacity: 0.72;
   pointer-events: none;
 }
 
@@ -742,9 +783,11 @@ html::-webkit-scrollbar {
   border: 1px solid var(--soft-border);
   background: var(--soft-surface);
   box-shadow:
-    5px 6px 14px rgb(94 122 151 / 0.1),
-    -4px -4px 12px rgb(255 255 255 / 0.85),
-    inset 0 1px 0 rgb(255 255 255 / 0.92);
+    5px 6px 14px rgb(55 65 81 / 0.12),
+    -4px -4px 12px rgb(255 255 255 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.65);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .assistant-card {
@@ -754,18 +797,15 @@ html::-webkit-scrollbar {
 }
 
 .soft-button {
-  border: 1px solid rgb(199 213 229 / 0.7);
-  background: linear-gradient(145deg, #fff, #f1f6fb);
-  box-shadow:
-    4px 5px 11px rgb(92 119 147 / 0.1),
-    -3px -3px 8px rgb(255 255 255 / 0.88);
+  border: 1px solid rgb(209 213 219 / 0.55);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.92), rgb(243 244 246 / 0.8));
+  box-shadow: none;
 }
 
 .soft-button:active {
   transform: translateY(0);
-  box-shadow:
-    inset 2px 2px 5px rgb(83 108 138 / 0.1),
-    inset -2px -2px 5px rgb(255 255 255 / 0.82);
+  box-shadow: none;
+  background: linear-gradient(145deg, rgb(243 244 246 / 0.92), rgb(229 231 235 / 0.85));
 }
 
 .soft-primary {
@@ -788,23 +828,19 @@ html::-webkit-scrollbar {
 }
 
 .soft-input {
-  border: 1px solid rgb(208 220 234 / 0.72);
+  border: 1px solid rgb(210 220 233 / 0.42);
   background: rgb(247 250 254 / 0.74);
-  box-shadow:
-    inset 2px 2px 5px rgb(98 122 151 / 0.045),
-    inset -2px -2px 5px rgb(255 255 255 / 0.78);
+  box-shadow: none;
 }
 
 .soft-input:hover {
-  border-color: rgb(63 111 213 / 0.3);
+  border-color: rgb(63 111 213 / 0.22);
 }
 
 .soft-input:focus-visible {
-  border-color: rgb(63 111 213 / 0.42);
+  border-color: rgb(63 111 213 / 0.35);
   outline: none;
-  box-shadow:
-    inset 2px 2px 5px rgb(98 122 151 / 0.045),
-    0 0 0 3px rgb(65 111 220 / 0.08);
+  box-shadow: 0 0 0 3px rgb(65 111 220 / 0.06);
 }
 
 .action-motion,
@@ -1437,8 +1473,8 @@ html::-webkit-scrollbar {
   border-radius: var(--soft-radius);
   background: var(--soft-surface);
   box-shadow: var(--shadow-surface);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .dashboard-card::after,
@@ -1666,12 +1702,12 @@ html::-webkit-scrollbar {
 }
 
 .segmented-option[aria-pressed="true"] {
-  background: linear-gradient(145deg, #eef4ff, #e4edff);
+  background: linear-gradient(145deg, rgb(249 250 251 / 0.9), rgb(229 231 235 / 0.82));
   color: #2458d6;
   box-shadow:
-    inset 0 0 0 1px rgb(110 145 220 / 0.38),
-    inset 2px 2px 4px rgb(73 104 169 / 0.06),
-    inset -2px -2px 4px rgb(255 255 255 / 0.78);
+    inset 0 0 0 1px rgb(156 163 175 / 0.38),
+    inset 2px 2px 4px rgb(55 65 81 / 0.06),
+    inset -2px -2px 4px rgb(255 255 255 / 0.7);
 }
 
 .chart-col {
@@ -2357,90 +2393,7 @@ li.dashboard-list__row {
   }
 }
 
-/* Responsive navigation: the same <aside> is a static rail above its breakpoint and an off-canvas drawer below it. */
-.nav-drawer__close {
-  display: none;
-}
-
-.nav-drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 48;
-  background: rgb(10 30 64 / 0.32);
-  animation: fade-only 180ms ease-out;
-}
-
-@media (max-width: 1279.98px) {
-  .nav-drawer--xl {
-    position: fixed;
-    inset-block: 0;
-    left: 0;
-    z-index: 49;
-    width: min(300px, 86vw);
-    height: 100dvh;
-    box-shadow: var(--shadow-overlay);
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition:
-      transform 220ms var(--soft-ease),
-      visibility 0s linear 220ms;
-  }
-
-  .nav-drawer--xl[data-open="true"] {
-    transform: none;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-
-  .nav-drawer--xl .nav-drawer__close {
-    position: absolute;
-    top: 14px;
-    right: 12px;
-    z-index: 2;
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    border-radius: 10px;
-    color: #506078;
-  }
-}
-
-@media (max-width: 1023.98px) {
-  .nav-drawer--lg {
-    position: fixed;
-    inset-block: 0;
-    left: 0;
-    z-index: 49;
-    width: min(300px, 86vw);
-    height: 100dvh;
-    box-shadow: var(--shadow-overlay);
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition:
-      transform 220ms var(--soft-ease),
-      visibility 0s linear 220ms;
-  }
-
-  .nav-drawer--lg[data-open="true"] {
-    transform: none;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-
-  .nav-drawer--lg .nav-drawer__close {
-    position: absolute;
-    top: 14px;
-    right: 12px;
-    z-index: 2;
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    border-radius: 10px;
-    color: #506078;
-  }
-}
+/* Mobile off-canvas + desktop width animation: components/shell/sidebar */
 
 /* Touch-sized controls, lighter depth and a readable type floor on phones and tablets. */
 @media (max-width: 1023.98px) {
@@ -2523,6 +2476,71 @@ li.dashboard-list__row {
   .dashboard-grid-2--kpi {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.integration-category-scroller {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x;
+}
+
+.integration-category-scroller::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.integration-category-scroller--pannable {
+  cursor: grab;
+}
+
+.integration-category-scroller--dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+
+.integration-category-scroller--dragging button {
+  pointer-events: none;
+}
+
+.integrations-page {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin-inline: 0;
+  padding: 16px 16px 24px;
+}
+
+@media (min-width: 1024px) {
+  .integrations-page {
+    padding: 24px 28px 28px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .integrations-page {
+    padding: 28px 32px 32px;
+  }
+}
+
+.integration-logo {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(214, 225, 239, 0.92);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.025);
+}
+
+.integration-logo svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+  object-fit: contain;
 }
 
 @media (prefers-reduced-motion: reduce) {

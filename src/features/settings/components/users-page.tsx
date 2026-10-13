@@ -1,9 +1,10 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus, Search, UserPlus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Search, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { SoftSelect } from "@/components/compte/soft-select";
 import { StatusBadge } from "@/components/dashboard/tone";
 import type { Tone } from "@/mocks/dashboard/types";
 
@@ -24,7 +25,7 @@ const statusTone: Record<UserStatus, Tone> = {
   DISABLED: "slate",
 };
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 8;
 
 function roleNameKey(roleId: string) {
   if (roleId === "tenant-admin") return "roles.tenantAdmin.name";
@@ -130,26 +131,32 @@ export function UsersPage() {
     setInviteOpen(false);
   }
 
+  const hasActiveFilters =
+    Boolean(query.trim()) ||
+    companyFilter !== "all" ||
+    roleFilter !== "all" ||
+    statusFilter !== "all";
+
   return (
-    <SettingsShell description={t("page.description")} title={t("page.title")}>
-      <div className="flex min-w-0 flex-col gap-3">
+    <SettingsShell>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-          <p className="text-[12px] text-[#7a899e]">{t("hint")}</p>
+          <p className="max-w-[58ch] text-[12px] leading-5 text-[#7a899e]">{t("hint")}</p>
           <Can permission="user.invite" permissions={permissions}>
             <button
-              className="action-motion soft-primary inline-flex min-h-10 items-center gap-1.5 rounded-[10px] px-3 text-sm font-semibold text-white"
+              className="action-motion soft-primary inline-flex h-9 items-center gap-1.5 rounded-[10px] px-3 text-xs font-semibold text-white"
               type="button"
               onClick={() => setInviteOpen(true)}
             >
-              <UserPlus aria-hidden="true" className="h-4 w-4" />
+              <Plus aria-hidden="true" className="h-3.5 w-3.5" />
               {t("invite")}
             </button>
           </Can>
         </div>
 
-        <section className="dashboard-card dashboard-list dashboard-enter flex min-w-0 flex-col overflow-hidden">
-          <div className="flex shrink-0 min-w-0 flex-wrap items-center gap-2 border-b border-[rgb(217_227_238/0.72)] px-4 py-2.5">
-            <label className="relative min-w-0 flex-1 basis-[200px]">
+        <section className="dashboard-card dashboard-list dashboard-enter flex min-h-[320px] min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex shrink-0 min-w-0 flex-col gap-2 border-b border-[rgb(217_227_238/0.72)] px-3.5 py-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+            <label className="relative min-w-0 flex-1 basis-[220px]">
               <span className="sr-only">{t("search")}</span>
               <Search
                 aria-hidden="true"
@@ -165,198 +172,263 @@ export function UsersPage() {
                 }}
               />
             </label>
-            <select
-              aria-label={t("filters.company")}
-              className="h-9 min-w-[140px] rounded-[10px] border border-[#dfe6f1] bg-white px-2.5 text-[12px] font-medium text-[#405069]"
-              value={companyFilter}
-              onChange={(event) => {
-                setCompanyFilter(event.target.value);
-                setPage(0);
-              }}
-            >
-              <option value="all">{t("filters.allCompanies")}</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label={t("filters.role")}
-              className="h-9 min-w-[140px] rounded-[10px] border border-[#dfe6f1] bg-white px-2.5 text-[12px] font-medium text-[#405069]"
-              value={roleFilter}
-              onChange={(event) => {
-                setRoleFilter(event.target.value);
-                setPage(0);
-              }}
-            >
-              <option value="all">{t("filters.allRoles")}</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {tUp(role.nameKey)}
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label={t("filters.status")}
-              className="h-9 min-w-[120px] rounded-[10px] border border-[#dfe6f1] bg-white px-2.5 text-[12px] font-medium text-[#405069]"
-              value={statusFilter}
-              onChange={(event) => {
-                setStatusFilter(event.target.value as "all" | UserStatus);
-                setPage(0);
-              }}
-            >
-              <option value="all">{t("filters.allStatuses")}</option>
-              <option value="ACTIVE">{tUp("status.ACTIVE")}</option>
-              <option value="INVITED">{tUp("status.INVITED")}</option>
-              <option value="DISABLED">{tUp("status.DISABLED")}</option>
-            </select>
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <SoftSelect
+                className="w-full min-w-[148px] sm:w-[160px]"
+                hideLabel
+                label={t("filters.company")}
+                options={[
+                  { value: "all", label: t("filters.allCompanies") },
+                  ...companies.map((company) => ({
+                    value: company.id,
+                    label: company.name,
+                  })),
+                ]}
+                triggerClassName="h-9 rounded-[10px] text-[12px]"
+                value={companyFilter}
+                onChange={(value) => {
+                  setCompanyFilter(value);
+                  setPage(0);
+                }}
+              />
+              <SoftSelect
+                className="w-full min-w-[148px] sm:w-[150px]"
+                hideLabel
+                label={t("filters.role")}
+                options={[
+                  { value: "all", label: t("filters.allRoles") },
+                  ...roles.map((role) => ({
+                    value: role.id,
+                    label: tUp(role.nameKey),
+                  })),
+                ]}
+                triggerClassName="h-9 rounded-[10px] text-[12px]"
+                value={roleFilter}
+                onChange={(value) => {
+                  setRoleFilter(value);
+                  setPage(0);
+                }}
+              />
+              <SoftSelect
+                className="w-full min-w-[132px] sm:w-[140px]"
+                hideLabel
+                label={t("filters.status")}
+                options={[
+                  { value: "all", label: t("filters.allStatuses") },
+                  { value: "ACTIVE", label: tUp("status.ACTIVE") },
+                  { value: "INVITED", label: tUp("status.INVITED") },
+                  { value: "DISABLED", label: tUp("status.DISABLED") },
+                ]}
+                triggerClassName="h-9 rounded-[10px] text-[12px]"
+                value={statusFilter}
+                onChange={(value) => {
+                  setStatusFilter(value as "all" | UserStatus);
+                  setPage(0);
+                }}
+              />
+            </div>
           </div>
 
-          <div className="dashboard-scroll overflow-x-auto">
-            <div className="hidden min-w-0 md:block">
-              <table className="w-full min-w-[820px] table-fixed border-separate border-spacing-0 text-left">
-                <thead className="dashboard-list__head">
-                  <tr>
-                    <th className="w-[18%]">{t("columns.user")}</th>
-                    <th className="w-[18%]">{t("columns.email")}</th>
-                    <th className="w-[14%]">{t("columns.companies")}</th>
-                    <th className="w-[14%]">{t("columns.role")}</th>
-                    <th className="w-[10%]">{t("columns.status")}</th>
-                    <th className="w-[10%]">{t("columns.activity")}</th>
-                    <th className="w-[116px] min-w-[116px]">
-                      <span className="sr-only">{t("columns.actions")}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {slice.map((user) => {
-                    const primary = user.memberships[0];
-                    const companyNames = user.memberships
-                      .map((m) => companies.find((c) => c.id === m.companyId)?.name)
-                      .filter(Boolean);
-                    return (
-                      <tr
-                        className="dashboard-list__row cursor-pointer transition-colors duration-150 hover:bg-[#f7fafd]"
-                        key={user.id}
+          {filtered.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-12 text-center">
+              <UsersRound aria-hidden="true" className="h-8 w-8 text-[#b7c3d6]" />
+              <p className="text-sm font-semibold text-[#24334c]">
+                {hasActiveFilters ? t("empty.filteredTitle") : t("empty.title")}
+              </p>
+              <p className="max-w-[42ch] text-xs leading-5 text-[#7d8aa0]">
+                {hasActiveFilters ? t("empty.filteredBody") : t("empty.body")}
+              </p>
+              {hasActiveFilters ? (
+                <button
+                  className="action-motion soft-button mt-2 h-9 rounded-[9px] px-3 text-xs font-semibold text-[#405069]"
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setCompanyFilter("all");
+                    setRoleFilter("all");
+                    setStatusFilter("all");
+                    setPage(0);
+                  }}
+                >
+                  {t("empty.clear")}
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <div className="dashboard-scroll min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+              <div className="hidden min-w-0 md:block">
+                <table className="w-full min-w-[900px] table-fixed border-separate border-spacing-0 text-left">
+                  <thead className="dashboard-list__head sticky top-0 z-[1]">
+                    <tr>
+                      <th className="w-[16%]">{t("columns.user")}</th>
+                      <th className="w-[20%]">{t("columns.email")}</th>
+                      <th className="w-[14%]">{t("columns.companies")}</th>
+                      <th className="w-[14%]">{t("columns.role")}</th>
+                      <th className="w-[10%]">{t("columns.status")}</th>
+                      <th className="w-[10%]">{t("columns.activity")}</th>
+                      <th className="w-[116px] min-w-[116px]">
+                        <span className="sr-only">{t("columns.actions")}</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {slice.map((user) => {
+                      const primary = user.memberships[0];
+                      const companyNames = user.memberships
+                        .map((m) => companies.find((c) => c.id === m.companyId)?.name)
+                        .filter(Boolean) as string[];
+                      const extraCompanies = Math.max(0, companyNames.length - 1);
+                      return (
+                        <tr
+                          className="dashboard-list__row cursor-pointer transition-colors duration-150 hover:bg-[#f7fafd]"
+                          key={user.id}
+                          onClick={() => openEdit(user.id)}
+                        >
+                          <td className="min-w-0">
+                            <div className="flex min-w-0 items-center gap-2.5">
+                              <span className="dashboard-list__avatar shrink-0">
+                                {user.initials}
+                              </span>
+                              <span
+                                className="dashboard-list__primary truncate"
+                                title={user.name}
+                              >
+                                {user.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="min-w-0">
+                            <span
+                              className="block truncate text-[12px] text-[#66758d]"
+                              title={user.email}
+                            >
+                              {user.email}
+                            </span>
+                          </td>
+                          <td className="min-w-0">
+                            <span
+                              className="block truncate text-[12px] font-medium text-[#405069]"
+                              title={companyNames.join(", ")}
+                            >
+                              {companyNames[0] ?? "—"}
+                              {extraCompanies > 0 ? (
+                                <span className="text-[#7a899e]"> +{extraCompanies}</span>
+                              ) : null}
+                            </span>
+                          </td>
+                          <td>
+                            {primary ? (
+                              <StatusBadge size="xs" tone="purple">
+                                {tUp(roleNameKey(primary.roleId))}
+                              </StatusBadge>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td>
+                            <StatusBadge size="xs" tone={statusTone[user.status]}>
+                              {tUp(`status.${user.status}`)}
+                            </StatusBadge>
+                          </td>
+                          <td>
+                            <span className="dashboard-list__secondary">
+                              {user.lastActivityLabel}
+                            </span>
+                          </td>
+                          <td
+                            className="whitespace-nowrap"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <UserActionsMenu
+                              member={{
+                                id: user.id,
+                                name: user.name,
+                                email: user.email,
+                                initials: user.initials,
+                                roleId: primary?.roleId ?? "viewer",
+                                dataScope: "COMPANY",
+                                companyIds: user.memberships.map((m) => m.companyId),
+                                status: user.status,
+                                lastActivityLabel: user.lastActivityLabel,
+                              }}
+                              onDisable={() => setDisableUserId(user.id)}
+                              onEdit={() => openEdit(user.id)}
+                              onResend={() => undefined}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <ul className="divide-y divide-[rgb(220_229_239/0.7)] md:hidden">
+                {slice.map((user) => {
+                  const primary = user.memberships[0];
+                  const companyNames = user.memberships
+                    .map((m) => companies.find((c) => c.id === m.companyId)?.name)
+                    .filter(Boolean) as string[];
+                  const extraCompanies = Math.max(0, companyNames.length - 1);
+                  return (
+                    <li className="flex gap-2 px-4 py-3" key={user.id}>
+                      <button
+                        className="flex min-w-0 flex-1 gap-3 text-left"
+                        type="button"
                         onClick={() => openEdit(user.id)}
                       >
-                        <td className="min-w-0">
-                          <div className="flex min-w-0 items-center gap-2.5">
-                            <span className="dashboard-list__avatar shrink-0">{user.initials}</span>
-                            <span className="dashboard-list__primary truncate" title={user.name}>
-                              {user.name}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="min-w-0">
-                          <span className="block truncate text-[12px] text-[#66758d]" title={user.email}>
+                        <span className="dashboard-list__avatar mt-0.5 shrink-0">
+                          {user.initials}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold text-[#1b2d47]">
+                            {user.name}
+                          </span>
+                          <span className="block truncate text-[12px] text-[#7a899e]">
                             {user.email}
                           </span>
-                        </td>
-                        <td className="min-w-0">
-                          <span className="block truncate text-[12px] font-medium text-[#405069]">
+                          <span className="mt-1 block truncate text-[11px] text-[#66758d]">
                             {companyNames[0] ?? "—"}
+                            {extraCompanies > 0 ? ` +${extraCompanies}` : ""}
                           </span>
-                          {companyNames.length > 1 ? (
-                            <span className="block text-[11px] text-[#7a899e]">
-                              +{companyNames.length - 1}
-                            </span>
-                          ) : null}
-                        </td>
-                        <td>
-                          {primary ? (
-                            <StatusBadge size="xs" tone="blue">
-                              {tUp(roleNameKey(primary.roleId))}
+                          <span className="mt-2 inline-flex flex-wrap gap-1.5">
+                            {primary ? (
+                              <StatusBadge size="xs" tone="purple">
+                                {tUp(roleNameKey(primary.roleId))}
+                              </StatusBadge>
+                            ) : null}
+                            <StatusBadge size="xs" tone={statusTone[user.status]}>
+                              {tUp(`status.${user.status}`)}
                             </StatusBadge>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                        <td>
-                          <StatusBadge size="xs" tone={statusTone[user.status]}>
-                            {tUp(`status.${user.status}`)}
-                          </StatusBadge>
-                        </td>
-                        <td>
-                          <span className="dashboard-list__secondary">{user.lastActivityLabel}</span>
-                        </td>
-                        <td
-                          className="whitespace-nowrap"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          <UserActionsMenu
-                            member={{
-                              id: user.id,
-                              name: user.name,
-                              email: user.email,
-                              initials: user.initials,
-                              roleId: primary?.roleId ?? "viewer",
-                              dataScope: "COMPANY",
-                              companyIds: user.memberships.map((m) => m.companyId),
-                              status: user.status,
-                              lastActivityLabel: user.lastActivityLabel,
-                            }}
-                            onDisable={() => setDisableUserId(user.id)}
-                            onEdit={() => openEdit(user.id)}
-                            onResend={() => undefined}
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </span>
+                        </span>
+                      </button>
+                      <div className="shrink-0 self-start">
+                        <UserActionsMenu
+                          member={{
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            initials: user.initials,
+                            roleId: primary?.roleId ?? "viewer",
+                            dataScope: "COMPANY",
+                            companyIds: user.memberships.map((m) => m.companyId),
+                            status: user.status,
+                            lastActivityLabel: user.lastActivityLabel,
+                          }}
+                          onDisable={() => setDisableUserId(user.id)}
+                          onEdit={() => openEdit(user.id)}
+                          onResend={() => undefined}
+                        />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
+          )}
 
-            <ul className="divide-y divide-[rgb(220_229_239/0.7)] md:hidden">
-              {slice.map((user) => {
-                const primary = user.memberships[0];
-                return (
-                  <li className="flex gap-2 px-4 py-3" key={user.id}>
-                    <button
-                      className="flex min-w-0 flex-1 gap-3 text-left"
-                      type="button"
-                      onClick={() => openEdit(user.id)}
-                    >
-                      <span className="dashboard-list__avatar mt-0.5 shrink-0">{user.initials}</span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-[#1b2d47]">
-                          {user.name}
-                        </span>
-                        <span className="block truncate text-[12px] text-[#7a899e]">{user.email}</span>
-                        <span className="mt-2">
-                          <StatusBadge size="xs" tone={statusTone[user.status]}>
-                            {tUp(`status.${user.status}`)}
-                          </StatusBadge>
-                        </span>
-                      </span>
-                    </button>
-                    <div className="shrink-0 self-start">
-                      <UserActionsMenu
-                        member={{
-                          id: user.id,
-                          name: user.name,
-                          email: user.email,
-                          initials: user.initials,
-                          roleId: primary?.roleId ?? "viewer",
-                          dataScope: "COMPANY",
-                          companyIds: user.memberships.map((m) => m.companyId),
-                          status: user.status,
-                          lastActivityLabel: user.lastActivityLabel,
-                        }}
-                        onDisable={() => setDisableUserId(user.id)}
-                        onEdit={() => openEdit(user.id)}
-                        onResend={() => undefined}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          <div className="flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2 border-t border-[rgb(217_227_238/0.72)] px-4 py-2.5 text-[12px] text-[#66758d]">
+          <div className="flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2 border-t border-[rgb(217_227_238/0.72)] px-3.5 py-2.5 text-[12px] text-[#66758d]">
             <p>{t("showing", { from, to, total: filtered.length })}</p>
             <div className="flex items-center gap-1">
               <button
@@ -368,7 +440,9 @@ export function UsersPage() {
               >
                 <ChevronLeft aria-hidden="true" className="h-4 w-4" />
               </button>
-              <span className="px-2 font-semibold text-[#405069]">{safePage + 1}</span>
+              <span className="min-w-8 px-1 text-center font-semibold text-[#405069]">
+                {safePage + 1}
+              </span>
               <button
                 aria-label={t("nextPage")}
                 className="soft-button grid h-9 w-9 place-items-center rounded-[9px] disabled:opacity-40"

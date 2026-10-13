@@ -25,9 +25,21 @@ import { formatMoneyFromCents, formatPercent } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 import { invoiceLabel, projectFinance } from "../finance";
-import type { Project, ProjectActivity, ProjectExpense } from "../model";
+import type { Project, ProjectActivity, ProjectExpense, ProjectStatus } from "../model";
 import { expenseStatusTone, projectStatusTone } from "../status";
-import { linkInvoiceToProject, linkQuoteToProject } from "../store";
+import {
+  linkInvoiceToProject,
+  linkQuoteToProject,
+  setProjectStatus,
+} from "../store";
+
+const PROJECT_STATUSES: ProjectStatus[] = [
+  "draft",
+  "active",
+  "on_hold",
+  "completed",
+  "archived",
+];
 
 type DetailTab = "overview" | "quotes" | "invoices" | "costs" | "activity";
 
@@ -44,6 +56,7 @@ export function ProjectDetailSheet({
   onClose,
   onOpenQuote,
   onOpenInvoice,
+  onCreateQuote,
 }: {
   open: boolean;
   project: Project | null;
@@ -57,6 +70,7 @@ export function ProjectDetailSheet({
   onClose: () => void;
   onOpenQuote: (quoteId: string) => void;
   onOpenInvoice: (invoiceId: string) => void;
+  onCreateQuote?: () => void;
 }) {
   const t = useTranslations("projects");
   const [tab, setTab] = useState<DetailTab>("overview");
@@ -97,21 +111,30 @@ export function ProjectDetailSheet({
 
   const quoteOptions = useMemo(() => {
     if (!project) return [];
+    // Same customer only — products enter via quote lines, not Project create.
     return quotes
-      .filter((quote) => !project.quoteIds.includes(quote.id))
+      .filter(
+        (quote) =>
+          !project.quoteIds.includes(quote.id) &&
+          quote.customerId === project.customerId,
+      )
       .map((quote) => ({
         value: quote.id,
-        label: `${quote.id} · ${quote.customerId}`,
+        label: quote.id,
       }));
   }, [project, quotes]);
 
   const invoiceOptions = useMemo(() => {
     if (!project) return [];
     return invoices
-      .filter((invoice) => !project.invoiceIds.includes(invoice.id))
+      .filter(
+        (invoice) =>
+          !project.invoiceIds.includes(invoice.id) &&
+          invoice.customerId === project.customerId,
+      )
       .map((invoice) => ({
         value: invoice.id,
-        label: `${invoiceDisplayNumber(invoice)} · ${invoice.customerId}`,
+        label: invoiceDisplayNumber(invoice),
       }));
   }, [invoices, project]);
 
@@ -125,7 +148,7 @@ export function ProjectDetailSheet({
       showHeader={false}
       title={project.name}
       contentClassName="flex min-h-0 flex-col overflow-hidden p-0"
-      widthClassName="sm:min-w-[min(100%,560px)] sm:max-w-[min(100%,920px)] lg:max-w-[min(48vw,920px)] md:max-lg:max-w-[min(85vw,920px)]"
+      widthClassName="w-full sm:w-[min(100%,680px)] sm:max-w-[680px]"
       zIndexClassName="z-[70]"
       onClose={onClose}
     >
@@ -139,9 +162,27 @@ export function ProjectDetailSheet({
               {project.name}
             </h2>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <StatusBadge size="xs" tone={projectStatusTone[project.status]}>
-                {t(`status.${project.status}`)}
-              </StatusBadge>
+              {canUpdate ? (
+                <div className="w-[148px] shrink-0">
+                  <SoftSelect
+                    hideLabel
+                    label={t("form.status")}
+                    options={PROJECT_STATUSES.map((value) => ({
+                      value,
+                      label: t(`status.${value}`),
+                    }))}
+                    triggerClassName="h-8"
+                    value={project.status}
+                    onChange={(value) =>
+                      setProjectStatus(project.id, value as ProjectStatus)
+                    }
+                  />
+                </div>
+              ) : (
+                <StatusBadge size="xs" tone={projectStatusTone[project.status]}>
+                  {t(`status.${project.status}`)}
+                </StatusBadge>
+              )}
               <span className="text-[11px] text-[#7d8aa0]">{project.customerName}</span>
               <span className="text-[11px] text-[#98a4b5]">· {companyName}</span>
             </div>
@@ -306,19 +347,30 @@ export function ProjectDetailSheet({
                       onChange={setLinkQuoteId}
                     />
                   </div>
-                  <button
-                    className="action-motion soft-primary inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-white disabled:opacity-50"
-                    disabled={!linkQuoteId}
-                    type="button"
-                    onClick={() => {
-                      if (!linkQuoteId) return;
-                      linkQuoteToProject(project.id, linkQuoteId);
-                      setLinkQuoteId("");
-                    }}
-                  >
-                    <Link2 aria-hidden="true" className="h-3.5 w-3.5" />
-                    {t("detail.linkQuote")}
-                  </button>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {onCreateQuote ? (
+                      <button
+                        className="action-motion soft-button inline-flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-[#405069]"
+                        type="button"
+                        onClick={onCreateQuote}
+                      >
+                        {t("detail.createQuote")}
+                      </button>
+                    ) : null}
+                    <button
+                      className="action-motion soft-primary inline-flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-white disabled:opacity-50"
+                      disabled={!linkQuoteId}
+                      type="button"
+                      onClick={() => {
+                        if (!linkQuoteId) return;
+                        linkQuoteToProject(project.id, linkQuoteId);
+                        setLinkQuoteId("");
+                      }}
+                    >
+                      <Link2 aria-hidden="true" className="h-3.5 w-3.5" />
+                      {t("detail.linkQuote")}
+                    </button>
+                  </div>
                 </div>
               ) : null}
               <div className="overflow-x-auto rounded-[12px] border border-[#edf2f8]">
@@ -567,7 +619,14 @@ export function ProjectDetailSheet({
                         </p>
                         {item.bodyKey ? (
                           <p className="mt-0.5 text-[11px] text-[#516078]">
-                            {t(item.bodyKey, item.bodyParams ?? {})}
+                            {item.type === "status_changed" &&
+                            typeof item.bodyParams?.status === "string"
+                              ? t(item.bodyKey, {
+                                  status: t(
+                                    `status.${item.bodyParams.status as ProjectStatus}`,
+                                  ),
+                                })
+                              : t(item.bodyKey, item.bodyParams ?? {})}
                           </p>
                         ) : null}
                         <p className="mt-1 text-[10px] text-[#98a4b5]">

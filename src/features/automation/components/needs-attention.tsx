@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { IconTile } from "@/components/dashboard/tone";
 import type { Tone } from "@/mocks/dashboard/types";
 
+import { automationLabel } from "../label";
 import type { AutomationDefinition, AutomationReviewItem } from "../model";
 
 const reviewIcon = {
@@ -87,7 +88,7 @@ export function NeedsAttentionPanel({
                   </p>
                   <p className="text-[10px] text-[#7d8aa0]">{t(item.reasonKey)}</p>
                   <p className="mt-0.5 text-[10px] text-[#98a4b5]">
-                    {automation ? t(automation.nameKey) : item.entityLabel} ·{" "}
+                    {automation ? automationLabel(automation, t) : item.entityLabel} ·{" "}
                     <span className="tabular-nums">{formatWhen(item.createdAt, locale)}</span>
                   </p>
                 </div>

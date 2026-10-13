@@ -87,7 +87,7 @@ export function FormSheet({
       <button
         aria-label={closeLabel}
         className={cn(
-          "absolute inset-0 cursor-default bg-[#063586]/30",
+          "absolute inset-0 cursor-default bg-black/80",
           exiting ? "form-sheet-backdrop-exit" : "form-sheet-backdrop-enter",
         )}
         type="button"

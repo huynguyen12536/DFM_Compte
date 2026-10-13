@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/dashboard/tone";
 import { cn } from "@/lib/utils";
 
 import { formatDuration } from "../kpis";
+import { automationLabel } from "../label";
 import type { AutomationDefinition, AutomationRun } from "../model";
 import { buildRunStageNodes } from "../run-stages";
 import { runStatusTone } from "../status";
@@ -119,7 +120,7 @@ export function AutomationRecentRuns({
                         </td>
                         <td className={`${cell} px-3 py-2.5 font-semibold text-[#24334c]`}>
                           <span className="truncate">
-                            {automation ? t(automation.nameKey) : run.automationId}
+                            {automation ? automationLabel(automation, t) : run.automationId}
                           </span>
                         </td>
                         <td className={`${cell} px-3 py-2.5 text-[#516078]`}>
@@ -178,7 +179,7 @@ export function AutomationRecentRuns({
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-[11px] font-semibold text-[#24334c]">
-                        {automation ? t(automation.nameKey) : run.automationId}
+                        {automation ? automationLabel(automation, t) : run.automationId}
                       </p>
                       <p className="mt-0.5 text-[10px] tabular-nums text-[#98a4b5]">
                         {formatWhen(run.startedAt, locale)}

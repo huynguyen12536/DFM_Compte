@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/dashboard/tone";
 import { FormSheet } from "@/components/forms/form-sheet";
 
 import { formatDuration } from "../kpis";
+import { automationLabel } from "../label";
 import type {
   AutomationDefinition,
   AutomationRun,
@@ -74,7 +75,7 @@ export function RunDetailSheet({
               {t("runDetail.title")}
             </h3>
             <p className="mt-0.5 truncate text-[11px] text-[#7d8aa0]">
-              {automation ? t(automation.nameKey) : t("runs.empty")}
+              {automation ? automationLabel(automation, t) : t("runs.empty")}
             </p>
           </div>
           <button
@@ -94,7 +95,7 @@ export function RunDetailSheet({
             <div className="space-y-3 text-[11px]">
               <div className="flex items-center justify-between gap-2">
                 <p className="min-w-0 truncate font-semibold text-[#24334c]">
-                  {automation ? t(automation.nameKey) : run.automationId}
+                  {automation ? automationLabel(automation, t) : run.automationId}
                 </p>
                 <StatusBadge size="xs" tone={runStatusTone[run.status]}>
                   {t(`runStatus.${run.status}`)}

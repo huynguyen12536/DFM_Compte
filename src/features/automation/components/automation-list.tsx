@@ -18,6 +18,7 @@ import { IconTile, StatusBadge } from "@/components/dashboard/tone";
 import { cn } from "@/lib/utils";
 import type { Tone } from "@/mocks/dashboard/types";
 
+import { automationLabel } from "../label";
 import type { AutomationDefinition } from "../model";
 import { pauseAutomation, resumeAutomation } from "../store";
 
@@ -163,7 +164,7 @@ export function AutomationList({
                         />
                         <div className="min-w-0">
                           <p className="dashboard-list__primary truncate">
-                            {t(item.nameKey)}
+                            {automationLabel(item, t)}
                           </p>
                           <span className="mt-1 inline-flex rounded-full bg-[#edf3fb] px-2 py-0.5 text-[10px] font-semibold text-[#516078]">
                             {t(`category.${item.category}`)}
@@ -322,7 +323,7 @@ export function AutomationList({
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="dashboard-list__primary truncate">
-                        {t(item.nameKey)}
+                        {automationLabel(item, t)}
                       </p>
                       <span className="mt-1 inline-flex rounded-full bg-[#edf3fb] px-2 py-0.5 text-[10px] font-semibold text-[#516078]">
                         {t(`category.${item.category}`)}

@@ -1,36 +1,20 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-
-import { ContentLoadingScreen } from "./content-loading-screen";
-
-const DEFAULT_MIN_MS = 380;
+import type { ReactNode } from "react";
 
 /**
- * Shows the shared content loading screen on mount (route enter),
- * matching dashboard navigation feedback for client-heavy pages.
+ * Passthrough — do not add an artificial post-navigation delay.
+ *
+ * Real wait feedback (Turbopack / RSC) is handled by each route's `loading.tsx`
+ * via `ContentLoading`. A fixed minMs here stacked on top of compile time and
+ * made every page switch feel laggy even after the route was already warm.
  */
 export function RouteContentGate({
   children,
-  minMs = DEFAULT_MIN_MS,
 }: {
   children: ReactNode;
+  /** @deprecated Kept for call-site compatibility; ignored. */
   minMs?: number;
 }) {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const reduceMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const delay = reduceMotion ? 0 : minMs;
-    const timer = window.setTimeout(() => setReady(true), delay);
-    return () => window.clearTimeout(timer);
-  }, [minMs]);
-
-  if (!ready) {
-    return <ContentLoadingScreen />;
-  }
-
   return children;
 }

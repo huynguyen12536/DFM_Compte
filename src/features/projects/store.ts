@@ -227,13 +227,16 @@ export function approveExpense(expenseId: string, actor: string) {
   emit();
 }
 
-export function archiveProject(projectId: string) {
+export function setProjectStatus(projectId: string, status: ProjectStatus) {
+  const current = state.projects.find((project) => project.id === projectId);
+  if (!current || current.status === status) return;
+
   const now = new Date().toISOString();
   state = {
     ...state,
     projects: state.projects.map((project) => {
       if (project.id !== projectId) return project;
-      return { ...project, status: "archived" as const, updatedAt: now };
+      return { ...project, status, updatedAt: now };
     }),
   };
   pushActivity({
@@ -241,10 +244,14 @@ export function archiveProject(projectId: string) {
     type: "status_changed",
     titleKey: "activity.statusChanged",
     bodyKey: "activity.statusChangedBody",
-    bodyParams: { status: "archived" },
+    bodyParams: { status },
     actor: "Current user",
   });
   emit();
+}
+
+export function archiveProject(projectId: string) {
+  setProjectStatus(projectId, "archived");
 }
 
 export function rejectExpense(expenseId: string, actor: string, reason: string) {

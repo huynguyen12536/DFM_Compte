@@ -16,6 +16,8 @@ export function ShellTitle() {
   if (pathname.startsWith("/rapports")) return <>{t("reports.title")}</>;
   if (pathname.startsWith("/automation")) return <>{t("automation.title")}</>;
   if (pathname.startsWith("/projects")) return <>{t("projects.title")}</>;
+  if (pathname.startsWith("/templates")) return <>{t("templates.title")}</>;
+  if (pathname.startsWith("/integrations")) return <>{t("integrations.title")}</>;
   if (pathname.startsWith("/parametres")) return <>{t("settings.title")}</>;
   if (pathname.startsWith("/activite")) return <>{t("activity.title")}</>;
   return <>{t("header.title")}</>;

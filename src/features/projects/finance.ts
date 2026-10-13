@@ -81,18 +81,18 @@ export function projectsKpis(
   quotes: QuoteRecord[],
   expenses: ProjectExpense[],
 ): ProjectsKpis {
-  const visibles = projects.filter((project) => project.status !== "archived");
+  // Total matches Projects tab badge: all company-scoped projects (no silent archive exclusion).
   let revenueCents = 0;
   let costCents = 0;
-  for (const project of visibles) {
+  for (const project of projects) {
     const finance = projectFinance(project, invoices, payments, quotes, expenses);
     revenueCents += finance.revenueCents;
     costCents += finance.costCents;
   }
   const profitCents = revenueCents - costCents;
   return {
-    totalProjects: visibles.length,
-    activeProjects: visibles.filter((project) => project.status === "active").length,
+    totalProjects: projects.length,
+    activeProjects: projects.filter((project) => project.status === "active").length,
     revenueCents,
     costCents,
     profitCents,

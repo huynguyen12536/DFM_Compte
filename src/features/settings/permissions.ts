@@ -11,6 +11,7 @@ export const SENSITIVE_PERMISSIONS = new Set<PermissionId>([
   "customer.delete",
   "invoice.validate",
   "bank.manage",
+  "integration.manage",
   "role.manage",
   "user.disable",
   "user.invite",
@@ -208,6 +209,25 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     actions: [
       action("bank.read", "actions.bank.view", "bank.read", ["bank", "view"]),
       action("bank.manage", "actions.bank.manage", "bank.manage", ["bank", "manage"], { sensitive: true }),
+    ],
+  },
+  {
+    id: "integrations",
+    labelKey: "groups.integrations.label",
+    descriptionKey: "groups.integrations.description",
+    actions: [
+      action("integration.read", "actions.integrations.view", "integration.read", [
+        "integration",
+        "view",
+        "connector",
+      ]),
+      action(
+        "integration.manage",
+        "actions.integrations.manage",
+        "integration.manage",
+        ["integration", "manage", "connect", "webhook", "api"],
+        { sensitive: true },
+      ),
     ],
   },
 ];

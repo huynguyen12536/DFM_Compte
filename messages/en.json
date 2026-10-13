@@ -365,6 +365,10 @@
       "bank": {
         "label": "Bank connections",
         "description": "Bank links for reconciliation"
+      },
+      "integrations": {
+        "label": "Integrations",
+        "description": "Connectors, API keys and webhooks"
       }
     },
     "actions": {
@@ -437,6 +441,10 @@
       "bank": {
         "view": "View bank connections",
         "manage": "Manage bank connections"
+      },
+      "integrations": {
+        "view": "View integrations",
+        "manage": "Manage integrations and credentials"
       }
     }
   },
@@ -467,7 +475,9 @@
     "companyFallback": "Tenant",
     "assistantTitle": "COMPTA assistant",
     "assistantBody": "2 suggestions to review before sending to the customer.",
-    "assistantAction": "View suggestions"
+    "assistantAction": "View suggestions",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
   },
   "header": {
     "openMenu": "Open menu",
@@ -2115,10 +2125,26 @@
     "add": "Add company",
     "edit": "Edit",
     "archive": "Archive company",
+    "activate": "Activate company",
     "empty": "No companies match your filters.",
     "emptyDetail": "Select a company to review legal details.",
     "userCount": "{count} users",
     "membersTitle": "Members",
+    "pagination": {
+      "summary": "{from}–{to} of {total}",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "columns": {
+      "company": "Company",
+      "legalName": "Legal name",
+      "currency": "Currency",
+      "users": "Users",
+      "status": "Status",
+      "actions": "Actions"
+    },
     "status": {
       "ACTIVE": "Active",
       "ARCHIVED": "Archived"
@@ -2188,6 +2214,13 @@
     "showing": "Showing {from}-{to} of {total} users",
     "prevPage": "Previous page",
     "nextPage": "Next page",
+    "empty": {
+      "title": "No users yet",
+      "body": "Invite teammates and assign company memberships to get started.",
+      "filteredTitle": "No users found",
+      "filteredBody": "Try changing your search or filters.",
+      "clear": "Clear filters"
+    },
     "edit": {
       "title": "Edit user",
       "body": "Update identity and memberships. One role per company membership.",
@@ -3198,7 +3231,7 @@
   },
   "projects": {
     "title": "Projects and costs",
-    "subtitle": "Track project revenue, costs, expenses and profitability in one place.",
+    "subtitle": "Track project revenue, approved costs and profitability.",
     "forbidden": "You do not have permission to view projects.",
     "forbiddenExpense": "You do not have permission to view expenses.",
     "tabsLabel": "Projects sections",
@@ -3211,17 +3244,18 @@
       "newProject": "New project",
       "newExpense": "New expense",
       "more": "More actions",
-      "archive": "Archive"
+      "archive": "Archive",
+      "changeStatus": "Change status"
     },
     "kpis": {
       "total": "Total projects",
-      "totalHelper": "Visible non-archived projects",
+      "totalHelper": "All projects in current company scope",
       "active": "Active projects",
       "activeHelper": "Currently in progress",
       "revenue": "Project revenue",
       "revenueHelper": "From linked validated invoices",
-      "costs": "Project costs",
-      "costsHelper": "Approved project expenses",
+      "costs": "Approved costs",
+      "costsHelper": "Approved project-linked expenses",
       "margin": "Gross margin",
       "marginHelper": "Profit {profit}",
       "na": "N/A"
@@ -3234,7 +3268,7 @@
       "archived": "Archived"
     },
     "filters": {
-      "searchProjects": "Search by project, code or customer…",
+      "searchProjects": "Search project, code or customer…",
       "searchExpenses": "Search expense, supplier, project…",
       "status": "Status",
       "customer": "Customer",
@@ -3243,6 +3277,13 @@
       "allStatuses": "All statuses",
       "allCustomers": "All customers",
       "allProjects": "All projects"
+    },
+    "pagination": {
+      "summary": "{from}–{to} of {total}",
+      "pageSize": "Rows per page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Previous",
+      "next": "Next"
     },
     "columns": {
       "code": "Project code",
@@ -3258,33 +3299,43 @@
       "lastActivity": "Last activity"
     },
     "empty": {
-      "title": "No Projects yet",
-      "body": "Create a Project to group Quotes, Invoices and Expenses and track profitability."
+      "title": "No projects yet",
+      "body": "Create a project to group quotes, invoices and expenses and track profitability."
     },
     "analytics": {
       "profitability": "Project profitability",
       "profitabilityHint": "Top projects by gross margin",
-      "revenueVsCosts": "Revenue vs Costs",
-      "revenueVsCostsHint": "Grouped comparison by project"
+      "revenueVsCosts": "Revenue vs costs",
+      "revenueVsCostsHint": "Grouped comparison by project",
+      "empty": "No margin data yet."
     },
     "finance": {
       "masked": "•••"
     },
     "form": {
       "createTitle": "New project",
+      "createDescription": "Create a project to group financial documents and track profitability.",
       "create": "Create project",
+      "creating": "Creating…",
       "cancel": "Cancel",
       "close": "Close",
+      "sectionInfo": "Project information",
+      "sectionDates": "Dates",
       "name": "Project name",
+      "namePlaceholder": "e.g. Office Building Renovation",
+      "nameRequired": "Project name is required.",
       "customer": "Customer",
       "selectCustomer": "Select customer",
-      "code": "Project code",
-      "codeHint": "PRJ-2026-00X",
+      "searchCustomer": "Search customer…",
+      "customerEmpty": "No customers found.",
+      "customerRequired": "Customer is required.",
+      "company": "Company",
       "description": "Description",
+      "descriptionPlaceholder": "Renovation of the customer's office building…",
       "startDate": "Start date",
       "endDate": "End date",
+      "dateOrder": "End date must be on or after the start date.",
       "status": "Status",
-      "statusNote": "Status lifecycle is a UX/domain assumption — not explicitly defined in the PRD.",
       "required": "Project name and customer are required."
     },
     "detail": {
@@ -3306,6 +3357,7 @@
       "outstanding": "Outstanding",
       "expenses": "Expenses",
       "linkQuote": "Link quote",
+      "createQuote": "Create quote",
       "linkInvoice": "Link invoice",
       "selectQuote": "Select a quote",
       "selectInvoice": "Select an invoice",
@@ -3372,6 +3424,11 @@
         "pending": "Pending",
         "approved": "Approved",
         "rejected": "Rejected"
+      },
+      "empty": {
+        "title": "No expenses yet",
+        "body": "Create an expense, link it to a project and submit it for approval.",
+        "cta": "New expense"
       }
     },
     "approvals": {
@@ -3402,11 +3459,553 @@
     },
     "toast": {
       "projectCreated": "Project created.",
+      "projectCreatedSuccess": "Project created successfully.",
       "expenseCreated": "Expense saved.",
       "archived": "Project archived.",
+      "statusUpdated": "Project status updated.",
       "approvalUpdated": "Expense approval updated.",
       "openQuote": "Opening quote details.",
-      "openInvoice": "Opening invoice details."
+      "openInvoice": "Opening invoice details.",
+      "createQuote": "Opening quote creation with this project’s customer."
+    }
+  },
+  "templates": {
+    "title": "Templates",
+    "subtitle": "Create and manage document and email templates.",
+    "new": "New template",
+    "forbidden": "You do not have permission to view templates.",
+    "tabsLabel": "Template categories",
+    "tabs": {
+      "all": "All templates",
+      "documents": "Documents",
+      "emails": "Emails"
+    },
+    "kpis": {
+      "total": "Total templates",
+      "totalHelper": "All templates for this company",
+      "active": "Active templates",
+      "activeHelper": "Ready to use",
+      "custom": "Custom templates",
+      "customHelper": "Company-specific templates",
+      "defaults": "Default templates",
+      "defaultsHelper": "Defaults by use case and language"
+    },
+    "filters": {
+      "search": "Search templates…",
+      "open": "Open filters",
+      "title": "Filter templates",
+      "clear": "Clear filters",
+      "type": "Type",
+      "typeAll": "All types",
+      "document": "Document",
+      "email": "Email",
+      "useCase": "Use case",
+      "useCaseAll": "All use cases",
+      "quote": "Quote",
+      "invoice": "Invoice",
+      "creditNote": "Credit note",
+      "paymentReminder": "Payment reminder",
+      "quoteFollowUp": "Quote follow-up",
+      "quoteEmail": "Quote email",
+      "invoiceEmail": "Invoice email",
+      "language": "Language",
+      "languageAll": "All languages",
+      "status": "Status",
+      "statusAll": "All statuses",
+      "active": "Active",
+      "inactive": "Inactive",
+      "sort": "Sort",
+      "sortUpdated": "Last updated",
+      "sortName": "Name",
+      "sortCreated": "Created date",
+      "view": {
+        "grid": "Grid view",
+        "list": "List view"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "badges": {
+      "default": "Default"
+    },
+    "card": {
+      "updated": "Updated {date}"
+    },
+    "list": {
+      "name": "Name",
+      "useCase": "Use case",
+      "language": "Language",
+      "status": "Status",
+      "updated": "Updated"
+    },
+    "menu": {
+      "trigger": "Template actions",
+      "preview": "Preview",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "set_default": "Set as default",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete"
+    },
+    "preview": {
+      "title": "Preview",
+      "close": "Close preview",
+      "edit": "Edit template",
+      "duplicate": "Duplicate",
+      "setDefault": "Set default"
+    },
+    "details": {
+      "title": "Template details",
+      "name": "Name",
+      "type": "Type",
+      "useCase": "Use case",
+      "language": "Language",
+      "company": "Company",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "default": "Default",
+      "yes": "Yes",
+      "no": "No",
+      "createdBy": "Created by",
+      "updatedAt": "Updated at"
+    },
+    "empty": {
+      "title": "No templates yet",
+      "body": "Create your first document or email template to standardize customer communications.",
+      "filteredTitle": "No matching templates",
+      "filteredBody": "Try adjusting search or filters."
+    },
+    "toast": {
+      "created": "Template created.",
+      "updated": "Template updated.",
+      "duplicated": "Template duplicated.",
+      "defaultSet": "Default template updated.",
+      "activated": "Template activated.",
+      "deactivated": "Template deactivated.",
+      "deleted": "Template deleted.",
+      "needsReplacement": "Select a replacement default before deleting."
+    },
+    "documentWorkspace": {
+      "editing": "Editing",
+      "active": "Active",
+      "inactive": "Inactive",
+      "default": "Default",
+      "yes": "Yes",
+      "no": "No",
+      "close": "Close",
+      "edit": "Edit template",
+      "duplicate": "Duplicate",
+      "setDefault": "Set default",
+      "activate": "Activate",
+      "deactivate": "Mark inactive",
+      "cancel": "Cancel",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "settingsTitle": "Template settings",
+      "documentType": "Document",
+      "defaultSwitch": "Default template",
+      "defaultHelper": "Used by default for {useCase} in {language} for {company}.",
+      "tabsLabel": "Document template sections",
+      "editSectionsLabel": "Template editor sections",
+      "tabs": {
+        "details": "Details",
+        "preview": "Preview"
+      },
+      "sections": {
+        "basic": "Basic information",
+        "layout": "Layout & branding",
+        "timestamps": "Timestamps"
+      },
+      "expandPreview": "Expand",
+      "closeLightbox": "Close enlarged preview",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fields": {
+        "name": "Name",
+        "type": "Type",
+        "useCase": "Use case",
+        "language": "Language",
+        "company": "Company",
+        "status": "Status",
+        "default": "Default",
+        "createdBy": "Created by",
+        "createdAt": "Created",
+        "updatedAt": "Updated"
+      }
+    },
+    "emailWorkspace": {
+      "editing": "Editing",
+      "active": "Active",
+      "inactive": "Inactive",
+      "default": "Default",
+      "yes": "Yes",
+      "no": "No",
+      "close": "Close",
+      "edit": "Edit template",
+      "duplicate": "Duplicate",
+      "setDefault": "Set default",
+      "activate": "Activate",
+      "deactivate": "Mark inactive",
+      "cancel": "Cancel",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "tabsLabel": "Email template sections",
+      "tabs": {
+        "details": "Details",
+        "preview": "Preview"
+      },
+      "sections": {
+        "basic": "Basic information",
+        "content": "Email content",
+        "contentSummary": "Content summary",
+        "settings": "Template settings",
+        "timestamps": "Timestamps"
+      },
+      "editHint": "Edit placeholders, then switch to Preview to check resolved values.",
+      "previewBanner": "Email preview",
+      "editBanner": "Edit email template",
+      "canvasModeLabel": "Template or preview",
+      "canvasMode": {
+        "template": "Template",
+        "preview": "Preview"
+      },
+      "from": "From",
+      "to": "To",
+      "subject": "Subject",
+      "body": "Body",
+      "signature": "Signature",
+      "previewRecipient": "Preview recipient — not a live send.",
+      "addVariable": "Add variable",
+      "variable": "Variable",
+      "toolbarHint": "Insert placeholders at the cursor.",
+      "settingsTitle": "Template settings",
+      "emailType": "Email",
+      "expandPreview": "Expand",
+      "closeLightbox": "Close enlarged preview",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fields": {
+        "name": "Name",
+        "type": "Type",
+        "useCase": "Use case",
+        "company": "Company",
+        "language": "Language",
+        "status": "Status",
+        "default": "Default",
+        "createdBy": "Created by",
+        "createdAt": "Created",
+        "updatedAt": "Updated"
+      },
+      "defaultSwitch": "Default template",
+      "defaultHelper": "Used by default for {useCase} in {language} for {company}."
+    },
+    "delete": {
+      "title": "Delete template",
+      "body": "Delete “{name}”? This cannot be undone.",
+      "defaultBody": "“{name}” is the current default. Choose a replacement default first.",
+      "replacement": "Replacement default",
+      "chooseReplacement": "Select a template…",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "wizard": {
+      "title": "New template",
+      "cancel": "Cancel",
+      "back": "Back",
+      "continue": "Continue",
+      "create": "Create template",
+      "steps": {
+        "typeHint": "Choose whether this is a document or email template.",
+        "useCaseHint": "Select the use case this template covers.",
+        "infoHint": "Set the name, language and default option."
+      },
+      "types": {
+        "document": "Document",
+        "documentHint": "Quote, invoice or credit note layout.",
+        "email": "Email",
+        "emailHint": "Subject, body and signature for outbound mail."
+      },
+      "useCases": {
+        "quote": "Quote",
+        "invoice": "Invoice",
+        "credit_note": "Credit note",
+        "payment_reminder": "Payment reminder",
+        "quote_follow_up": "Quote follow-up",
+        "quote_email": "Quote email",
+        "invoice_email": "Invoice email"
+      },
+      "fields": {
+        "name": "Name",
+        "company": "Company",
+        "language": "Language",
+        "setDefault": "Set as default for this use case and language"
+      },
+      "errors": {
+        "type": "Select a template type.",
+        "useCase": "Select a use case.",
+        "name": "Enter a template name."
+      }
+    },
+    "editor": {
+      "documentTitle": "Document template",
+      "emailTitle": "Email template",
+      "cancel": "Cancel",
+      "save": "Save template",
+      "active": "Active",
+      "inactive": "Inactive",
+      "brandingHint": "Logo comes from company branding. Only approved app fonts are used.",
+      "linesHint": "These toggles control display only. Totals stay owned by quote and invoice logic.",
+      "totalsHint": "Subtotal HT, VAT and Total TTC are rendered from canonical document totals.",
+      "sections": {
+        "general": "General",
+        "branding": "Branding",
+        "header": "Header",
+        "lines": "Line items",
+        "totals": "Totals",
+        "terms": "Terms",
+        "footer": "Footer"
+      },
+      "docTypes": {
+        "quote": "Quote",
+        "invoice": "Invoice",
+        "credit_note": "Credit note"
+      },
+      "fields": {
+        "name": "Template name",
+        "company": "Company",
+        "language": "Language",
+        "documentType": "Document type",
+        "status": "Status",
+        "setDefault": "Set as default",
+        "primaryColor": "Primary color",
+        "accentColor": "Accent color",
+        "textColor": "Text color",
+        "showLogo": "Show logo",
+        "showCompanyAddress": "Show company address",
+        "showSiret": "Show SIRET",
+        "showVatNumber": "Show VAT number",
+        "showCustomerBlock": "Show customer block",
+        "showDescription": "Show description",
+        "showQuantity": "Show quantity",
+        "showUnit": "Show unit",
+        "showUnitPrice": "Show unit price",
+        "showDiscount": "Show discount",
+        "showVat": "Show VAT",
+        "showAmount": "Show amount",
+        "terms": "Terms & conditions",
+        "footer": "Footer text",
+        "showPageNumber": "Show page numbering",
+        "content": "Content",
+        "subject": "Subject",
+        "body": "Body",
+        "signature": "Signature"
+      }
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle": "Connect accounting, banking, payment and business services to keep COMPTE data synchronized.",
+    "forbidden": "You do not have permission to view integrations.",
+    "search": "Search integrations…",
+    "categories": {
+      "label": "Integration categories",
+      "all": "All",
+      "accounting": "Accounting",
+      "banking": "Banking",
+      "payments": "Payments",
+      "email": "Email",
+      "einvoicing": "E-invoicing",
+      "developer": "Developer tools",
+      "migration": "Migration"
+    },
+    "sort": {
+      "label": "Sort integrations",
+      "recommended": "Recommended",
+      "name": "Name",
+      "connectedFirst": "Connected first",
+      "category": "Category"
+    },
+    "kpis": {
+      "available": "Available integrations",
+      "connected": "Connected",
+      "ready": "Ready to connect",
+      "comingSoon": "Coming soon"
+    },
+    "status": {
+      "connected": "Connected",
+      "ready": "Ready to connect",
+      "attention": "Needs attention",
+      "coming_soon": "Coming soon"
+    },
+    "scope": {
+      "tenant": "Tenant · DFM"
+    },
+    "auth": {
+      "oauth": "OAuth 2.0",
+      "apiKey": "API key",
+      "smtp": "SMTP credentials",
+      "internal": "Internal"
+    },
+    "capabilities": {
+      "sync_customers": "Sync customers",
+      "sync_invoices": "Import invoices",
+      "sync_payments": "Sync payments",
+      "sync_bank_transactions": "Retrieve bank transactions",
+      "send_email": "Send company emails",
+      "import_data": "Import historical data",
+      "api_access": "Access authorized tenant data",
+      "webhooks": "Receive real-time business events",
+      "einvoice": "Submit electronic invoices via PDP"
+    },
+    "actions": {
+      "connect": "Connect",
+      "manage": "Manage",
+      "manageApi": "Manage API",
+      "comingSoon": "Coming soon",
+      "disconnect": "Disconnect",
+      "syncNow": "Sync now",
+      "syncing": "Requesting…",
+      "startImport": "Start import"
+    },
+    "card": {
+      "more": "More actions"
+    },
+    "empty": {
+      "searchTitle": "No integrations found",
+      "searchBody": "Try changing your search or category filters.",
+      "clearFilters": "Clear filters",
+      "connectedTitle": "Connect your first service",
+      "connectedBody": "Choose a provider below to start synchronizing data."
+    },
+    "detail": {
+      "close": "Close details",
+      "tabsLabel": "Integration detail sections",
+      "about": "About",
+      "capabilities": "Capabilities",
+      "connectionStatus": "Connection status",
+      "scope": "Scope",
+      "authentication": "Authentication",
+      "connectedAt": "Connected",
+      "lastSync": "Last sync",
+      "neverSynced": "Never synced",
+      "megNote": "MEG Import is a migration tool. It does not stay connected as a live sync.",
+      "tabs": {
+        "overview": "Overview",
+        "activity": "Activity",
+        "api_keys": "API keys",
+        "endpoints": "Endpoints",
+        "imports": "Import jobs"
+      }
+    },
+    "activity": {
+      "emptyTitle": "No activity yet",
+      "emptyBody": "Synchronization events for this connection will appear here.",
+      "bankSyncDone": "Bank synchronization completed",
+      "bankSyncBody": "{count} transactions imported",
+      "paymentSyncDone": "Payment synchronization completed",
+      "paymentSyncBody": "{count} payments updated",
+      "emailConfigured": "Email delivery configured",
+      "apiKeyRotated": "API key rotated",
+      "connected": "Connection established",
+      "disconnected": "Connection disconnected",
+      "syncRequested": "Synchronization requested"
+    },
+    "developer": {
+      "apiIntro": "Access authorized tenant data through the COMPTE REST API.",
+      "apiKeyMasked": "Active key",
+      "apiKeyNote": "Full secrets are never shown again after creation.",
+      "docsLink": "Open API documentation",
+      "webhookIntro": "Receive real-time COMPTE business events on your endpoints.",
+      "endpoint": "Endpoint",
+      "events": "Subscribed events",
+      "megEmptyTitle": "No import jobs yet",
+      "megEmptyBody": "Start an import to migrate existing MEG data into COMPTE."
+    },
+    "connect": {
+      "title": "Connect {name}",
+      "description": "Review scope and permissions before continuing.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "continueProvider": "Continue to provider",
+      "scope": "Scope",
+      "auth": "Authorization",
+      "permissions": "Permissions requested",
+      "oauthNote": "You will continue with the provider. COMPTE never asks for the provider password."
+    },
+    "disconnect": {
+      "title": "Disconnect {name}?",
+      "body": "Synchronization and future imports will stop for {scope}. Existing imported data will remain.",
+      "cancel": "Cancel",
+      "confirm": "Disconnect"
+    },
+    "toast": {
+      "connected": "{name} connected",
+      "disconnected": "{name} disconnected",
+      "syncRequested": "Sync requested",
+      "manageApi": "API key management is available in the detail panel.",
+      "importReady": "Open import jobs to start a MEG migration."
+    },
+    "providers": {
+      "restApi": {
+        "name": "REST API",
+        "description": "Access authorized tenant data through the COMPTE API."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "description": "Receive real-time COMPTE business events."
+      },
+      "megImport": {
+        "name": "MEG Import",
+        "description": "Import existing data from MEG into COMPTE."
+      },
+      "qonto": {
+        "name": "Qonto",
+        "description": "Sync bank transactions for reconciliation."
+      },
+      "bridge": {
+        "name": "Bridge",
+        "description": "Open Banking connectivity for multi-bank account data."
+      },
+      "gocardlessBank": {
+        "name": "GoCardless Bank Account Data",
+        "description": "Retrieve account and transaction data via Open Banking."
+      },
+      "revolut": {
+        "name": "Revolut",
+        "description": "Connect Revolut business accounts for banking sync."
+      },
+      "stripe": {
+        "name": "Stripe",
+        "description": "Sync online payment activity into COMPTE."
+      },
+      "gocardlessPayments": {
+        "name": "GoCardless Payments",
+        "description": "Collect direct debit payments through GoCardless."
+      },
+      "email": {
+        "name": "Email delivery",
+        "description": "Send company emails through SMTP or OAuth."
+      },
+      "quickbooks": {
+        "name": "QuickBooks",
+        "description": "Connect accounting software to synchronize finance data."
+      },
+      "xero": {
+        "name": "Xero",
+        "description": "Connect accounting software to synchronize finance data."
+      },
+      "sage": {
+        "name": "Sage",
+        "description": "Connect accounting software to synchronize finance data."
+      },
+      "pdp": {
+        "name": "Electronic invoicing / PDP",
+        "description": "Connect a PDP to submit electronic invoices."
+      }
     }
   }
 }

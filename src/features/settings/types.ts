@@ -53,7 +53,9 @@ export type PermissionId =
   | "security.session.manage"
   | "audit.read"
   | "bank.read"
-  | "bank.manage";
+  | "bank.manage"
+  | "integration.read"
+  | "integration.manage";
 
 export type Capability =
   | "read"
@@ -109,6 +111,10 @@ export type Role = {
   nameKey: string;
   descriptionKey: string;
   cardDescriptionKey: string;
+  /** Literal display name for custom roles (no i18n key). */
+  label?: string;
+  /** Literal description for custom roles (no i18n key). */
+  description?: string;
   defaultScope: DataScope;
   permissions: PermissionId[];
   system: boolean;
@@ -203,13 +209,4 @@ export type SettingsNavItemId =
   | "general"
   | "companies"
   | "users"
-  | "roles"
-  | "billing"
-  | "documents"
-  | "payments"
-  | "integrations"
-  | "automation"
-  | "templates"
-  | "notifications"
-  | "security"
-  | "audit";
+  | "roles";

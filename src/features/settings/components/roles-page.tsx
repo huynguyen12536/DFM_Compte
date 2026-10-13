@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import {
   AnimatedActiveIndicator,
@@ -26,9 +26,16 @@ import { MOCK_ACTOR_PERMISSIONS } from "../mocks/actor";
 import { getTenantRoles, systemRoles } from "../mocks/roles";
 import { mockUsers } from "../mocks/users";
 import { filterPermissionGroups, PERMISSION_GROUPS } from "../permissions";
+import {
+  roleDisplayDescription,
+  roleDisplayName,
+} from "../role-label";
 import type { PermissionId, Role } from "../types";
 import { ConfirmDialog } from "./confirm-dialog";
-import { CreateRoleDialog } from "./create-role-dialog";
+import {
+  buildCustomRole,
+  CreateRoleDialog,
+} from "./create-role-dialog";
 import { PermissionAccordion } from "./permission-accordion";
 import { SettingsShell } from "./settings-shell";
 
@@ -49,6 +56,7 @@ export function RolesPage() {
   const [roles, setRoles] = useState<Role[]>(() => getTenantRoles(systemRoles));
   const [selectedRoleId, setSelectedRoleId] = useState(roles[0]?.id ?? "tenant-admin");
   const [createOpen, setCreateOpen] = useState(false);
+  const [createKey, setCreateKey] = useState(0);
   const [deleteRoleId, setDeleteRoleId] = useState<string | null>(null);
   const selectedRole = roles.find((role) => role.id === selectedRoleId) ?? roles[0];
 
@@ -63,105 +71,115 @@ export function RolesPage() {
   if (!selectedRole) return null;
 
   return (
-    <SettingsShell description={t("page.description")} title={t("page.title")}>
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:overflow-hidden">
-        <div className="flex shrink-0 justify-end">
-          <Can permission="role.manage" permissions={permissions}>
-            <button
-              className="action-motion soft-primary inline-flex min-h-10 items-center gap-1.5 rounded-[10px] px-3 text-sm font-semibold text-white"
-              type="button"
-              onClick={() => setCreateOpen(true)}
-            >
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              {t("create")}
-            </button>
-          </Can>
-        </div>
-
-        <div className="grid min-h-0 min-w-0 flex-1 gap-3 lg:grid-cols-[minmax(220px,0.32fr)_minmax(0,0.68fr)] lg:overflow-hidden">
-          <section className="dashboard-card dashboard-enter flex min-h-[220px] min-w-0 flex-col overflow-hidden lg:h-full">
-            <div className="shrink-0 border-b border-[rgb(217_227_238/0.72)] px-3 py-3">
-              <h3 className="dashboard-card-title">{t("listTitle")}</h3>
-              <p className="mt-1 text-[12px] text-[#7a899e]">{t("listSubtitle")}</p>
-            </div>
-            <AnimatedSelectionGroup
-              className="dashboard-scroll min-h-0 flex-1 overflow-y-auto p-2"
-              id="compte-roles-page-list"
-            >
-              <ul className="space-y-1">
-                {roles.map((role) => {
-                  const selected = role.id === selectedRole.id;
-                  const visual = roleVisual[role.id] ?? { icon: Shield, tone: "blue" as Tone };
-                  const Icon = visual.icon;
-                  const count = mockUsers.filter((user) =>
-                    user.memberships.some((m) => m.roleId === role.id),
-                  ).length;
-                  return (
-                    <li key={role.id}>
-                      <button
-                        aria-pressed={selected}
+    <SettingsShell>
+      <div className="grid min-h-0 min-w-0 flex-1 gap-3 lg:grid-cols-[minmax(220px,0.32fr)_minmax(0,0.68fr)] lg:overflow-hidden">
+        <section className="dashboard-card dashboard-enter flex min-h-[220px] min-w-0 flex-col overflow-hidden lg:h-full">
+          <div className="shrink-0 border-b border-[rgb(217_227_238/0.72)] px-3 py-3">
+            <h3 className="dashboard-card-title">{t("listTitle")}</h3>
+            <p className="mt-1 text-[12px] text-[#7a899e]">{t("listSubtitle")}</p>
+          </div>
+          <AnimatedSelectionGroup
+            className="dashboard-scroll min-h-0 flex-1 overflow-y-auto p-2"
+            id="compte-roles-page-list"
+          >
+            <ul className="space-y-1">
+              {roles.map((role) => {
+                const selected = role.id === selectedRole.id;
+                const visual = roleVisual[role.id] ?? { icon: Shield, tone: "blue" as Tone };
+                const Icon = visual.icon;
+                const count = mockUsers.filter((user) =>
+                  user.memberships.some((m) => m.roleId === role.id),
+                ).length;
+                return (
+                  <li key={role.id}>
+                    <button
+                      aria-pressed={selected}
+                      className={cn(
+                        "relative flex w-full min-w-0 items-start gap-2.5 rounded-[12px] px-2.5 py-2.5 text-left transition-colors duration-150",
+                        selected ? "text-[#044ce2]" : "text-[#405069] hover:bg-[#f4f8ff]",
+                      )}
+                      type="button"
+                      onClick={() => setSelectedRoleId(role.id)}
+                    >
+                      {selected ? (
+                        <AnimatedActiveIndicator
+                          borderRadius={12}
+                          className="rounded-[12px]"
+                          layoutId={ROLES_PAGE_SELECTION_LAYOUT_ID}
+                          variant="sidebar"
+                        />
+                      ) : null}
+                      <span
                         className={cn(
-                          "relative flex w-full min-w-0 items-start gap-2.5 rounded-[12px] px-2.5 py-2.5 text-left transition-colors duration-150",
-                          selected ? "text-[#044ce2]" : "text-[#405069] hover:bg-[#f4f8ff]",
+                          "relative z-[1] grid h-8 w-8 shrink-0 place-items-center rounded-[8px]",
+                          selected ? "bg-[#e7efff] text-[#044ce2]" : "bg-[#eef3fa] text-[#66758d]",
                         )}
-                        type="button"
-                        onClick={() => setSelectedRoleId(role.id)}
                       >
-                        {selected ? (
-                          <AnimatedActiveIndicator
-                            borderRadius={12}
-                            className="rounded-[12px]"
-                            layoutId={ROLES_PAGE_SELECTION_LAYOUT_ID}
-                            variant="sidebar"
-                          />
-                        ) : null}
-                        <span
-                          className={cn(
-                            "relative z-[1] grid h-8 w-8 shrink-0 place-items-center rounded-[8px]",
-                            selected ? "bg-[#e7efff] text-[#044ce2]" : "bg-[#eef3fa] text-[#66758d]",
-                          )}
-                        >
-                          <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+                        <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="relative z-[1] min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-semibold">
+                          {roleDisplayName(role, tUp)}
                         </span>
-                        <span className="relative z-[1] min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-semibold">
-                            {tUp(role.nameKey)}
-                          </span>
-                          <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                            <StatusBadge size="xs" tone={role.system ? "slate" : "blue"}>
-                              {role.system ? t("system") : t("custom")}
-                            </StatusBadge>
-                            <span className="text-[10px] text-[#7a899e]">
-                              {t("userCount", { count })} · {tUp(`scope.${role.defaultScope}`)}
-                            </span>
+                        <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                          <StatusBadge size="xs" tone={role.system ? "slate" : "blue"}>
+                            {role.system ? t("system") : t("custom")}
+                          </StatusBadge>
+                          <span className="text-[10px] text-[#7a899e]">
+                            {t("userCount", { count })} · {tUp(`scope.${role.defaultScope}`)}
                           </span>
                         </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </AnimatedSelectionGroup>
-          </section>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </AnimatedSelectionGroup>
+        </section>
 
-          <RoleDetailPanel
-            key={selectedRole.id}
-            canManage={can(permissions, "role.manage")}
-            role={selectedRole}
-            userCount={usersWithRole.length}
-            onDelete={() => setDeleteRoleId(selectedRole.id)}
-            onSavePermissions={(next) => {
-              setRoles((current) =>
-                current.map((role) =>
-                  role.id === selectedRole.id ? { ...role, permissions: next } : role,
-                ),
-              );
-            }}
-          />
-        </div>
+        <RoleDetailPanel
+          key={selectedRole.id}
+          canManage={can(permissions, "role.manage")}
+          createAction={
+            <Can permission="role.manage" permissions={permissions}>
+              <button
+                className="action-motion soft-primary inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-[10px] px-3 text-sm font-semibold text-white"
+                type="button"
+                onClick={() => {
+                  setCreateKey((value) => value + 1);
+                  setCreateOpen(true);
+                }}
+              >
+                <Plus aria-hidden="true" className="h-4 w-4" />
+                {t("create")}
+              </button>
+            </Can>
+          }
+          role={selectedRole}
+          userCount={usersWithRole.length}
+          onDelete={() => setDeleteRoleId(selectedRole.id)}
+          onSavePermissions={(next) => {
+            setRoles((current) =>
+              current.map((role) =>
+                role.id === selectedRole.id ? { ...role, permissions: next } : role,
+              ),
+            );
+          }}
+        />
       </div>
 
-      <CreateRoleDialog open={createOpen} onClose={() => setCreateOpen(false)} />
+      <CreateRoleDialog
+        key={createKey}
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreate={(payload) => {
+          const created = buildCustomRole(payload);
+          setRoles((current) => [...current, created]);
+          setSelectedRoleId(created.id);
+          setCreateOpen(false);
+        }}
+      />
 
       <ConfirmDialog
         body={
@@ -203,12 +221,14 @@ function RoleDetailPanel({
   role,
   userCount,
   canManage,
+  createAction,
   onSavePermissions,
   onDelete,
 }: {
   role: Role;
   userCount: number;
   canManage: boolean;
+  createAction?: ReactNode;
   onSavePermissions: (permissions: PermissionId[]) => void;
   onDelete: () => void;
 }) {
@@ -229,11 +249,11 @@ function RoleDetailPanel({
   return (
     <section className="dashboard-card dashboard-enter flex min-h-[320px] min-w-0 flex-col overflow-hidden lg:h-full">
       <div className="shrink-0 border-b border-[rgb(217_227_238/0.72)] px-4 py-3">
-        <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="dashboard-card-title">{tUp(role.nameKey)}</h3>
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <h3 className="dashboard-card-title">{roleDisplayName(role, tUp)}</h3>
             <p className="mt-1 max-w-[56ch] text-[12px] leading-5 text-[#7a899e]">
-              {tUp(role.descriptionKey)}
+              {roleDisplayDescription(role, tUp)}
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               <StatusBadge size="xs" tone={role.system ? "slate" : "blue"}>
@@ -252,15 +272,18 @@ function RoleDetailPanel({
               ) : null}
             </div>
           </div>
-          {!role.system && canManage ? (
-            <button
-              className="text-[12px] font-semibold text-[#c9564f] hover:underline"
-              type="button"
-              onClick={onDelete}
-            >
-              {t("delete")}
-            </button>
-          ) : null}
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {createAction}
+            {!role.system && canManage ? (
+              <button
+                className="text-[12px] font-semibold text-[#c9564f] hover:underline"
+                type="button"
+                onClick={onDelete}
+              >
+                {t("delete")}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 

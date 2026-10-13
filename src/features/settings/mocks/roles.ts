@@ -51,6 +51,8 @@ const tenantAdminPermissions: PermissionId[] = [
   // Bank is Phase 2 — catalog shows it, default tenant admin may manage when module is enabled.
   "bank.read",
   "bank.manage",
+  "integration.read",
+  "integration.manage",
 ];
 
 const businessOwnerPermissions: PermissionId[] = [
@@ -75,6 +77,8 @@ const businessOwnerPermissions: PermissionId[] = [
   "expense.create",
   "expense.approve",
   "audit.read",
+  "integration.read",
+  "integration.manage",
 ];
 
 /** Accountant: invoices/payments ops. No quote create/update/send per PRD. */
@@ -135,6 +139,7 @@ const viewerPermissions: PermissionId[] = [
   "automation.read",
   "project.read",
   "expense.read",
+  "integration.read",
 ];
 
 export const systemRoles: Role[] = [

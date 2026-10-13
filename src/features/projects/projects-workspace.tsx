@@ -30,6 +30,8 @@ import type { ExpenseStatus, ProjectStatus } from "./model";
 import { expenseStatusTone, projectStatusTone } from "./status";
 import { archiveProject, useProjectsState } from "./store";
 
+const pageSizeOptions = [5, 10, 25, 50] as const;
+
 const activePermissions =
   systemRoles.find((role) => role.id === "tenant-admin")?.permissions ?? [];
 
@@ -69,6 +71,10 @@ export function ProjectsWorkspace() {
   const [reviewExpenseId, setReviewExpenseId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [expensePage, setExpensePage] = useState(0);
+  const [expensePageSize, setExpensePageSize] = useState(10);
 
   const scopedProjects = useMemo(
     () => projects.filter((project) => project.companyId === COMPANY_ID),
@@ -112,22 +118,33 @@ export function ProjectsWorkspace() {
 
   const projectRows = useMemo(
     () =>
-      filteredProjects.map((project) => ({
-        project,
-        finance: projectFinance(
+      [...filteredProjects]
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+        .map((project) => ({
           project,
-          invoices,
-          payments,
-          quotes,
-          scopedExpenses,
-        ),
-      })),
+          finance: projectFinance(
+            project,
+            invoices,
+            payments,
+            quotes,
+            scopedExpenses,
+          ),
+        })),
     [filteredProjects, invoices, payments, quotes, scopedExpenses],
   );
 
+  const pageCount = Math.max(1, Math.ceil(projectRows.length / pageSize));
+  const safePage = Math.min(page, pageCount - 1);
+  const pagedProjectRows = projectRows.slice(
+    safePage * pageSize,
+    safePage * pageSize + pageSize,
+  );
+  const rangeFrom = projectRows.length === 0 ? 0 : safePage * pageSize + 1;
+  const rangeTo = Math.min(projectRows.length, (safePage + 1) * pageSize);
+
   const filteredExpenses = useMemo(() => {
     const query = expenseSearch.trim().toLowerCase();
-    return scopedExpenses.filter((expense) => {
+    const rows = scopedExpenses.filter((expense) => {
       if (expenseStatus !== "all" && expense.status !== expenseStatus) return false;
       if (expenseProject !== "all" && expense.projectId !== expenseProject) {
         return false;
@@ -141,7 +158,24 @@ export function ProjectsWorkspace() {
         .toLowerCase()
         .includes(query);
     });
+    return [...rows].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }, [expenseProject, expenseSearch, expenseStatus, scopedExpenses, scopedProjects]);
+
+  const expensePageCount = Math.max(
+    1,
+    Math.ceil(filteredExpenses.length / expensePageSize),
+  );
+  const safeExpensePage = Math.min(expensePage, expensePageCount - 1);
+  const pagedExpenses = filteredExpenses.slice(
+    safeExpensePage * expensePageSize,
+    safeExpensePage * expensePageSize + expensePageSize,
+  );
+  const expenseRangeFrom =
+    filteredExpenses.length === 0 ? 0 : safeExpensePage * expensePageSize + 1;
+  const expenseRangeTo = Math.min(
+    filteredExpenses.length,
+    (safeExpensePage + 1) * expensePageSize,
+  );
 
   const expenseSummary = useMemo(() => {
     const total = scopedExpenses.length;
@@ -165,12 +199,17 @@ export function ProjectsWorkspace() {
     scopedProjects.find((project) => project.id === reviewExpense?.projectId) ??
     null;
 
-  const customerOptions = useMemo(() => {
-    const ids = new Set(scopedProjects.map((project) => project.customerId));
-    return customers
-      .filter((customer) => ids.has(customer.id))
-      .map((customer) => ({ value: customer.id, label: customer.name }));
-  }, [customers, scopedProjects]);
+  const customerOptions = useMemo(
+    () =>
+      customers.map((customer) => ({
+        value: customer.id,
+        label: customer.name,
+      })),
+    [customers],
+  );
+
+  /** Single source for Projects tab badge and Total projects KPI. */
+  const projectCount = scopedProjects.length;
 
   if (!canRead) {
     return (
@@ -189,43 +228,41 @@ export function ProjectsWorkspace() {
   return (
     <main className="dashboard-canvas flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <div className="dashboard-scroll dashboard-page dashboard-stack flex min-h-0 min-w-0 flex-1 flex-col gap-[var(--dashboard-gap)] overflow-x-hidden overflow-y-auto pb-6 lg:overflow-hidden lg:pb-3">
-        <header className="dashboard-enter enter-0 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-[18px] font-semibold tracking-[-0.02em] text-[#063586]">
-              {t("title")}
-            </h1>
-            <p className="mt-0.5 max-w-xl text-[12px] leading-5 text-[#7d8aa0]">
-              {t("subtitle")}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {canExpenseCreate ? (
-              <button
-                className="action-motion soft-button inline-flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-[#405069]"
-                type="button"
-                onClick={() => {
-                  setNewExpenseKey((value) => value + 1);
-                  setNewExpenseOpen(true);
-                }}
-              >
-                <Plus aria-hidden="true" className="h-3.5 w-3.5" />
-                {t("actions.newExpense")}
-              </button>
-            ) : null}
-            {canCreate ? (
-              <button
-                className="action-motion soft-primary inline-flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-white"
-                type="button"
-                onClick={() => {
-                  setNewProjectKey((value) => value + 1);
-                  setNewProjectOpen(true);
-                }}
-              >
-                <Plus aria-hidden="true" className="h-3.5 w-3.5" />
-                {t("actions.newProject")}
-              </button>
-            ) : null}
-          </div>
+        {/* Shell topbar owns the H1 — page only shows subtitle + actions (no duplicate title). */}
+        <header className="dashboard-enter enter-0 flex shrink-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <p className="max-w-xl text-[12px] leading-4 text-[#7d8aa0]">
+            {t("subtitle")}
+          </p>
+          {canExpenseCreate || canCreate ? (
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              {canExpenseCreate ? (
+                <button
+                  className="action-motion soft-button inline-flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-[#405069]"
+                  type="button"
+                  onClick={() => {
+                    setNewExpenseKey((value) => value + 1);
+                    setNewExpenseOpen(true);
+                  }}
+                >
+                  <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+                  {t("actions.newExpense")}
+                </button>
+              ) : null}
+              {canCreate ? (
+                <button
+                  className="action-motion soft-primary inline-flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-xs font-semibold text-white"
+                  type="button"
+                  onClick={() => {
+                    setNewProjectKey((value) => value + 1);
+                    setNewProjectOpen(true);
+                  }}
+                >
+                  <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+                  {t("actions.newProject")}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         <div className="dashboard-enter enter-1 shrink-0">
@@ -243,7 +280,7 @@ export function ProjectsWorkspace() {
           >
             {(
               [
-                ["projects", scopedProjects.length],
+                ["projects", projectCount],
                 ["expenses", scopedExpenses.length],
                 ["approvals", pendingApprovals.length],
               ] as const
@@ -280,68 +317,71 @@ export function ProjectsWorkspace() {
 
         {mainTab === "projects" ? (
           <div
-            className="dashboard-enter enter-3 flex min-h-0 min-w-0 flex-1 flex-col"
+            className="dashboard-enter enter-3 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
             style={{ animation: "compte-tab-in 160ms ease-out" }}
           >
-            <section className="dashboard-card flex min-h-[320px] min-w-0 flex-1 flex-col overflow-hidden px-3 py-3 sm:min-h-[380px] sm:px-3.5 lg:min-h-0">
+            {/* Single scroll: table/list inside the card. No outer page scrollbar. */}
+            <section className="dashboard-card flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-3 py-3 sm:px-3.5">
               <div className="flex shrink-0 min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
-                <label className="soft-input relative flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[9px] px-2.5 sm:max-w-[22rem]">
+                <label className="soft-input relative flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[9px] px-2.5">
                   <Search aria-hidden="true" className="h-3.5 w-3.5 text-[#98a4b5]" />
                   <input
                     className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[#98a4b5]"
                     placeholder={t("filters.searchProjects")}
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(event) => {
+                      setPage(0);
+                      setSearch(event.target.value);
+                    }}
                   />
                 </label>
-                <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  <SoftSelect
-                    label={t("filters.status")}
-                    hideLabel
-                    options={[
-                      { value: "all", label: t("filters.allStatuses") },
-                      ...(
-                        [
-                          "draft",
-                          "active",
-                          "completed",
-                          "on_hold",
-                          "archived",
-                        ] as const
-                      ).map((value) => ({
-                        value,
-                        label: t(`status.${value}`),
-                      })),
-                    ]}
-                    value={statusFilter}
-                    onChange={(value) =>
-                      setStatusFilter(value as ProjectStatus | "all")
-                    }
-                  />
-                  <SoftSelect
-                    label={t("filters.customer")}
-                    hideLabel
-                    options={[
-                      { value: "all", label: t("filters.allCustomers") },
-                      ...customerOptions,
-                    ]}
-                    value={customerFilter}
-                    onChange={setCustomerFilter}
-                  />
-                  <SoftSelect
-                    label={t("filters.company")}
-                    hideLabel
-                    options={[
-                      { value: COMPANY_ID, label: "DFM-Europe" },
-                    ]}
-                    value={COMPANY_ID}
-                    onChange={() => undefined}
-                  />
+                <div className="flex min-w-0 flex-wrap gap-2 lg:shrink-0">
+                  <div className="w-full min-w-0 sm:w-[170px]">
+                    <SoftSelect
+                      label={t("filters.status")}
+                      hideLabel
+                      options={[
+                        { value: "all", label: t("filters.allStatuses") },
+                        ...(
+                          [
+                            "draft",
+                            "active",
+                            "completed",
+                            "on_hold",
+                            "archived",
+                          ] as const
+                        ).map((value) => ({
+                          value,
+                          label: t(`status.${value}`),
+                        })),
+                      ]}
+                      value={statusFilter}
+                      onChange={(value) => {
+                        setPage(0);
+                        setStatusFilter(value as ProjectStatus | "all");
+                      }}
+                    />
+                  </div>
+                  <div className="w-full min-w-0 sm:w-[220px]">
+                    <SoftSelect
+                      label={t("filters.customer")}
+                      hideLabel
+                      options={[
+                        { value: "all", label: t("filters.allCustomers") },
+                        ...customerOptions,
+                      ]}
+                      value={customerFilter}
+                      onChange={(value) => {
+                        setPage(0);
+                        setCustomerFilter(value);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
               {projectRows.length === 0 ? (
-                <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-12 text-center">
+                <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
                   <p className="text-sm font-semibold text-[#24334c]">
                     {t("empty.title")}
                   </p>
@@ -362,7 +402,7 @@ export function ProjectsWorkspace() {
                   ) : null}
                 </div>
               ) : (
-                <>
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                   <div className="dashboard-scroll mt-3 hidden min-h-0 flex-1 overflow-auto md:block">
                     <table className="w-full min-w-[980px] border-collapse text-left text-[11px]">
                       <thead className="sticky top-0 z-[1] bg-[rgb(255_255_255/0.96)] text-[#7d8aa0] backdrop-blur-sm">
@@ -382,7 +422,7 @@ export function ProjectsWorkspace() {
                         </tr>
                       </thead>
                       <tbody>
-                        {projectRows.map(({ project, finance }) => (
+                        {pagedProjectRows.map(({ project, finance }) => (
                           <tr
                             className="cursor-pointer border-b border-[#f1f4f9] transition-colors hover:bg-[#f8fafc]"
                             key={project.id}
@@ -437,7 +477,7 @@ export function ProjectsWorkspace() {
                               {project.updatedAt.slice(0, 10)}
                             </td>
                             <td className="relative px-2 py-2.5">
-                              {canUpdate ? (
+                              {canUpdate && project.status !== "archived" ? (
                                 <button
                                   aria-label={t("actions.more")}
                                   className="soft-button grid h-7 w-7 place-items-center rounded-[8px] text-[#7d8aa0]"
@@ -476,7 +516,7 @@ export function ProjectsWorkspace() {
                   </div>
 
                   <div className="dashboard-scroll mt-3 grid min-h-0 flex-1 gap-2 overflow-y-auto md:hidden">
-                    {projectRows.map(({ project, finance }) => (
+                    {pagedProjectRows.map(({ project, finance }) => (
                       <button
                         className="soft-button rounded-[12px] border border-[#edf2f8] px-3 py-3 text-left"
                         key={project.id}
@@ -516,6 +556,18 @@ export function ProjectsWorkspace() {
                               : t("finance.masked")}
                           </span>
                           <span className="tabular-nums">
+                            {t("columns.costs")}:{" "}
+                            {canViewFinance
+                              ? formatMoneyFromCents(finance.costCents)
+                              : t("finance.masked")}
+                          </span>
+                          <span className="tabular-nums">
+                            {t("columns.profit")}:{" "}
+                            {canViewFinance
+                              ? formatMoneyFromCents(finance.profitCents)
+                              : t("finance.masked")}
+                          </span>
+                          <span className="tabular-nums">
                             {t("columns.margin")}:{" "}
                             {canViewFinance
                               ? finance.marginRatio === null
@@ -527,7 +579,52 @@ export function ProjectsWorkspace() {
                       </button>
                     ))}
                   </div>
-                </>
+
+                  <div className="mt-3 flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2 border-t border-[#edf2f8] pt-2.5 text-[11px] text-[#7d8aa0]">
+                    <p>
+                      {t("pagination.summary", {
+                        from: rangeFrom,
+                        to: rangeTo,
+                        total: projectRows.length,
+                      })}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        aria-label={t("pagination.pageSize")}
+                        className="soft-input h-8 rounded-[8px] px-2 text-[11px] font-semibold text-[#405069]"
+                        value={pageSize}
+                        onChange={(event) => {
+                          setPage(0);
+                          setPageSize(Number(event.target.value));
+                        }}
+                      >
+                        {pageSizeOptions.map((size) => (
+                          <option key={size} value={size}>
+                            {t("pagination.rowsPerPage", { count: size })}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
+                        disabled={safePage === 0}
+                        type="button"
+                        onClick={() => setPage((value) => Math.max(0, value - 1))}
+                      >
+                        {t("pagination.prev")}
+                      </button>
+                      <button
+                        className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
+                        disabled={safePage >= pageCount - 1}
+                        type="button"
+                        onClick={() =>
+                          setPage((value) => Math.min(pageCount - 1, value + 1))
+                        }
+                      >
+                        {t("pagination.next")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </section>
           </div>
@@ -535,14 +632,14 @@ export function ProjectsWorkspace() {
 
         {mainTab === "expenses" ? (
           <div
-            className="dashboard-enter enter-3 min-h-0 flex-1 overflow-y-auto"
+            className="dashboard-enter enter-3 flex min-h-0 min-w-0 flex-1 flex-col gap-[var(--dashboard-gap)] overflow-y-auto lg:overflow-hidden"
             style={{ animation: "compte-tab-in 160ms ease-out" }}
           >
             {!canExpenseRead ? (
               <p className="text-sm text-[#7d8aa0]">{t("forbiddenExpense")}</p>
             ) : (
-              <section className="dashboard-card flex min-w-0 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-3.5">
-                <div className="flex flex-wrap gap-3 text-[11px] text-[#516078]">
+              <section className="dashboard-card flex min-h-[280px] min-w-0 flex-1 flex-col overflow-hidden px-3 py-3 sm:min-h-[320px] sm:px-3.5 lg:min-h-0">
+                <div className="flex shrink-0 flex-wrap gap-3 text-[11px] text-[#516078]">
                   <span>
                     {t("expense.summary.total")}: <strong>{expenseSummary.total}</strong>
                   </span>
@@ -559,128 +656,297 @@ export function ProjectsWorkspace() {
                     <strong>{expenseSummary.rejected}</strong>
                   </span>
                 </div>
-                <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
-                  <label className="soft-input relative flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[9px] px-2.5 sm:max-w-[22rem]">
+
+                <div className="mt-3 flex shrink-0 min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
+                  <label className="soft-input relative flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[9px] px-2.5">
                     <Search aria-hidden="true" className="h-3.5 w-3.5 text-[#98a4b5]" />
                     <input
                       className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[#98a4b5]"
                       placeholder={t("filters.searchExpenses")}
                       value={expenseSearch}
-                      onChange={(event) => setExpenseSearch(event.target.value)}
+                      onChange={(event) => {
+                        setExpensePage(0);
+                        setExpenseSearch(event.target.value);
+                      }}
                     />
                   </label>
-                  <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2">
-                    <SoftSelect
-                      label={t("filters.status")}
-                      hideLabel
-                      options={[
-                        { value: "all", label: t("filters.allStatuses") },
-                        ...(
-                          [
-                            "draft",
-                            "submitted",
-                            "pending_approval",
-                            "approved",
-                            "rejected",
-                          ] as const
-                        ).map((value) => ({
-                          value,
-                          label: t(`expense.status.${value}`),
-                        })),
-                      ]}
-                      value={expenseStatus}
-                      onChange={(value) =>
-                        setExpenseStatus(value as ExpenseStatus | "all")
-                      }
-                    />
-                    <SoftSelect
-                      label={t("filters.project")}
-                      hideLabel
-                      options={[
-                        { value: "all", label: t("filters.allProjects") },
-                        ...scopedProjects.map((project) => ({
-                          value: project.id,
-                          label: project.name,
-                        })),
-                      ]}
-                      value={expenseProject}
-                      onChange={setExpenseProject}
-                    />
+                  <div className="flex min-w-0 flex-wrap gap-2 lg:shrink-0">
+                    <div className="w-full min-w-0 sm:w-[170px]">
+                      <SoftSelect
+                        label={t("filters.status")}
+                        hideLabel
+                        options={[
+                          { value: "all", label: t("filters.allStatuses") },
+                          ...(
+                            [
+                              "draft",
+                              "submitted",
+                              "pending_approval",
+                              "approved",
+                              "rejected",
+                            ] as const
+                          ).map((value) => ({
+                            value,
+                            label: t(`expense.status.${value}`),
+                          })),
+                        ]}
+                        value={expenseStatus}
+                        onChange={(value) => {
+                          setExpensePage(0);
+                          setExpenseStatus(value as ExpenseStatus | "all");
+                        }}
+                      />
+                    </div>
+                    <div className="w-full min-w-0 sm:w-[220px]">
+                      <SoftSelect
+                        label={t("filters.project")}
+                        hideLabel
+                        options={[
+                          { value: "all", label: t("filters.allProjects") },
+                          ...scopedProjects.map((project) => ({
+                            value: project.id,
+                            label: project.name,
+                          })),
+                        ]}
+                        value={expenseProject}
+                        onChange={(value) => {
+                          setExpensePage(0);
+                          setExpenseProject(value);
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[900px] border-collapse text-left text-[11px]">
-                    <thead className="text-[#7d8aa0]">
-                      <tr className="border-b border-[#edf2f8]">
-                        <th className="px-2 py-2 font-semibold">{t("expense.date")}</th>
-                        <th className="px-2 py-2 font-semibold">
-                          {t("expense.supplier")}
-                        </th>
-                        <th className="px-2 py-2 font-semibold">{t("columns.name")}</th>
-                        <th className="px-2 py-2 font-semibold">
-                          {t("expense.category")}
-                        </th>
-                        <th className="px-2 py-2 font-semibold">{t("expense.amount")}</th>
-                        <th className="px-2 py-2 font-semibold">{t("expense.vat")}</th>
-                        <th className="px-2 py-2 font-semibold">{t("expense.receipt")}</th>
-                        <th className="px-2 py-2 font-semibold">
-                          {t("expense.submittedBy")}
-                        </th>
-                        <th className="px-2 py-2 font-semibold">{t("columns.status")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredExpenses.map((expense) => {
+                {filteredExpenses.length === 0 ? (
+                  <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center">
+                    <p className="text-sm font-semibold text-[#24334c]">
+                      {t("expense.empty.title")}
+                    </p>
+                    <p className="mt-1 max-w-sm text-[12px] text-[#7d8aa0]">
+                      {t("expense.empty.body")}
+                    </p>
+                    {canExpenseCreate ? (
+                      <button
+                        className="action-motion soft-primary mt-4 inline-flex h-9 items-center rounded-[9px] px-3 text-xs font-semibold text-white"
+                        type="button"
+                        onClick={() => {
+                          setNewExpenseKey((value) => value + 1);
+                          setNewExpenseOpen(true);
+                        }}
+                      >
+                        {t("expense.empty.cta")}
+                      </button>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                    <div className="dashboard-scroll mt-3 hidden min-h-0 flex-1 overflow-auto md:block">
+                      <table className="w-full min-w-[980px] border-collapse text-left text-[11px]">
+                        <thead className="sticky top-0 z-[1] bg-[rgb(255_255_255/0.96)] text-[#7d8aa0] backdrop-blur-sm">
+                          <tr className="border-b border-[#edf2f8]">
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.date")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.supplier")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.project")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.category")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.amount")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.vat")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.receipt")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("expense.submittedBy")}
+                            </th>
+                            <th className="px-2 py-2 font-semibold">
+                              {t("columns.status")}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pagedExpenses.map((expense) => {
+                            const projectName =
+                              scopedProjects.find(
+                                (project) => project.id === expense.projectId,
+                              )?.name ?? t("expense.noProject");
+                            const canReview =
+                              expense.status === "pending_approval" &&
+                              canExpenseApprove;
+                            return (
+                              <tr
+                                className={cn(
+                                  "border-b border-[#f1f4f9] transition-colors hover:bg-[#f8fafc]",
+                                  canReview && "cursor-pointer",
+                                )}
+                                key={expense.id}
+                                onClick={() => {
+                                  if (canReview) setReviewExpenseId(expense.id);
+                                }}
+                              >
+                                <td className="px-2 py-2.5 tabular-nums text-[#516078]">
+                                  {expense.date}
+                                </td>
+                                <td className="max-w-[160px] truncate px-2 py-2.5 font-medium text-[#24334c]">
+                                  {expense.supplier}
+                                </td>
+                                <td className="max-w-[160px] truncate px-2 py-2.5 text-[#516078]">
+                                  {projectName}
+                                </td>
+                                <td className="px-2 py-2.5 text-[#516078]">
+                                  {t(`expense.categories.${expense.category}`)}
+                                </td>
+                                <td className="px-2 py-2.5 tabular-nums text-[#516078]">
+                                  {canViewFinance
+                                    ? formatMoneyFromCents(expense.amountCents)
+                                    : t("finance.masked")}
+                                </td>
+                                <td className="px-2 py-2.5 tabular-nums text-[#516078]">
+                                  {canViewFinance
+                                    ? formatMoneyFromCents(expense.vatCents)
+                                    : t("finance.masked")}
+                                </td>
+                                <td className="max-w-[140px] truncate px-2 py-2.5 text-[#516078]">
+                                  {expense.receiptName ?? "—"}
+                                </td>
+                                <td className="px-2 py-2.5 text-[#516078]">
+                                  {expense.submittedBy}
+                                </td>
+                                <td className="px-2 py-2.5">
+                                  <StatusBadge
+                                    size="xs"
+                                    tone={expenseStatusTone[expense.status]}
+                                  >
+                                    {t(`expense.status.${expense.status}`)}
+                                  </StatusBadge>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="dashboard-scroll mt-3 grid min-h-0 flex-1 gap-2 overflow-y-auto md:hidden">
+                      {pagedExpenses.map((expense) => {
                         const projectName =
                           scopedProjects.find(
                             (project) => project.id === expense.projectId,
                           )?.name ?? t("expense.noProject");
+                        const canReview =
+                          expense.status === "pending_approval" &&
+                          canExpenseApprove;
                         return (
-                          <tr
-                            className="border-b border-[#f1f4f9]"
+                          <button
+                            className="soft-button rounded-[12px] border border-[#edf2f8] px-3 py-3 text-left"
                             key={expense.id}
+                            type="button"
+                            onClick={() => {
+                              if (canReview) setReviewExpenseId(expense.id);
+                            }}
                           >
-                            <td className="px-2 py-2.5 tabular-nums text-[#516078]">
-                              {expense.date}
-                            </td>
-                            <td className="px-2 py-2.5 font-medium text-[#24334c]">
-                              {expense.supplier}
-                            </td>
-                            <td className="px-2 py-2.5 text-[#516078]">{projectName}</td>
-                            <td className="px-2 py-2.5 text-[#516078]">
-                              {t(`expense.categories.${expense.category}`)}
-                            </td>
-                            <td className="px-2 py-2.5 tabular-nums text-[#516078]">
-                              {canViewFinance
-                                ? formatMoneyFromCents(expense.amountCents)
-                                : t("finance.masked")}
-                            </td>
-                            <td className="px-2 py-2.5 tabular-nums text-[#516078]">
-                              {canViewFinance
-                                ? formatMoneyFromCents(expense.vatCents)
-                                : t("finance.masked")}
-                            </td>
-                            <td className="px-2 py-2.5 text-[#516078]">
-                              {expense.receiptName ?? "—"}
-                            </td>
-                            <td className="px-2 py-2.5 text-[#516078]">
-                              {expense.submittedBy}
-                            </td>
-                            <td className="px-2 py-2.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="truncate text-[13px] font-semibold text-[#24334c]">
+                                  {expense.supplier}
+                                </p>
+                                <p className="mt-0.5 text-[11px] text-[#7d8aa0]">
+                                  {expense.date} · {projectName}
+                                </p>
+                              </div>
                               <StatusBadge
                                 size="xs"
                                 tone={expenseStatusTone[expense.status]}
                               >
                                 {t(`expense.status.${expense.status}`)}
                               </StatusBadge>
-                            </td>
-                          </tr>
+                            </div>
+                            <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-[#516078]">
+                              <span>
+                                {t("expense.category")}:{" "}
+                                {t(`expense.categories.${expense.category}`)}
+                              </span>
+                              <span className="tabular-nums">
+                                {t("expense.amount")}:{" "}
+                                {canViewFinance
+                                  ? formatMoneyFromCents(expense.amountCents)
+                                  : t("finance.masked")}
+                              </span>
+                              <span className="tabular-nums">
+                                {t("expense.vat")}:{" "}
+                                {canViewFinance
+                                  ? formatMoneyFromCents(expense.vatCents)
+                                  : t("finance.masked")}
+                              </span>
+                              <span className="truncate">
+                                {t("expense.submittedBy")}: {expense.submittedBy}
+                              </span>
+                            </div>
+                          </button>
                         );
                       })}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
+
+                    <div className="mt-3 flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2 border-t border-[#edf2f8] pt-2.5 text-[11px] text-[#7d8aa0]">
+                      <p>
+                        {t("pagination.summary", {
+                          from: expenseRangeFrom,
+                          to: expenseRangeTo,
+                          total: filteredExpenses.length,
+                        })}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          aria-label={t("pagination.pageSize")}
+                          className="soft-input h-8 rounded-[8px] px-2 text-[11px] font-semibold text-[#405069]"
+                          value={expensePageSize}
+                          onChange={(event) => {
+                            setExpensePage(0);
+                            setExpensePageSize(Number(event.target.value));
+                          }}
+                        >
+                          {pageSizeOptions.map((size) => (
+                            <option key={size} value={size}>
+                              {t("pagination.rowsPerPage", { count: size })}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
+                          disabled={safeExpensePage === 0}
+                          type="button"
+                          onClick={() =>
+                            setExpensePage((value) => Math.max(0, value - 1))
+                          }
+                        >
+                          {t("pagination.prev")}
+                        </button>
+                        <button
+                          className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
+                          disabled={safeExpensePage >= expensePageCount - 1}
+                          type="button"
+                          onClick={() =>
+                            setExpensePage((value) =>
+                              Math.min(expensePageCount - 1, value + 1),
+                            )
+                          }
+                        >
+                          {t("pagination.next")}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </section>
             )}
           </div>
@@ -779,10 +1045,14 @@ export function ProjectsWorkspace() {
         companyId={COMPANY_ID}
         open={newProjectOpen}
         onClose={() => setNewProjectOpen(false)}
-        onCreated={(projectId) => {
+        onCreated={() => {
           setNewProjectOpen(false);
-          setNotice(t("toast.projectCreated"));
-          openProject(projectId);
+          setMainTab("projects");
+          setPage(0);
+          setStatusFilter("all");
+          setCustomerFilter("all");
+          setSearch("");
+          setNotice(t("toast.projectCreatedSuccess"));
         }}
       />
       <NewExpenseSheet
@@ -793,8 +1063,12 @@ export function ProjectsWorkspace() {
         onClose={() => setNewExpenseOpen(false)}
         onCreated={() => {
           setNewExpenseOpen(false);
-          setNotice(t("toast.expenseCreated"));
           setMainTab("expenses");
+          setExpensePage(0);
+          setExpenseStatus("all");
+          setExpenseProject("all");
+          setExpenseSearch("");
+          setNotice(t("toast.expenseCreated"));
         }}
       />
       <ProjectDetailSheet
@@ -808,6 +1082,12 @@ export function ProjectsWorkspace() {
         project={selectedProject}
         quotes={quotes}
         onClose={() => setDetailOpen(false)}
+        onCreateQuote={() => {
+          if (!selectedProject) return;
+          setDetailOpen(false);
+          router.push(`/devis?create=1&customer=${selectedProject.customerId}`);
+          setNotice(t("toast.createQuote"));
+        }}
         onOpenInvoice={(invoiceId) => {
           setDetailOpen(false);
           router.push(`/factures?invoice=${invoiceId}`);

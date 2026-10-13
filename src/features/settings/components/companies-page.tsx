@@ -1,9 +1,10 @@
 "use client";
 
-import { Archive, Building2, Plus, Search } from "lucide-react";
+import { Archive, Building2, Plus, RotateCcw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { SoftSelect } from "@/components/compte/soft-select";
 import { StatusBadge } from "@/components/dashboard/tone";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,8 @@ import { ConfirmDialog } from "./confirm-dialog";
 import { SettingsShell } from "./settings-shell";
 import { SettingsSheet } from "./settings-sheet";
 
+const pageSizeOptions = [5, 10, 25, 50] as const;
+
 export function CompaniesPage() {
   const t = useTranslations("settingsCompanies");
   const tCommon = useTranslations("usersPermissions");
@@ -27,6 +30,8 @@ export function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>(mockCompanies);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | CompanyStatus>("all");
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [sheetMode, setSheetMode] = useState<"create" | "edit" | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<CompanyDraft>(emptyCompanyDraft());
@@ -42,6 +47,15 @@ export function CompaniesPage() {
       return hay.includes(needle);
     });
   }, [companies, query, statusFilter]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, pageCount - 1);
+  const paged = filtered.slice(
+    safePage * pageSize,
+    safePage * pageSize + pageSize,
+  );
+  const rangeFrom = filtered.length === 0 ? 0 : safePage * pageSize + 1;
+  const rangeTo = Math.min(filtered.length, (safePage + 1) * pageSize);
 
   const editing = companies.find((company) => company.id === editingId) ?? null;
 
@@ -141,100 +155,173 @@ export function CompaniesPage() {
     if (editingId === companyId) closeSheet();
   }
 
+  function activateCompany(companyId: string) {
+    setCompanies((current) =>
+      current.map((company) =>
+        company.id === companyId ? { ...company, status: "ACTIVE" as const } : company,
+      ),
+    );
+  }
+
   const canEdit = can(permissions, "company.update");
+  const canArchive = can(permissions, "company.archive");
   const showArchive =
-    sheetMode === "edit" &&
-    editing?.status === "ACTIVE" &&
-    can(permissions, "company.archive");
+    sheetMode === "edit" && editing?.status === "ACTIVE" && canArchive;
+  const showActivate =
+    sheetMode === "edit" && editing?.status === "ARCHIVED" && (canArchive || canEdit);
 
   return (
-    <SettingsShell description={t("page.description")} title={t("page.title")}>
+    <SettingsShell>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:overflow-hidden">
-        <div className="flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-            <label className="relative min-w-0 flex-1 basis-[200px] max-w-md">
+        <section className="dashboard-card dashboard-list dashboard-enter flex min-h-[260px] min-w-0 flex-1 flex-col overflow-hidden lg:h-full">
+          <div className="flex shrink-0 min-w-0 flex-col gap-2 border-b border-[rgb(217_227_238/0.72)] px-3.5 py-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+            <label className="relative min-w-0 flex-1 basis-[220px]">
               <span className="sr-only">{t("search")}</span>
               <Search
                 aria-hidden="true"
                 className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#8a97ab]"
               />
               <input
-                className="h-10 w-full rounded-[10px] border border-[#dfe6f1] bg-white pr-3 pl-9 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30"
+                className="h-9 w-full rounded-[10px] border border-[#dfe6f1] bg-white pr-3 pl-9 text-[13px] text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30"
                 placeholder={t("search")}
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  setPage(0);
+                  setQuery(event.target.value);
+                }}
               />
             </label>
-            <select
-              aria-label={t("statusFilter")}
-              className="h-10 min-w-[140px] rounded-[10px] border border-[#dfe6f1] bg-white px-2.5 text-sm font-medium text-[#405069]"
+            <SoftSelect
+              className="w-full min-w-[148px] sm:w-[160px]"
+              hideLabel
+              label={t("statusFilter")}
+              options={[
+                { value: "all", label: t("allStatuses") },
+                { value: "ACTIVE", label: t("status.ACTIVE") },
+                { value: "ARCHIVED", label: t("status.ARCHIVED") },
+              ]}
+              triggerClassName="h-9 rounded-[10px] text-[12px]"
               value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value as "all" | CompanyStatus)}
-            >
-              <option value="all">{t("allStatuses")}</option>
-              <option value="ACTIVE">{t("status.ACTIVE")}</option>
-              <option value="ARCHIVED">{t("status.ARCHIVED")}</option>
-            </select>
+              onChange={(value) => {
+                setPage(0);
+                setStatusFilter(value as "all" | CompanyStatus);
+              }}
+            />
+            <Can permission="company.create" permissions={permissions}>
+              <button
+                className="action-motion soft-primary inline-flex h-9 w-full shrink-0 items-center justify-center gap-1.5 rounded-[10px] px-3 text-xs font-semibold text-white sm:w-auto"
+                type="button"
+                onClick={openCreate}
+              >
+                <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+                {t("add")}
+              </button>
+            </Can>
           </div>
-          <Can permission="company.create" permissions={permissions}>
-            <button
-              className="action-motion soft-primary inline-flex min-h-10 items-center gap-1.5 rounded-[10px] px-3 text-sm font-semibold text-white"
-              type="button"
-              onClick={openCreate}
-            >
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              {t("add")}
-            </button>
-          </Can>
-        </div>
 
-        <section className="dashboard-card dashboard-list dashboard-enter flex min-h-[260px] min-w-0 flex-1 flex-col overflow-hidden lg:h-full">
-          <div className="dashboard-scroll min-h-0 flex-1 overflow-auto">
-            <ul className="divide-y divide-[rgb(220_229_239/0.7)]">
-              {filtered.length === 0 ? (
-                <li className="px-4 py-10 text-center text-sm text-[#7a899e]">{t("empty")}</li>
-              ) : (
-                filtered.map((company) => {
-                  const active = sheetMode === "edit" && company.id === editingId;
-                  return (
-                    <li key={company.id}>
-                      <button
-                        className={cn(
-                          "flex w-full min-w-0 items-start gap-3 px-4 py-3 text-left transition-colors duration-150",
-                          active ? "bg-[#f2f6ff]" : "hover:bg-[#f7fafd]",
-                        )}
-                        type="button"
-                        onClick={() => openEdit(company)}
-                      >
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-[#e7efff] text-[#044ce2]">
-                          <Building2 aria-hidden="true" className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="flex min-w-0 flex-wrap items-center gap-2">
-                            <span className="truncate text-sm font-semibold text-[#1b2d47]">
-                              {company.name}
+          {filtered.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-12 text-center">
+              <Building2 aria-hidden="true" className="h-8 w-8 text-[#b7c3d6]" />
+              <p className="text-sm font-semibold text-[#24334c]">{t("empty")}</p>
+            </div>
+          ) : (
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+              <div className="dashboard-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+                <ul className="divide-y divide-[rgb(220_229_239/0.7)]">
+                  {paged.map((company) => {
+                    const active = sheetMode === "edit" && company.id === editingId;
+                    return (
+                      <li key={company.id}>
+                        <button
+                          className={cn(
+                            "flex w-full min-w-0 items-start gap-3 px-3.5 py-3 text-left transition-colors duration-150 sm:px-4",
+                            active ? "bg-[#f2f6ff]" : "hover:bg-[#f7fafd]",
+                          )}
+                          type="button"
+                          onClick={() => openEdit(company)}
+                        >
+                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[9px] bg-[#e7efff] text-[#044ce2]">
+                            <Building2 aria-hidden="true" className="h-3.5 w-3.5" />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="flex min-w-0 flex-wrap items-center gap-2">
+                              <span
+                                className="dashboard-list__primary truncate"
+                                title={company.name}
+                              >
+                                {company.name}
+                              </span>
+                              <StatusBadge
+                                size="xs"
+                                tone={company.status === "ACTIVE" ? "green" : "slate"}
+                              >
+                                {t(`status.${company.status}`)}
+                              </StatusBadge>
                             </span>
-                            <StatusBadge
-                              size="xs"
-                              tone={company.status === "ACTIVE" ? "green" : "slate"}
+                            <span
+                              className="mt-0.5 block truncate text-[12px] text-[#7a899e]"
+                              title={company.legalName}
                             >
-                              {t(`status.${company.status}`)}
-                            </StatusBadge>
+                              {company.legalName}
+                            </span>
+                            <span className="dashboard-list__secondary mt-1 block">
+                              {company.currency} ·{" "}
+                              {t("userCount", { count: memberCount(company.id) })}
+                            </span>
                           </span>
-                          <span className="mt-0.5 block truncate text-[12px] text-[#7a899e]">
-                            {company.legalName}
-                          </span>
-                          <span className="mt-1 block text-[11px] text-[#66758d]">
-                            {company.currency} · {t("userCount", { count: memberCount(company.id) })}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })
-              )}
-            </ul>
-          </div>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              <div className="flex shrink-0 min-w-0 flex-wrap items-center justify-between gap-2 border-t border-[#edf2f8] px-3.5 py-2.5 text-[11px] text-[#7d8aa0]">
+                <p>
+                  {t("pagination.summary", {
+                    from: rangeFrom,
+                    to: rangeTo,
+                    total: filtered.length,
+                  })}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    aria-label={t("pagination.pageSize")}
+                    className="soft-input h-8 rounded-[8px] px-2 text-[11px] font-semibold text-[#405069]"
+                    value={pageSize}
+                    onChange={(event) => {
+                      setPage(0);
+                      setPageSize(Number(event.target.value));
+                    }}
+                  >
+                    {pageSizeOptions.map((size) => (
+                      <option key={size} value={size}>
+                        {t("pagination.rowsPerPage", { count: size })}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
+                    disabled={safePage === 0}
+                    type="button"
+                    onClick={() => setPage((value) => Math.max(0, value - 1))}
+                  >
+                    {t("pagination.prev")}
+                  </button>
+                  <button
+                    className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
+                    disabled={safePage >= pageCount - 1}
+                    type="button"
+                    onClick={() =>
+                      setPage((value) => Math.min(pageCount - 1, value + 1))
+                    }
+                  >
+                    {t("pagination.next")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 
@@ -254,6 +341,15 @@ export function CompaniesPage() {
               >
                 <Archive aria-hidden="true" className="h-3.5 w-3.5" />
                 {t("archive")}
+              </button>
+            ) : showActivate ? (
+              <button
+                className="soft-button inline-flex min-h-10 items-center gap-1.5 rounded-[10px] px-3 text-sm font-semibold text-[#044ce2]"
+                type="button"
+                onClick={() => editingId && activateCompany(editingId)}
+              >
+                <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+                {t("activate")}
               </button>
             ) : (
               <span />

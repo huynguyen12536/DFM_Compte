@@ -14,9 +14,9 @@ export type ActiveIndicatorVariant = "sidebar" | "soft-pill";
 
 const variantClass: Record<ActiveIndicatorVariant, string> = {
   sidebar:
-    "rounded-[14px] border border-white/90 bg-[linear-gradient(145deg,rgba(255,255,255,0.94),rgba(238,245,253,0.88))] shadow-[5px_6px_14px_rgba(78,108,145,0.11),-4px_-4px_11px_rgba(255,255,255,0.82),inset_0_1px_0_rgba(255,255,255,0.92)]",
+    "rounded-[14px] border border-white/55 bg-[linear-gradient(145deg,rgb(249_250_251/0.88),rgb(229_231_235/0.8))] shadow-[5px_6px_14px_rgba(55,65,81,0.12),-4px_-4px_11px_rgba(255,255,255,0.55),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-md",
   "soft-pill":
-    "rounded-full border border-[rgba(99,138,221,0.28)] bg-[linear-gradient(145deg,#EDF4FF,#E4EEFF)] shadow-[inset_2px_2px_5px_rgba(71,101,165,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.78)]",
+    "rounded-full border border-[rgba(156,163,175,0.35)] bg-[linear-gradient(145deg,rgb(249_250_251/0.9),rgb(229_231_235/0.82))] shadow-[inset_2px_2px_5px_rgba(55,65,81,0.06),inset_-2px_-2px_5px_rgba(255,255,255,0.7)]",
 };
 
 type AnimatedSelectionGroupProps = {

@@ -3,17 +3,27 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
+import { SoftSelect } from "@/components/compte/soft-select";
 import { FormSheet } from "@/components/forms/form-sheet";
 
 import { PERMISSION_MODULES } from "../permissions";
-import type { DataScope, PermissionId } from "../types";
+import type { DataScope, PermissionId, Role } from "../types";
+
+export type CreateRolePayload = {
+  name: string;
+  description: string;
+  scope: DataScope;
+  permissions: PermissionId[];
+};
 
 export function CreateRoleDialog({
   open,
   onClose,
+  onCreate,
 }: {
   open: boolean;
   onClose: () => void;
+  onCreate: (payload: CreateRolePayload) => void;
 }) {
   const t = useTranslations("usersPermissions");
   const nameRef = useRef<HTMLInputElement>(null);
@@ -24,7 +34,9 @@ export function CreateRoleDialog({
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    if (open) nameRef.current?.focus();
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => nameRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
   }, [open]);
 
   function toggle(permission: PermissionId) {
@@ -41,7 +53,12 @@ export function CreateRoleDialog({
       return;
     }
     setError(undefined);
-    onClose();
+    onCreate({
+      name: name.trim(),
+      description: description.trim(),
+      scope,
+      permissions: selected,
+    });
   }
 
   return (
@@ -90,7 +107,9 @@ export function CreateRoleDialog({
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
-            {error ? <span className="mt-1.5 block text-xs text-[#8e2a26]">{error}</span> : null}
+            {error ? (
+              <span className="mt-1.5 block text-xs text-[#8e2a26]">{error}</span>
+            ) : null}
           </label>
 
           <label className="block" htmlFor="role-description">
@@ -105,21 +124,16 @@ export function CreateRoleDialog({
             />
           </label>
 
-          <label className="block" htmlFor="role-scope">
-            <span className="mb-1.5 block text-[11px] font-medium text-[#5f6f88]">
-              {t("createRole.scope")}
-            </span>
-            <select
-              className="h-10 w-full rounded-[10px] border border-[#dfe6f1] bg-white px-3 text-sm text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30"
-              id="role-scope"
-              value={scope}
-              onChange={(event) => setScope(event.target.value as DataScope)}
-            >
-              <option value="OWN">{t("scope.OWN")}</option>
-              <option value="COMPANY">{t("scope.COMPANY")}</option>
-              <option value="TENANT">{t("scope.TENANT")}</option>
-            </select>
-          </label>
+          <SoftSelect
+            label={t("createRole.scope")}
+            options={[
+              { value: "OWN", label: t("scope.OWN") },
+              { value: "COMPANY", label: t("scope.COMPANY") },
+              { value: "TENANT", label: t("scope.TENANT") },
+            ]}
+            value={scope}
+            onChange={(value) => setScope(value as DataScope)}
+          />
         </section>
 
         <section className="space-y-3">
@@ -127,42 +141,64 @@ export function CreateRoleDialog({
             {t("createRole.permissions")}
           </h3>
           <div className="max-h-[320px] space-y-3 overflow-y-auto rounded-[12px] border border-[#e1e7f1] p-3">
-            {PERMISSION_MODULES.filter((module) => module.phase !== 2).map((module) => (
-              <div key={module.id}>
-                <p className="text-[12px] font-semibold text-[#1b2d47]">{t(module.labelKey)}</p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {module.capabilities.map((entry) => {
-                    const checked = selected.includes(entry.permission);
-                    return (
-                      <label
-                        className={`inline-flex min-h-9 items-center gap-1.5 rounded-[8px] border px-2 text-[11px] ${
-                          checked
-                            ? "border-[#b9d0fb] bg-[#eef4ff] text-[#1456d9]"
-                            : "border-[#e1e7f1] bg-white text-[#5f6f88]"
-                        }`}
-                        key={entry.permission}
-                      >
-                        <input
-                          checked={checked}
-                          className="h-3.5 w-3.5 accent-[#044ce2]"
-                          type="checkbox"
-                          onChange={() => toggle(entry.permission)}
-                        />
-                        {t(`capabilities.${entry.capability}`)}
-                        {entry.sensitive ? (
-                          <span className="text-[9px] font-semibold text-[#b96d24]">
-                            {t("matrix.sensitive")}
-                          </span>
-                        ) : null}
-                      </label>
-                    );
-                  })}
+            {PERMISSION_MODULES.filter((module) => module.phase !== 2).map(
+              (module) => (
+                <div key={module.id}>
+                  <p className="text-[12px] font-semibold text-[#1b2d47]">
+                    {t(module.labelKey)}
+                  </p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {module.capabilities.map((entry) => {
+                      const checked = selected.includes(entry.permission);
+                      return (
+                        <label
+                          className={`inline-flex min-h-9 items-center gap-1.5 rounded-[8px] border px-2 text-[11px] ${
+                            checked
+                              ? "border-[#b9d0fb] bg-[#eef4ff] text-[#1456d9]"
+                              : "border-[#e1e7f1] bg-white text-[#5f6f88]"
+                          }`}
+                          key={entry.permission}
+                        >
+                          <input
+                            checked={checked}
+                            className="h-3.5 w-3.5 accent-[#044ce2]"
+                            type="checkbox"
+                            onChange={() => toggle(entry.permission)}
+                          />
+                          {t(`capabilities.${entry.capability}`)}
+                          {entry.sensitive ? (
+                            <span className="text-[9px] font-semibold text-[#b96d24]">
+                              {t("matrix.sensitive")}
+                            </span>
+                          ) : null}
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </section>
       </div>
     </FormSheet>
   );
+}
+
+export function buildCustomRole(payload: CreateRolePayload): Role {
+  const id = `custom-${Date.now()}`;
+  const label = payload.name.trim();
+  const description =
+    payload.description.trim() || label;
+  return {
+    id,
+    nameKey: `custom.${id}.name`,
+    descriptionKey: `custom.${id}.description`,
+    cardDescriptionKey: `custom.${id}.description`,
+    label,
+    description,
+    defaultScope: payload.scope,
+    permissions: [...payload.permissions],
+    system: false,
+  };
 }

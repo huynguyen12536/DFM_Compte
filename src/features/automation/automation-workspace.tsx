@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -15,19 +16,45 @@ import { systemRoles } from "@/features/settings/mocks/roles";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-import { AutomationDetail } from "./components/automation-detail";
 import { AutomationKpisStrip } from "./components/automation-kpis";
 import { AutomationList } from "./components/automation-list";
 import { AutomationRecentRuns } from "./components/automation-runs";
 import { NeedsAttentionPanel } from "./components/needs-attention";
-import { NewAutomationSheet } from "./components/new-automation-sheet";
-import { RunDetailSheet } from "./components/run-detail-sheet";
 import { getAutomationKpis } from "./kpis";
+import { automationLabel } from "./label";
 import type {
   AutomationReviewItem,
   AutomationRunActivityAction,
 } from "./model";
 import { useAutomationState } from "./store";
+
+const sheetFallback = (
+  <div className="flex min-h-[320px] flex-col gap-3 p-4">
+    <div className="loading-shimmer h-9 w-2/3 rounded-[10px]" />
+    <div className="loading-shimmer h-24 w-full rounded-[12px]" />
+    <div className="loading-shimmer min-h-[160px] flex-1 rounded-[12px]" />
+  </div>
+);
+
+const AutomationDetail = dynamic(
+  () =>
+    import("./components/automation-detail").then((mod) => mod.AutomationDetail),
+  { loading: () => sheetFallback },
+);
+
+const NewAutomationSheet = dynamic(
+  () =>
+    import("./components/new-automation-sheet").then(
+      (mod) => mod.NewAutomationSheet,
+    ),
+  { loading: () => null },
+);
+
+const RunDetailSheet = dynamic(
+  () =>
+    import("./components/run-detail-sheet").then((mod) => mod.RunDetailSheet),
+  { loading: () => null },
+);
 
 const activePermissions =
   systemRoles.find((role) => role.id === "tenant-admin")?.permissions ?? [];
@@ -115,7 +142,7 @@ export function AutomationWorkspace() {
       }
       if (!query) return true;
       const haystack = [
-        t(item.nameKey),
+        automationLabel(item, t),
         t(item.descriptionKey),
         t(item.triggerLabelKey),
         t(item.triggerHelperKey),
@@ -406,7 +433,7 @@ export function AutomationWorkspace() {
         contentClassName="flex min-h-0 flex-col overflow-hidden p-0"
         open={detailOpen && selected !== null}
         showHeader={false}
-        title={selected ? t(selected.nameKey) : t("detail.emptyTitle")}
+        title={selected ? automationLabel(selected, t) : t("detail.emptyTitle")}
         widthClassName="sm:max-w-[560px] md:max-w-[640px]"
         zIndexClassName="z-[60]"
         onClose={runId !== null ? () => undefined : closeDetail}

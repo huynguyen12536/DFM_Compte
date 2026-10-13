@@ -365,6 +365,10 @@
       "bank": {
         "label": "Connexions bancaires",
         "description": "Liens bancaires pour le rapprochement"
+      },
+      "integrations": {
+        "label": "Integrations",
+        "description": "Connecteurs, cles API et webhooks"
       }
     },
     "actions": {
@@ -437,6 +441,10 @@
       "bank": {
         "view": "Voir les connexions bancaires",
         "manage": "Gerer les connexions bancaires"
+      },
+      "integrations": {
+        "view": "Voir les integrations",
+        "manage": "Gerer les integrations et identifiants"
       }
     }
   },
@@ -467,7 +475,9 @@
     "companyFallback": "Tenant",
     "assistantTitle": "Assistant COMPTA",
     "assistantBody": "2 suggestions à valider avant envoi au client.",
-    "assistantAction": "Voir les suggestions"
+    "assistantAction": "Voir les suggestions",
+    "expand": "Développer la barre latérale",
+    "collapse": "Réduire la barre latérale"
   },
   "header": {
     "openMenu": "Ouvrir le menu",
@@ -2115,10 +2125,26 @@
     "add": "Ajouter une societe",
     "edit": "Modifier",
     "archive": "Archiver la societe",
+    "activate": "Activer la societe",
     "empty": "Aucune societe ne correspond aux filtres.",
     "emptyDetail": "Selectionnez une societe pour voir les details.",
     "userCount": "{count} utilisateurs",
     "membersTitle": "Membres",
+    "pagination": {
+      "summary": "{from}–{to} sur {total}",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Précédent",
+      "next": "Suivant"
+    },
+    "columns": {
+      "company": "Societe",
+      "legalName": "Raison sociale",
+      "currency": "Devise",
+      "users": "Utilisateurs",
+      "status": "Statut",
+      "actions": "Actions"
+    },
     "status": {
       "ACTIVE": "Active",
       "ARCHIVED": "Archivee"
@@ -2188,6 +2214,13 @@
     "showing": "Affichage {from}-{to} sur {total} utilisateurs",
     "prevPage": "Page precedente",
     "nextPage": "Page suivante",
+    "empty": {
+      "title": "Aucun utilisateur",
+      "body": "Invitez des collaborateurs et assignez des memberships pour commencer.",
+      "filteredTitle": "Aucun utilisateur trouve",
+      "filteredBody": "Essayez de modifier la recherche ou les filtres.",
+      "clear": "Effacer les filtres"
+    },
     "edit": {
       "title": "Modifier l'utilisateur",
       "body": "Mettez a jour l'identite et les memberships. Un role par societe.",
@@ -3198,7 +3231,7 @@
   },
   "projects": {
     "title": "Projets et coûts",
-    "subtitle": "Suivez le chiffre d'affaires, les coûts, les dépenses et la rentabilité des projets en un seul endroit.",
+    "subtitle": "Suivez le chiffre d'affaires, les coûts approuvés et la rentabilité.",
     "forbidden": "Vous n'avez pas l'autorisation de consulter les projets.",
     "forbiddenExpense": "Vous n'avez pas l'autorisation de consulter les dépenses.",
     "tabsLabel": "Sections projets",
@@ -3211,16 +3244,17 @@
       "newProject": "Nouveau projet",
       "newExpense": "Nouvelle dépense",
       "more": "Plus d'actions",
-      "archive": "Archiver"
+      "archive": "Archiver",
+      "changeStatus": "Changer le statut"
     },
     "kpis": {
       "total": "Total projets",
-      "totalHelper": "Projets visibles non archivés",
+      "totalHelper": "Tous les projets du périmètre société",
       "active": "Projets actifs",
       "activeHelper": "En cours",
       "revenue": "CA projets",
       "revenueHelper": "Depuis les factures validées liées",
-      "costs": "Coûts projets",
+      "costs": "Coûts approuvés",
       "costsHelper": "Dépenses projet approuvées",
       "margin": "Marge brute",
       "marginHelper": "Profit {profit}",
@@ -3234,7 +3268,7 @@
       "archived": "Archivé"
     },
     "filters": {
-      "searchProjects": "Rechercher par projet, code ou client…",
+      "searchProjects": "Rechercher projet, code ou client…",
       "searchExpenses": "Rechercher dépense, fournisseur, projet…",
       "status": "Statut",
       "customer": "Client",
@@ -3243,6 +3277,13 @@
       "allStatuses": "Tous les statuts",
       "allCustomers": "Tous les clients",
       "allProjects": "Tous les projets"
+    },
+    "pagination": {
+      "summary": "{from}–{to} sur {total}",
+      "pageSize": "Lignes par page",
+      "rowsPerPage": "{count} / page",
+      "prev": "Précédent",
+      "next": "Suivant"
     },
     "columns": {
       "code": "Code projet",
@@ -3265,26 +3306,36 @@
       "profitability": "Rentabilité des projets",
       "profitabilityHint": "Meilleurs projets par marge brute",
       "revenueVsCosts": "CA vs coûts",
-      "revenueVsCostsHint": "Comparaison groupée par projet"
+      "revenueVsCostsHint": "Comparaison groupée par projet",
+      "empty": "Pas encore de données de marge."
     },
     "finance": {
       "masked": "•••"
     },
     "form": {
       "createTitle": "Nouveau projet",
+      "createDescription": "Créez un projet pour regrouper les documents financiers et suivre la rentabilité.",
       "create": "Créer le projet",
+      "creating": "Création…",
       "cancel": "Annuler",
       "close": "Fermer",
+      "sectionInfo": "Informations projet",
+      "sectionDates": "Dates",
       "name": "Nom du projet",
+      "namePlaceholder": "ex. Rénovation immeuble de bureaux",
+      "nameRequired": "Le nom du projet est obligatoire.",
       "customer": "Client",
       "selectCustomer": "Sélectionner un client",
-      "code": "Code projet",
-      "codeHint": "PRJ-2026-00X",
+      "searchCustomer": "Rechercher un client…",
+      "customerEmpty": "Aucun client trouvé.",
+      "customerRequired": "Le client est obligatoire.",
+      "company": "Société",
       "description": "Description",
+      "descriptionPlaceholder": "Rénovation du bâtiment de bureaux du client…",
       "startDate": "Date de début",
       "endDate": "Date de fin",
+      "dateOrder": "La date de fin doit être postérieure ou égale à la date de début.",
       "status": "Statut",
-      "statusNote": "Le cycle de vie du statut est une hypothèse UX/domaine — non explicitement défini dans le PRD.",
       "required": "Le nom du projet et le client sont obligatoires."
     },
     "detail": {
@@ -3306,6 +3357,7 @@
       "outstanding": "Reste à encaisser",
       "expenses": "Dépenses",
       "linkQuote": "Lier un devis",
+      "createQuote": "Créer un devis",
       "linkInvoice": "Lier une facture",
       "selectQuote": "Sélectionner un devis",
       "selectInvoice": "Sélectionner une facture",
@@ -3372,6 +3424,11 @@
         "pending": "En attente",
         "approved": "Approuvées",
         "rejected": "Rejetées"
+      },
+      "empty": {
+        "title": "Aucune dépense",
+        "body": "Créez une dépense, liez-la à un projet et soumettez-la pour validation.",
+        "cta": "Nouvelle dépense"
       }
     },
     "approvals": {
@@ -3402,11 +3459,553 @@
     },
     "toast": {
       "projectCreated": "Projet créé.",
+      "projectCreatedSuccess": "Projet créé avec succès.",
       "expenseCreated": "Dépense enregistrée.",
       "archived": "Projet archivé.",
+      "statusUpdated": "Statut du projet mis à jour.",
       "approvalUpdated": "Validation de dépense mise à jour.",
       "openQuote": "Ouverture du devis.",
-      "openInvoice": "Ouverture de la facture."
+      "openInvoice": "Ouverture de la facture.",
+      "createQuote": "Ouverture de la création de devis avec le client du projet."
+    }
+  },
+  "templates": {
+    "title": "Modèles",
+    "subtitle": "Créez et gérez les modèles de documents et d’e-mails.",
+    "new": "Nouveau modèle",
+    "forbidden": "Vous n’avez pas la permission de voir les modèles.",
+    "tabsLabel": "Catégories de modèles",
+    "tabs": {
+      "all": "Tous les modèles",
+      "documents": "Documents",
+      "emails": "E-mails"
+    },
+    "kpis": {
+      "total": "Total modèles",
+      "totalHelper": "Tous les modèles de cette société",
+      "active": "Modèles actifs",
+      "activeHelper": "Prêts à l’emploi",
+      "custom": "Modèles personnalisés",
+      "customHelper": "Spécifiques à la société",
+      "defaults": "Modèles par défaut",
+      "defaultsHelper": "Par cas d’usage et langue"
+    },
+    "filters": {
+      "search": "Rechercher des modèles…",
+      "open": "Ouvrir les filtres",
+      "title": "Filtrer les modèles",
+      "clear": "Effacer les filtres",
+      "type": "Type",
+      "typeAll": "Tous les types",
+      "document": "Document",
+      "email": "E-mail",
+      "useCase": "Cas d’usage",
+      "useCaseAll": "Tous les cas d’usage",
+      "quote": "Devis",
+      "invoice": "Facture",
+      "creditNote": "Avoir",
+      "paymentReminder": "Relance de paiement",
+      "quoteFollowUp": "Suivi de devis",
+      "quoteEmail": "E-mail devis",
+      "invoiceEmail": "E-mail facture",
+      "language": "Langue",
+      "languageAll": "Toutes les langues",
+      "status": "Statut",
+      "statusAll": "Tous les statuts",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "sort": "Tri",
+      "sortUpdated": "Dernière mise à jour",
+      "sortName": "Nom",
+      "sortCreated": "Date de création",
+      "view": {
+        "grid": "Vue grille",
+        "list": "Vue liste"
+      }
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "badges": {
+      "default": "Par défaut"
+    },
+    "card": {
+      "updated": "Maj. {date}"
+    },
+    "list": {
+      "name": "Nom",
+      "useCase": "Cas d’usage",
+      "language": "Langue",
+      "status": "Statut",
+      "updated": "Mis à jour"
+    },
+    "menu": {
+      "trigger": "Actions du modèle",
+      "preview": "Aperçu",
+      "edit": "Modifier",
+      "duplicate": "Dupliquer",
+      "set_default": "Définir par défaut",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "delete": "Supprimer"
+    },
+    "preview": {
+      "title": "Aperçu",
+      "close": "Fermer l’aperçu",
+      "edit": "Modifier le modèle",
+      "duplicate": "Dupliquer",
+      "setDefault": "Définir par défaut"
+    },
+    "details": {
+      "title": "Détails du modèle",
+      "name": "Nom",
+      "type": "Type",
+      "useCase": "Cas d’usage",
+      "language": "Langue",
+      "company": "Société",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "default": "Par défaut",
+      "yes": "Oui",
+      "no": "Non",
+      "createdBy": "Créé par",
+      "updatedAt": "Mis à jour le"
+    },
+    "empty": {
+      "title": "Aucun modèle",
+      "body": "Créez votre premier modèle document ou e-mail pour standardiser vos communications.",
+      "filteredTitle": "Aucun modèle correspondant",
+      "filteredBody": "Ajustez la recherche ou les filtres."
+    },
+    "toast": {
+      "created": "Modèle créé.",
+      "updated": "Modèle mis à jour.",
+      "duplicated": "Modèle dupliqué.",
+      "defaultSet": "Modèle par défaut mis à jour.",
+      "activated": "Modèle activé.",
+      "deactivated": "Modèle désactivé.",
+      "deleted": "Modèle supprimé.",
+      "needsReplacement": "Sélectionnez un remplacement avant suppression."
+    },
+    "documentWorkspace": {
+      "editing": "Édition",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "default": "Par défaut",
+      "yes": "Oui",
+      "no": "Non",
+      "close": "Fermer",
+      "edit": "Modifier le modèle",
+      "duplicate": "Dupliquer",
+      "setDefault": "Définir par défaut",
+      "activate": "Activer",
+      "deactivate": "Marquer inactif",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "settingsTitle": "Paramètres du modèle",
+      "documentType": "Document",
+      "defaultSwitch": "Modèle par défaut",
+      "defaultHelper": "Utilisé par défaut pour {useCase} en {language} chez {company}.",
+      "tabsLabel": "Sections du modèle document",
+      "editSectionsLabel": "Sections de l’éditeur",
+      "tabs": {
+        "details": "Détails",
+        "preview": "Aperçu"
+      },
+      "sections": {
+        "basic": "Informations de base",
+        "layout": "Mise en page et identité",
+        "timestamps": "Horodatage"
+      },
+      "expandPreview": "Agrandir",
+      "closeLightbox": "Fermer l’aperçu agrandi",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "fields": {
+        "name": "Nom",
+        "type": "Type",
+        "useCase": "Cas d’usage",
+        "language": "Langue",
+        "company": "Société",
+        "status": "Statut",
+        "default": "Par défaut",
+        "createdBy": "Créé par",
+        "createdAt": "Créé le",
+        "updatedAt": "Mis à jour"
+      }
+    },
+    "emailWorkspace": {
+      "editing": "Édition",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "default": "Par défaut",
+      "yes": "Oui",
+      "no": "Non",
+      "close": "Fermer",
+      "edit": "Modifier le modèle",
+      "duplicate": "Dupliquer",
+      "setDefault": "Définir par défaut",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "tabsLabel": "Sections du modèle e-mail",
+      "tabs": {
+        "details": "Détails",
+        "preview": "Aperçu"
+      },
+      "sections": {
+        "basic": "Informations générales",
+        "content": "Contenu e-mail",
+        "contentSummary": "Résumé du contenu",
+        "settings": "Paramètres du modèle",
+        "timestamps": "Horodatage"
+      },
+      "editHint": "Modifiez les variables, puis passez en Aperçu pour vérifier les valeurs.",
+      "previewBanner": "Aperçu e-mail",
+      "editBanner": "Modifier le modèle e-mail",
+      "canvasModeLabel": "Modèle ou aperçu",
+      "canvasMode": {
+        "template": "Modèle",
+        "preview": "Aperçu"
+      },
+      "from": "De",
+      "to": "À",
+      "subject": "Objet",
+      "body": "Corps",
+      "signature": "Signature",
+      "previewRecipient": "Destinataire d’aperçu — pas un envoi réel.",
+      "addVariable": "Ajouter une variable",
+      "variable": "Variable",
+      "toolbarHint": "Insérer les variables à la position du curseur.",
+      "settingsTitle": "Paramètres du modèle",
+      "emailType": "E-mail",
+      "expandPreview": "Agrandir",
+      "closeLightbox": "Fermer l’aperçu agrandi",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "fields": {
+        "name": "Nom",
+        "type": "Type",
+        "useCase": "Cas d’usage",
+        "company": "Société",
+        "language": "Langue",
+        "status": "Statut",
+        "default": "Par défaut",
+        "createdBy": "Créé par",
+        "createdAt": "Créé",
+        "updatedAt": "Mis à jour"
+      },
+      "defaultSwitch": "Modèle par défaut",
+      "defaultHelper": "Utilisé par défaut pour {useCase} en {language} chez {company}."
+    },
+    "delete": {
+      "title": "Supprimer le modèle",
+      "body": "Supprimer « {name} » ? Cette action est irréversible.",
+      "defaultBody": "« {name} » est le modèle par défaut. Choisissez d’abord un remplacement.",
+      "replacement": "Remplacement par défaut",
+      "chooseReplacement": "Sélectionner un modèle…",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
+    },
+    "wizard": {
+      "title": "Nouveau modèle",
+      "cancel": "Annuler",
+      "back": "Retour",
+      "continue": "Continuer",
+      "create": "Créer le modèle",
+      "steps": {
+        "typeHint": "Choisissez un modèle document ou e-mail.",
+        "useCaseHint": "Sélectionnez le cas d’usage couvert.",
+        "infoHint": "Définissez le nom, la langue et l’option par défaut."
+      },
+      "types": {
+        "document": "Document",
+        "documentHint": "Mise en page devis, facture ou avoir.",
+        "email": "E-mail",
+        "emailHint": "Objet, corps et signature pour l’envoi."
+      },
+      "useCases": {
+        "quote": "Devis",
+        "invoice": "Facture",
+        "credit_note": "Avoir",
+        "payment_reminder": "Relance de paiement",
+        "quote_follow_up": "Suivi de devis",
+        "quote_email": "E-mail devis",
+        "invoice_email": "E-mail facture"
+      },
+      "fields": {
+        "name": "Nom",
+        "company": "Société",
+        "language": "Langue",
+        "setDefault": "Définir par défaut pour ce cas d’usage et cette langue"
+      },
+      "errors": {
+        "type": "Sélectionnez un type de modèle.",
+        "useCase": "Sélectionnez un cas d’usage.",
+        "name": "Saisissez un nom de modèle."
+      }
+    },
+    "editor": {
+      "documentTitle": "Modèle document",
+      "emailTitle": "Modèle e-mail",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "brandingHint": "Le logo vient de la société. Seules les polices approuvées sont utilisées.",
+      "linesHint": "Ces options contrôlent uniquement l’affichage. Les totaux restent gérés par devis et facture.",
+      "totalsHint": "Sous-total HT, TVA et Total TTC sont rendus depuis les totaux canoniques du document.",
+      "sections": {
+        "general": "Général",
+        "branding": "Identité",
+        "header": "En-tête",
+        "lines": "Lignes",
+        "totals": "Totaux",
+        "terms": "Conditions",
+        "footer": "Pied de page"
+      },
+      "docTypes": {
+        "quote": "Devis",
+        "invoice": "Facture",
+        "credit_note": "Avoir"
+      },
+      "fields": {
+        "name": "Nom du modèle",
+        "company": "Société",
+        "language": "Langue",
+        "documentType": "Type de document",
+        "status": "Statut",
+        "setDefault": "Définir par défaut",
+        "primaryColor": "Couleur principale",
+        "accentColor": "Couleur d’accent",
+        "textColor": "Couleur du texte",
+        "showLogo": "Afficher le logo",
+        "showCompanyAddress": "Afficher l’adresse société",
+        "showSiret": "Afficher le SIRET",
+        "showVatNumber": "Afficher le n° TVA",
+        "showCustomerBlock": "Afficher le bloc client",
+        "showDescription": "Afficher la description",
+        "showQuantity": "Afficher la quantité",
+        "showUnit": "Afficher l’unité",
+        "showUnitPrice": "Afficher le prix unitaire",
+        "showDiscount": "Afficher la remise",
+        "showVat": "Afficher la TVA",
+        "showAmount": "Afficher le montant",
+        "terms": "Conditions générales",
+        "footer": "Texte de pied de page",
+        "showPageNumber": "Afficher la pagination",
+        "content": "Contenu",
+        "subject": "Objet",
+        "body": "Corps",
+        "signature": "Signature"
+      }
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle": "Connectez la comptabilite, la banque, les paiements et les services metier pour synchroniser les donnees COMPTE.",
+    "forbidden": "Vous n'avez pas la permission de voir les integrations.",
+    "search": "Rechercher des integrations…",
+    "categories": {
+      "label": "Categories d'integration",
+      "all": "Toutes",
+      "accounting": "Comptabilite",
+      "banking": "Banque",
+      "payments": "Paiements",
+      "email": "E-mail",
+      "einvoicing": "E-facturation",
+      "developer": "Outils developpeur",
+      "migration": "Migration"
+    },
+    "sort": {
+      "label": "Trier les integrations",
+      "recommended": "Recommandees",
+      "name": "Nom",
+      "connectedFirst": "Connectees d'abord",
+      "category": "Categorie"
+    },
+    "kpis": {
+      "available": "Integrations disponibles",
+      "connected": "Connectees",
+      "ready": "Pretes a connecter",
+      "comingSoon": "Bientot disponibles"
+    },
+    "status": {
+      "connected": "Connectee",
+      "ready": "Prete a connecter",
+      "attention": "Attention requise",
+      "coming_soon": "Bientot disponible"
+    },
+    "scope": {
+      "tenant": "Tenant · DFM"
+    },
+    "auth": {
+      "oauth": "OAuth 2.0",
+      "apiKey": "Cle API",
+      "smtp": "Identifiants SMTP",
+      "internal": "Interne"
+    },
+    "capabilities": {
+      "sync_customers": "Synchroniser les clients",
+      "sync_invoices": "Importer les factures",
+      "sync_payments": "Synchroniser les paiements",
+      "sync_bank_transactions": "Recuperer les transactions bancaires",
+      "send_email": "Envoyer les e-mails de la societe",
+      "import_data": "Importer des donnees historiques",
+      "api_access": "Acceder aux donnees tenant autorisees",
+      "webhooks": "Recevoir les evenements metier en temps reel",
+      "einvoice": "Soumettre des factures electroniques via PDP"
+    },
+    "actions": {
+      "connect": "Connecter",
+      "manage": "Gerer",
+      "manageApi": "Gerer l'API",
+      "comingSoon": "Bientot disponible",
+      "disconnect": "Deconnecter",
+      "syncNow": "Synchroniser",
+      "syncing": "Demande…",
+      "startImport": "Demarrer l'import"
+    },
+    "card": {
+      "more": "Plus d'actions"
+    },
+    "empty": {
+      "searchTitle": "Aucune integration trouvee",
+      "searchBody": "Essayez de modifier la recherche ou les filtres de categorie.",
+      "clearFilters": "Effacer les filtres",
+      "connectedTitle": "Connectez votre premier service",
+      "connectedBody": "Choisissez un fournisseur ci-dessous pour commencer la synchronisation."
+    },
+    "detail": {
+      "close": "Fermer le detail",
+      "tabsLabel": "Sections du detail d'integration",
+      "about": "A propos",
+      "capabilities": "Capacites",
+      "connectionStatus": "Etat de connexion",
+      "scope": "Perimetre",
+      "authentication": "Authentification",
+      "connectedAt": "Connectee le",
+      "lastSync": "Derniere sync",
+      "neverSynced": "Jamais synchronisee",
+      "megNote": "MEG Import est un outil de migration. Il ne reste pas connecte en sync continue.",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "activity": "Activite",
+        "api_keys": "Cles API",
+        "endpoints": "Points de terminaison",
+        "imports": "Imports"
+      }
+    },
+    "activity": {
+      "emptyTitle": "Aucune activite",
+      "emptyBody": "Les evenements de synchronisation de cette connexion apparaitront ici.",
+      "bankSyncDone": "Synchronisation bancaire terminee",
+      "bankSyncBody": "{count} transactions importees",
+      "paymentSyncDone": "Synchronisation des paiements terminee",
+      "paymentSyncBody": "{count} paiements mis a jour",
+      "emailConfigured": "Envoi d'e-mails configure",
+      "apiKeyRotated": "Cle API regeneree",
+      "connected": "Connexion etablie",
+      "disconnected": "Connexion deconnectee",
+      "syncRequested": "Synchronisation demandee"
+    },
+    "developer": {
+      "apiIntro": "Accedez aux donnees tenant autorisees via l'API REST COMPTE.",
+      "apiKeyMasked": "Cle active",
+      "apiKeyNote": "Les secrets complets ne sont plus affiches apres creation.",
+      "docsLink": "Ouvrir la documentation API",
+      "webhookIntro": "Recevez les evenements metier COMPTE en temps reel.",
+      "endpoint": "Point de terminaison",
+      "events": "Evenements abonnes",
+      "megEmptyTitle": "Aucun import",
+      "megEmptyBody": "Demarrez un import pour migrer les donnees MEG vers COMPTE."
+    },
+    "connect": {
+      "title": "Connecter {name}",
+      "description": "Verifiez le perimetre et les permissions avant de continuer.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "continueProvider": "Continuer vers le fournisseur",
+      "scope": "Perimetre",
+      "auth": "Autorisation",
+      "permissions": "Permissions demandees",
+      "oauthNote": "Vous continuerez chez le fournisseur. COMPTE ne demande jamais le mot de passe du fournisseur."
+    },
+    "disconnect": {
+      "title": "Deconnecter {name} ?",
+      "body": "La synchronisation et les imports futurs s'arreteront pour {scope}. Les donnees deja importees resteront.",
+      "cancel": "Annuler",
+      "confirm": "Deconnecter"
+    },
+    "toast": {
+      "connected": "{name} connecte",
+      "disconnected": "{name} deconnecte",
+      "syncRequested": "Synchronisation demandee",
+      "manageApi": "La gestion des cles API est disponible dans le panneau de detail.",
+      "importReady": "Ouvrez les imports pour demarrer une migration MEG."
+    },
+    "providers": {
+      "restApi": {
+        "name": "API REST",
+        "description": "Accedez aux donnees tenant autorisees via l'API COMPTE."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "description": "Recevez les evenements metier COMPTE en temps reel."
+      },
+      "megImport": {
+        "name": "Import MEG",
+        "description": "Importez les donnees existantes de MEG vers COMPTE."
+      },
+      "qonto": {
+        "name": "Qonto",
+        "description": "Synchronisez les transactions bancaires pour le rapprochement."
+      },
+      "bridge": {
+        "name": "Bridge",
+        "description": "Connectivite Open Banking pour les comptes multi-banques."
+      },
+      "gocardlessBank": {
+        "name": "GoCardless Bank Account Data",
+        "description": "Recuperez comptes et transactions via Open Banking."
+      },
+      "revolut": {
+        "name": "Revolut",
+        "description": "Connectez les comptes Revolut Business pour la sync bancaire."
+      },
+      "stripe": {
+        "name": "Stripe",
+        "description": "Synchronisez les paiements en ligne dans COMPTE."
+      },
+      "gocardlessPayments": {
+        "name": "GoCardless Payments",
+        "description": "Encaissez des prelevements via GoCardless."
+      },
+      "email": {
+        "name": "Envoi d'e-mails",
+        "description": "Envoyez les e-mails societes via SMTP ou OAuth."
+      },
+      "quickbooks": {
+        "name": "QuickBooks",
+        "description": "Connectez un logiciel de comptabilite pour synchroniser les donnees."
+      },
+      "xero": {
+        "name": "Xero",
+        "description": "Connectez un logiciel de comptabilite pour synchroniser les donnees."
+      },
+      "sage": {
+        "name": "Sage",
+        "description": "Connectez un logiciel de comptabilite pour synchroniser les donnees."
+      },
+      "pdp": {
+        "name": "E-facturation / PDP",
+        "description": "Connectez une PDP pour soumettre des factures electroniques."
+      }
     }
   }
 }

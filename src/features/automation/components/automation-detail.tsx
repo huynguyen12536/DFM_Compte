@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import type { Tone } from "@/mocks/dashboard/types";
 
 import { formatDuration } from "../kpis";
+import { automationLabel } from "../label";
 import type {
   AutomationDefinition,
   AutomationRun,
@@ -145,7 +146,7 @@ export function AutomationDetail({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-[13px] font-semibold text-[#063586]">
-                {t(automation.nameKey)}
+                {automationLabel(automation, t)}
               </h3>
               <StatusBadge size="xs" tone={automationStatusTone[automation.status]}>
                 {t(`status.${automation.status}`)}
@@ -263,7 +264,7 @@ export function AutomationDetail({
                   configFromRecord(
                     automation.type,
                     automation.configuration,
-                    t(automation.nameKey),
+                    automationLabel(automation, t),
                   ),
                 )}
                 stretch
@@ -385,10 +386,18 @@ function SettingsPanel({
 }) {
   const t = useTranslations("automation");
   const [draft, setDraft] = useState<WizardConfig>(() =>
-    configFromRecord(automation.type, automation.configuration, t(automation.nameKey)),
+    configFromRecord(
+      automation.type,
+      automation.configuration,
+      automationLabel(automation, t),
+    ),
   );
   const [baseline, setBaseline] = useState<WizardConfig>(() =>
-    configFromRecord(automation.type, automation.configuration, t(automation.nameKey)),
+    configFromRecord(
+      automation.type,
+      automation.configuration,
+      automationLabel(automation, t),
+    ),
   );
   const [error, setError] = useState("");
   const [savedNotice, setSavedNotice] = useState(false);

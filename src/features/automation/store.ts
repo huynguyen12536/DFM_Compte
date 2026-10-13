@@ -212,22 +212,9 @@ export function activateAutomationFromTemplate(input: {
     },
   };
 
+  // Always create a new automation instance from the wizard.
+  // Do not upsert by type — seed templates already exist and users expect a new list row.
   const scheduleTime = input.scheduleTime ?? templates[input.type].scheduleCronLabel;
-  const existing = state.automations.find((item) => item.type === input.type);
-  if (existing) {
-    patchAutomation(existing.id, {
-      status: "active",
-      executionMode: input.executionMode,
-      configuration: {
-        ...input.configuration,
-        name: input.displayName ?? input.configuration.name,
-      },
-      scheduleCronLabel: scheduleTime,
-      nextRunAt: nextMorningIso(scheduleTime),
-    });
-    return existing.id;
-  }
-
   const meta = templates[input.type];
   const id = `auto-${input.type}-${crypto.randomUUID().slice(0, 8)}`;
   const now = new Date().toISOString();
@@ -249,7 +236,7 @@ export function activateAutomationFromTemplate(input: {
     createdAt: now,
     updatedAt: now,
   };
-  state = { ...state, automations: [...state.automations, created] };
+  state = { ...state, automations: [created, ...state.automations] };
   emit();
   pushActivity({
     automationId: id,
