@@ -35,9 +35,12 @@ export function AssistantWindow() {
     messages,
     draft,
     setDraft,
+    pendingFiles,
+    stageFiles,
+    removePendingFile,
     busy,
+    uploadProgress,
     sendMessage,
-    attachFiles,
     startNewConversation,
     conversations,
     activeConversationId,
@@ -191,6 +194,8 @@ export function AssistantWindow() {
                     busy={busy}
                     busyLabel={t("busy")}
                     messages={messages}
+                    uploadProgress={uploadProgress}
+                    uploadingLabel={t("composer.uploading")}
                     onSelectFollowUp={(prompt) => {
                       void handleSend(prompt);
                     }}
@@ -207,14 +212,16 @@ export function AssistantWindow() {
               <AssistantComposer
                 autoFocus={open && !historyOpen}
                 disabled={busy}
+                pendingFiles={pendingFiles}
+                uploadProgress={uploadProgress}
+                uploading={busy && uploadProgress > 0}
                 value={draft}
-                onAttachFiles={(files) => {
-                  void attachFiles(files);
-                }}
                 onChange={setDraft}
+                onRemoveFile={removePendingFile}
                 onSend={() => {
                   void handleSend();
                 }}
+                onStageFiles={stageFiles}
               />
             </>
           )}

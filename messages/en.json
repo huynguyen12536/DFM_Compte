@@ -514,7 +514,9 @@
       "placeholder": "Write a message...",
       "send": "Send message",
       "attach": "Attach files",
-      "attachHint": "Attach one or more email, Excel, CSV, Word, PDF, and other files"
+      "attachHint": "Attach one or more email, Excel, CSV, Word, PDF, and other files",
+      "removeFile": "Remove {name}",
+      "uploading": "Uploading files…"
     },
     "followUps": {
       "label": "Suggested next questions"

@@ -13,7 +13,10 @@ import {
   type SetStateAction,
 } from "react";
 
-import { useAssistantChat } from "./hooks/use-assistant-chat";
+import {
+  useAssistantChat,
+  type PendingAssistantFile,
+} from "./hooks/use-assistant-chat";
 import type { AssistantConversation, AssistantMessage, Point } from "./types";
 
 type AssistantApi = {
@@ -26,11 +29,14 @@ type AssistantApi = {
   activeConversationId: string;
   draft: string;
   setDraft: (value: string) => void;
+  pendingFiles: PendingAssistantFile[];
+  stageFiles: (files: File[]) => void;
+  removePendingFile: (id: string) => void;
   busy: boolean;
+  uploadProgress: number;
   historyOpen: boolean;
   setHistoryOpen: Dispatch<SetStateAction<boolean>>;
   sendMessage: (raw: string) => Promise<void>;
-  attachFiles: (files: File[]) => Promise<void>;
   startNewConversation: () => void;
   selectConversation: (id: string) => void;
   deleteConversation: (id: string) => void;
@@ -82,11 +88,14 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       activeConversationId: chat.activeConversationId,
       draft: chat.draft,
       setDraft: chat.setDraft,
+      pendingFiles: chat.pendingFiles,
+      stageFiles: chat.stageFiles,
+      removePendingFile: chat.removePendingFile,
       busy: chat.busy,
+      uploadProgress: chat.uploadProgress,
       historyOpen: chat.historyOpen,
       setHistoryOpen: chat.setHistoryOpen,
       sendMessage: chat.sendMessage,
-      attachFiles: chat.attachFiles,
       startNewConversation: chat.startNewConversation,
       selectConversation: chat.selectConversation,
       deleteConversation: chat.deleteConversation,
@@ -108,11 +117,14 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       chat.activeConversationId,
       chat.draft,
       chat.setDraft,
+      chat.pendingFiles,
+      chat.stageFiles,
+      chat.removePendingFile,
       chat.busy,
+      chat.uploadProgress,
       chat.historyOpen,
       chat.setHistoryOpen,
       chat.sendMessage,
-      chat.attachFiles,
       chat.startNewConversation,
       chat.selectConversation,
       chat.deleteConversation,
