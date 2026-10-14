@@ -2,6 +2,10 @@ import { CalendarDays, Menu } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
+import {
+  AssistantProvider,
+  FloatingAssistant,
+} from "@/components/assistant";
 import { BrandLogo } from "@/components/brand-logo";
 import {
   CommandSearchIconTrigger,
@@ -33,71 +37,75 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider defaultDesktopOpen={defaultDesktopOpen}>
-      <div className="flex h-dvh w-full overflow-hidden bg-[#f3f4f6] text-[#063586]">
-        <Sidebar>
-          <SidebarBody
-            aria-label={t("header.navigation")}
-            closeLabel={t("header.closeMenu")}
-          >
-            <SidebarChrome
-              navigationLabel={t("header.navigation")}
-              searchLabel={t("header.search")}
-            />
-          </SidebarBody>
-        </Sidebar>
-
-        <div className="workspace-pane flex min-h-0 min-w-0 flex-1 flex-col">
-          <img alt="" aria-hidden="true" className="workspace-pane__art" src="/workspace-bg.png" />
-          <header className="dashboard-enter enter-0 relative z-30 flex min-h-[64px] shrink-0 items-center gap-2 border-b border-[#d1d5db]/70 bg-[rgb(243_244_246/0.8)] px-3 backdrop-blur-xl sm:min-h-[76px] sm:gap-4 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)_minmax(0,1fr)] lg:px-8">
-            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 lg:flex-none lg:gap-3">
-              <SidebarTrigger
-                className="action-motion soft-button grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-[#506078] lg:hidden"
-                label={t("header.openMenu")}
-              >
-                <Menu aria-hidden="true" className="h-5 w-5" />
-              </SidebarTrigger>
-              <BrandLogo className="hidden h-8 w-auto shrink-0 md:block lg:hidden" />
-
-              <div className="min-w-0 flex-1 lg:flex-none">
-                <p className="hidden text-xs font-medium text-[#7d8aa0] sm:block">{today}</p>
-                <h1 className="truncate text-[21px] font-semibold tracking-[-0.025em] text-[#063586] sm:text-[26px] lg:text-[28px] xl:text-[30px]">
-                  <ShellTitle />
-                </h1>
-              </div>
-            </div>
-
-            <div className="hidden min-w-0 justify-self-center lg:flex lg:w-full lg:max-w-[420px]">
-              <CommandSearchTrigger label={t("header.search")} />
-            </div>
-
-            <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0 lg:justify-self-end">
-              <CommandSearchIconTrigger
-                className="hidden min-[480px]:grid lg:hidden"
-                label={t("header.search")}
+      <AssistantProvider>
+        <div className="flex h-dvh w-full overflow-hidden bg-[#f3f4f6] text-[#063586]">
+          <Sidebar>
+            <SidebarBody
+              aria-label={t("header.navigation")}
+              closeLabel={t("header.closeMenu")}
+            >
+              <SidebarChrome
+                navigationLabel={t("header.navigation")}
+                searchLabel={t("header.search")}
               />
+            </SidebarBody>
+          </Sidebar>
 
-              <button
-                aria-disabled="true"
-                className="action-motion soft-button hidden min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-semibold text-[#405069] lg:inline-flex"
-                disabled
-                title={t("header.periodUnavailable")}
-                type="button"
-              >
-                <CalendarDays className="h-4 w-4 text-[#044ce2]" />
-                {t("header.month")}
-              </button>
+          <div className="workspace-pane flex min-h-0 min-w-0 flex-1 flex-col">
+            <img alt="" aria-hidden="true" className="workspace-pane__art" src="/workspace-bg.png" />
+            <header className="dashboard-enter enter-0 relative z-30 flex min-h-[64px] shrink-0 items-center gap-2 border-b border-[#d1d5db]/70 bg-[rgb(243_244_246/0.8)] px-3 backdrop-blur-xl sm:min-h-[76px] sm:gap-4 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)_minmax(0,1fr)] lg:px-8">
+              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4 lg:flex-none lg:gap-3">
+                <SidebarTrigger
+                  className="action-motion soft-button grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-[#506078] lg:hidden"
+                  label={t("header.openMenu")}
+                >
+                  <Menu aria-hidden="true" className="h-5 w-5" />
+                </SidebarTrigger>
+                <BrandLogo className="hidden h-8 w-auto shrink-0 md:block lg:hidden" />
 
-              <HeaderNotifications label={t("header.notifications")} />
+                <div className="min-w-0 flex-1 lg:flex-none">
+                  <p className="hidden text-xs font-medium text-[#7d8aa0] sm:block">{today}</p>
+                  <h1 className="truncate text-[21px] font-semibold tracking-[-0.025em] text-[#063586] sm:text-[26px] lg:text-[28px] xl:text-[30px]">
+                    <ShellTitle />
+                  </h1>
+                </div>
+              </div>
 
-              <UserAccountMenu />
+              <div className="hidden min-w-0 justify-self-center lg:flex lg:w-full lg:max-w-[420px]">
+                <CommandSearchTrigger label={t("header.search")} />
+              </div>
+
+              <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0 lg:justify-self-end">
+                <CommandSearchIconTrigger
+                  className="hidden min-[480px]:grid lg:hidden"
+                  label={t("header.search")}
+                />
+
+                <button
+                  aria-disabled="true"
+                  className="action-motion soft-button hidden min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-semibold text-[#405069] lg:inline-flex"
+                  disabled
+                  title={t("header.periodUnavailable")}
+                  type="button"
+                >
+                  <CalendarDays className="h-4 w-4 text-[#044ce2]" />
+                  {t("header.month")}
+                </button>
+
+                <HeaderNotifications label={t("header.notifications")} />
+
+                <UserAccountMenu />
+              </div>
+            </header>
+
+            <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+              {children}
             </div>
-          </header>
-
-          <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            {children}
           </div>
+
+          <FloatingAssistant />
         </div>
-      </div>
+      </AssistantProvider>
     </SidebarProvider>
   );
 }

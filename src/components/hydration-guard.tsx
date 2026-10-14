@@ -1,5 +1,8 @@
-import Script from "next/script";
-
+/**
+ * Inline early bootstrap for App Router.
+ * Avoid next/script beforeInteractive — Next 16 warns that client-rendered
+ * <Script> children are never executed.
+ */
 const stripInjectedAttributes = `
 (function () {
   function strip(node) {
@@ -52,8 +55,10 @@ const stripInjectedAttributes = `
 
 export function HydrationGuard() {
   return (
-    <Script id="compte-hydration-guard" strategy="beforeInteractive">
-      {stripInjectedAttributes}
-    </Script>
+    <script
+      // Server-rendered inline script in <head> — runs before hydration.
+      dangerouslySetInnerHTML={{ __html: stripInjectedAttributes }}
+      id="compte-hydration-guard"
+    />
   );
 }

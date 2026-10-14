@@ -1,0 +1,164 @@
+"use client";
+
+import { useLocale } from "next-intl";
+import { useCallback, useState } from "react";
+
+import { resolveDemoReply } from "../demo-replies";
+import type { AssistantConversation, AssistantMessage } from "../types";
+
+function createId(prefix: string) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function titleFromMessages(messages: AssistantMessage[]) {
+  const firstUser = messages.find((message) => message.role === "user");
+  if (!firstUser) return null;
+  const text = firstUser.content.trim();
+  if (text.length <= 48) return text;
+  return `${text.slice(0, 45)}…`;
+}
+
+function createEmptyConversation(): AssistantConversation {
+  const now = Date.now();
+  return {
+    id: createId("conv"),
+    title: null,
+    messages: [],
+    updatedAt: now,
+    createdAt: now,
+  };
+}
+
+export function useAssistantChat() {
+  const locale = useLocale();
+  const [conversations, setConversations] = useState<AssistantConversation[]>(
+    () => [createEmptyConversation()],
+  );
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const resolvedActiveId = activeId ?? conversations[0]?.id ?? "";
+  const active =
+    conversations.find((item) => item.id === resolvedActiveId) ??
+    conversations[0];
+  const messages = active?.messages ?? [];
+
+  const patchActive = useCallback(
+    (updater: (current: AssistantConversation) => AssistantConversation) => {
+      setConversations((list) => {
+        const currentId = activeId ?? list[0]?.id;
+        return list.map((item) =>
+          item.id === currentId ? updater(item) : item,
+        );
+      });
+    },
+    [activeId],
+  );
+
+  const startNewConversation = useCallback(() => {
+    setBusy(false);
+    setDraft("");
+    setHistoryOpen(false);
+    const next = createEmptyConversation();
+    setConversations((list) => {
+      const currentId = activeId ?? list[0]?.id;
+      const current = list.find((item) => item.id === currentId);
+      const kept = list.filter((item) => {
+        if (item.id !== currentId) return true;
+        return (current?.messages.length ?? 0) > 0;
+      });
+      return [next, ...kept];
+    });
+    setActiveId(next.id);
+  }, [activeId]);
+
+  const selectConversation = useCallback((id: string) => {
+    setActiveId(id);
+    setDraft("");
+    setBusy(false);
+    setHistoryOpen(false);
+  }, []);
+
+  const deleteConversation = useCallback(
+    (id: string) => {
+      setConversations((list) => {
+        const next = list.filter((item) => item.id !== id);
+        if (next.length === 0) {
+          const fresh = createEmptyConversation();
+          setActiveId(fresh.id);
+          return [fresh];
+        }
+        const currentId = activeId ?? list[0]?.id;
+        if (id === currentId) {
+          setActiveId(next[0].id);
+        }
+        return next;
+      });
+      setDraft("");
+      setBusy(false);
+    },
+    [activeId],
+  );
+
+  const sendMessage = useCallback(
+    async (raw: string) => {
+      const content = raw.trim();
+      if (!content) return;
+
+      const userMessage: AssistantMessage = {
+        id: createId("msg"),
+        role: "user",
+        content,
+        createdAt: Date.now(),
+      };
+
+      patchActive((current) => ({
+        ...current,
+        title: current.title ?? titleFromMessages([userMessage]),
+        messages: [...current.messages, userMessage],
+        updatedAt: Date.now(),
+      }));
+      setDraft("");
+      setBusy(true);
+      setHistoryOpen(false);
+
+      await new Promise((resolve) => window.setTimeout(resolve, 420));
+
+      const demo = resolveDemoReply(content, locale);
+      const assistantMessage: AssistantMessage = {
+        id: createId("msg"),
+        role: "assistant",
+        content: demo.reply,
+        followUps: demo.followUps,
+        createdAt: Date.now(),
+      };
+
+      patchActive((current) => ({
+        ...current,
+        messages: [...current.messages, assistantMessage],
+        updatedAt: Date.now(),
+      }));
+      setBusy(false);
+    },
+    [locale, patchActive],
+  );
+
+  return {
+    conversations,
+    activeConversationId: active?.id ?? resolvedActiveId,
+    messages,
+    draft,
+    setDraft,
+    busy,
+    historyOpen,
+    setHistoryOpen,
+    sendMessage,
+    startNewConversation,
+    selectConversation,
+    deleteConversation,
+    clearConversation: startNewConversation,
+    hasMessages: messages.length > 0,
+  };
+}

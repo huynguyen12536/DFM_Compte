@@ -473,11 +473,51 @@
     "switchCompany": "Switch company",
     "companyList": "Available companies",
     "companyFallback": "Tenant",
-    "assistantTitle": "COMPTA assistant",
-    "assistantBody": "2 suggestions to review before sending to the customer.",
-    "assistantAction": "View suggestions",
+    "assistantTitle": "COMPTA Assistant",
+    "assistantBody": "Ask about customers, quotes, invoices, payments or reports.",
+    "assistantAction": "Open assistant",
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar"
+  },
+  "assistant": {
+    "title": "COMPTA Assistant",
+    "status": "Demo shell",
+    "launcher": {
+      "open": "Open COMPTA Assistant"
+    },
+    "actions": {
+      "new": "New conversation",
+      "history": "Conversation history",
+      "close": "Close assistant"
+    },
+    "history": {
+      "title": "History",
+      "subtitle": "Conversations in this session only.",
+      "emptyTitle": "No conversations yet",
+      "emptyBody": "Start chatting and your threads will appear here until you refresh.",
+      "untitled": "New conversation",
+      "meta": "{count} messages · {when}",
+      "delete": "Delete conversation"
+    },
+    "welcome": {
+      "title": "Hello, how can I help?",
+      "subtitle": "Ask about customers, quotes, invoices, payments or reports."
+    },
+    "suggestions": {
+      "overdueInvoices": "Which invoices are overdue?",
+      "quotePipeline": "Summarize my quote pipeline",
+      "customersOwe": "Which customers still owe money?",
+      "whatChanged": "What changed today?"
+    },
+    "composer": {
+      "label": "Message to COMPTA Assistant",
+      "placeholder": "Write a message...",
+      "send": "Send message"
+    },
+    "followUps": {
+      "label": "Suggested next questions"
+    },
+    "busy": "Thinking…"
   },
   "header": {
     "openMenu": "Open menu",
