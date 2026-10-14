@@ -3,13 +3,13 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { SoftSelect } from "@/components/compte/soft-select";
 import { StatusBadge } from "@/components/dashboard/tone";
 import type { Invoice, InvoiceStatusKey } from "@/mocks/dashboard/types";
 
 import {
   DashboardListSheetShell,
   listSheetCell as cell,
+  listSheetPaginationCopy,
 } from "./list-sheet/dashboard-list-sheet-shell";
 import {
   usePagedListSheet,
@@ -66,31 +66,17 @@ export function InvoicesListSheet({
       closeLabel={t("close")}
       emptyBody={t("emptyBody")}
       emptyTitle={t("emptyTitle")}
-      filterControl={
-        <SoftSelect
-          hideLabel
-          className="w-full sm:w-[180px]"
-          label={t("filters.status")}
-          options={STATUS_FILTERS.map((value) => ({
-            value,
-            label: value === "all" ? t("status.all") : statusT(value as InvoiceStatusKey),
-          }))}
-          triggerClassName="h-10"
-          value={paging.filter}
-          onChange={(value) => paging.updateFilter(value as StatusFilter)}
-        />
-      }
+      filterLabel={t("filters.status")}
+      filterOptions={STATUS_FILTERS.map((value) => ({
+        value,
+        label: value === "all" ? t("status.all") : statusT(value as InvoiceStatusKey),
+      }))}
+      filterValue={paging.filter}
       filtersActive={Boolean(paging.query.trim()) || paging.filter !== "all"}
       open={open}
       pageCount={pageCount}
       pageSize={paging.pageSize}
-      pagination={{
-        summary: (values) => t("pagination.summary", values),
-        rowsPerPage: (count) => t("pagination.rowsPerPage", { count }),
-        pageSize: t("pagination.pageSize"),
-        prev: t("pagination.prev"),
-        next: t("pagination.next"),
-      }}
+      pagination={listSheetPaginationCopy(t)}
       query={paging.query}
       rangeFrom={rangeFrom}
       rangeTo={rangeTo}
@@ -102,6 +88,7 @@ export function InvoicesListSheet({
       totalCount={filtered.length}
       onClearFilters={paging.clearFilters}
       onClose={onClose}
+      onFilterChange={(value) => paging.updateFilter(value as StatusFilter)}
       onPageChange={paging.setPage}
       onPageSizeChange={paging.updatePageSize}
       onQueryChange={paging.updateQuery}

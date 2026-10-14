@@ -1,24 +1,17 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import {
-  useCallback,
-  useId,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useId, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
-import { useOutsideDismiss } from "@/lib/use-outside-dismiss";
 import { cn } from "@/lib/utils";
 
-const OPEN_EVENT = "compte:soft-select-open";
-const MENU_GAP = 4;
-const MENU_EDGE = 8;
+import { useSoftFloatingMenu } from "./use-soft-floating-menu";
+
 const ITEM_H = 32;
 const VISIBLE = 5;
+const MENU_HEIGHT = 220;
+const MENU_MIN_WIDTH = 220;
 
 const HOURS = Array.from({ length: 24 }, (_, i) =>
   i.toString().padStart(2, "0"),
@@ -167,87 +160,11 @@ export function SoftTimePicker({
   menuZIndexClassName?: string;
 }) {
   const listId = useId();
-  const instanceId = useId();
-  const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-  const [menuBox, setMenuBox] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
-  const parsed = parseTime(value);
-
-  const close = useCallback(() => {
-    setOpen(false);
-  }, []);
-
-  const dismissRoots = useMemo(() => [rootRef, menuRef], []);
-
-  function openMenu() {
-    setOpen(true);
-    window.dispatchEvent(
-      new CustomEvent(OPEN_EVENT, { detail: { id: instanceId } }),
-    );
-  }
-
-  useLayoutEffect(() => {
-    if (!open) return;
-
-    function updatePosition() {
-      const trigger = triggerRef.current;
-      if (!trigger) return;
-      const rect = trigger.getBoundingClientRect();
-      const width = Math.max(rect.width, 220);
-      const spaceBelow = window.innerHeight - rect.bottom - MENU_GAP - MENU_EDGE;
-      const menuHeight = 220;
-      const openUp = spaceBelow < menuHeight && rect.top > spaceBelow;
-      const maxLeft = Math.max(MENU_EDGE, window.innerWidth - width - MENU_EDGE);
-      setMenuBox({
-        top: openUp
-          ? Math.max(MENU_EDGE, rect.top - menuHeight - MENU_GAP)
-          : rect.bottom + MENU_GAP,
-        left: Math.min(Math.max(MENU_EDGE, rect.left), maxLeft),
-        width,
-      });
-    }
-
-    const frame = window.requestAnimationFrame(updatePosition);
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [open]);
-
-  useOutsideDismiss({
-    active: open,
-    onDismiss: close,
-    roots: dismissRoots,
+  const menu = useSoftFloatingMenu({
+    menuHeight: MENU_HEIGHT,
+    minWidth: MENU_MIN_WIDTH,
   });
-
-  useLayoutEffect(() => {
-    if (!open) return;
-
-    function onOtherOpen(event: Event) {
-      const detail = (event as CustomEvent<{ id: string }>).detail;
-      if (detail?.id !== instanceId) close();
-    }
-
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") close();
-    }
-
-    window.addEventListener(OPEN_EVENT, onOtherOpen);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener(OPEN_EVENT, onOtherOpen);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, instanceId, close]);
+  const parsed = parseTime(value);
 
   function setHour(hour: string) {
     onChange(`${hour}:${parsed.minute}`);
@@ -258,22 +175,22 @@ export function SoftTimePicker({
   }
 
   return (
-    <div className={cn("relative min-w-0", className)} ref={rootRef}>
+    <div className={cn("relative min-w-0", className)} ref={menu.rootRef}>
       {hideLabel ? null : (
         <span className="mb-1 block text-[11px] font-medium text-[#7d8aa0]">
           {label}
         </span>
       )}
       <button
-        ref={triggerRef}
-        aria-controls={open ? listId : undefined}
+        ref={menu.triggerRef}
+        aria-controls={menu.open ? listId : undefined}
         aria-disabled={disabled || undefined}
-        aria-expanded={open}
+        aria-expanded={menu.open}
         aria-haspopup="dialog"
         aria-label={label}
         className={cn(
           "soft-input flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] !bg-white px-2.5 text-left text-xs font-semibold text-[#24334c] outline-none",
-          open && "ring-1 ring-[#044ce2]/30",
+          menu.open && "ring-1 ring-[#044ce2]/30",
           disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
           triggerClassName,
         )}
@@ -281,11 +198,7 @@ export function SoftTimePicker({
         type="button"
         onClick={() => {
           if (disabled) return;
-          if (open) {
-            close();
-            return;
-          }
-          openMenu();
+          menu.toggle();
         }}
       >
         <span className="min-w-0 truncate tabular-nums">
@@ -294,10 +207,10 @@ export function SoftTimePicker({
         <Clock aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#7d8aa0]" />
       </button>
 
-      {open
+      {menu.open
         ? createPortal(
             <div
-              ref={menuRef}
+              ref={menu.menuRef}
               className={cn(
                 "fixed rounded-[12px] border border-[#e2eaf5] bg-white p-2.5 shadow-[0_12px_28px_rgba(29,43,68,0.14)]",
                 menuZIndexClassName,
@@ -305,11 +218,11 @@ export function SoftTimePicker({
               id={listId}
               role="dialog"
               style={
-                menuBox
+                menu.menuBox
                   ? {
-                      top: menuBox.top,
-                      left: menuBox.left,
-                      width: menuBox.width,
+                      top: menu.menuBox.top,
+                      left: menu.menuBox.left,
+                      width: menu.menuBox.width,
                     }
                   : { top: -9999, left: -9999, visibility: "hidden" }
               }

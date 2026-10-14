@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { PageSizeSelect } from "@/components/compte/page-size-select";
+import { SoftSelect } from "@/components/compte/soft-select";
 import { FormSheet } from "@/components/forms/form-sheet";
 
 import { LIST_SHEET_PAGE_SIZES } from "./use-paged-list-sheet";
@@ -17,6 +18,21 @@ type PaginationCopy = {
   next: string;
 };
 
+type FilterOption = { value: string; label: string };
+
+/** Shared i18n wiring for list-sheet pagination footers. */
+export function listSheetPaginationCopy(
+  t: (key: string, values?: Record<string, number>) => string,
+): PaginationCopy {
+  return {
+    summary: (values) => t("pagination.summary", values),
+    rowsPerPage: (count) => t("pagination.rowsPerPage", { count }),
+    pageSize: t("pagination.pageSize"),
+    prev: t("pagination.prev"),
+    next: t("pagination.next"),
+  };
+}
+
 export function DashboardListSheetShell({
   open,
   onClose,
@@ -27,7 +43,10 @@ export function DashboardListSheetShell({
   searchPlaceholder,
   query,
   onQueryChange,
-  filterControl,
+  filterLabel,
+  filterValue,
+  filterOptions,
+  onFilterChange,
   filtersActive,
   onClearFilters,
   clearFiltersLabel,
@@ -53,7 +72,10 @@ export function DashboardListSheetShell({
   searchPlaceholder: string;
   query: string;
   onQueryChange: (value: string) => void;
-  filterControl: ReactNode;
+  filterLabel: string;
+  filterValue: string;
+  filterOptions: FilterOption[];
+  onFilterChange: (value: string) => void;
   filtersActive: boolean;
   onClearFilters: () => void;
   clearFiltersLabel: string;
@@ -93,7 +115,15 @@ export function DashboardListSheetShell({
               value={query}
             />
           </label>
-          {filterControl}
+          <SoftSelect
+            hideLabel
+            className="w-full sm:w-[180px]"
+            label={filterLabel}
+            options={filterOptions}
+            triggerClassName="h-10"
+            value={filterValue}
+            onChange={onFilterChange}
+          />
           {filtersActive ? (
             <button
               className="action-motion soft-button h-10 shrink-0 rounded-[8px] px-2.5 text-[11px] font-semibold text-[#516078]"

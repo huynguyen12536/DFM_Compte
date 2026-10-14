@@ -4,11 +4,13 @@ import { ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { SoftSelect } from "@/components/compte/soft-select";
 import type { ActionItem, Tone } from "@/mocks/dashboard/types";
 
 import { actionIcons } from "./action-list";
-import { DashboardListSheetShell } from "./list-sheet/dashboard-list-sheet-shell";
+import {
+  DashboardListSheetShell,
+  listSheetPaginationCopy,
+} from "./list-sheet/dashboard-list-sheet-shell";
 import {
   usePagedListSheet,
   usePaginatedItems,
@@ -55,31 +57,17 @@ export function AttentionListSheet({
       closeLabel={t("close")}
       emptyBody={t("emptyBody")}
       emptyTitle={t("emptyTitle")}
-      filterControl={
-        <SoftSelect
-          hideLabel
-          className="w-full sm:w-[180px]"
-          label={t("filters.tone")}
-          options={TONE_FILTERS.map((value) => ({
-            value,
-            label: value === "all" ? t("tone.all") : t(`tone.${value}`),
-          }))}
-          triggerClassName="h-10"
-          value={paging.filter}
-          onChange={(value) => paging.updateFilter(value as ToneFilter)}
-        />
-      }
+      filterLabel={t("filters.tone")}
+      filterOptions={TONE_FILTERS.map((value) => ({
+        value,
+        label: value === "all" ? t("tone.all") : t(`tone.${value}`),
+      }))}
+      filterValue={paging.filter}
       filtersActive={Boolean(paging.query.trim()) || paging.filter !== "all"}
       open={open}
       pageCount={pageCount}
       pageSize={paging.pageSize}
-      pagination={{
-        summary: (values) => t("pagination.summary", values),
-        rowsPerPage: (count) => t("pagination.rowsPerPage", { count }),
-        pageSize: t("pagination.pageSize"),
-        prev: t("pagination.prev"),
-        next: t("pagination.next"),
-      }}
+      pagination={listSheetPaginationCopy(t)}
       query={paging.query}
       rangeFrom={rangeFrom}
       rangeTo={rangeTo}
@@ -91,6 +79,7 @@ export function AttentionListSheet({
       totalCount={filtered.length}
       onClearFilters={paging.clearFilters}
       onClose={onClose}
+      onFilterChange={(value) => paging.updateFilter(value as ToneFilter)}
       onPageChange={paging.setPage}
       onPageSizeChange={paging.updatePageSize}
       onQueryChange={paging.updateQuery}
