@@ -160,7 +160,14 @@ export function SoftTimePicker({
   menuZIndexClassName?: string;
 }) {
   const listId = useId();
-  const menu = useSoftFloatingMenu({
+  const {
+    open,
+    menuBox,
+    rootRef,
+    triggerRef,
+    menuRef,
+    toggle,
+  } = useSoftFloatingMenu({
     menuHeight: MENU_HEIGHT,
     minWidth: MENU_MIN_WIDTH,
   });
@@ -175,22 +182,22 @@ export function SoftTimePicker({
   }
 
   return (
-    <div className={cn("relative min-w-0", className)} ref={menu.rootRef}>
+    <div className={cn("relative min-w-0", className)} ref={rootRef}>
       {hideLabel ? null : (
         <span className="mb-1 block text-[11px] font-medium text-[#7d8aa0]">
           {label}
         </span>
       )}
       <button
-        ref={menu.triggerRef}
-        aria-controls={menu.open ? listId : undefined}
+        ref={triggerRef}
+        aria-controls={open ? listId : undefined}
         aria-disabled={disabled || undefined}
-        aria-expanded={menu.open}
+        aria-expanded={open}
         aria-haspopup="dialog"
         aria-label={label}
         className={cn(
           "soft-input flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] !bg-white px-2.5 text-left text-xs font-semibold text-[#24334c] outline-none",
-          menu.open && "ring-1 ring-[#044ce2]/30",
+          open && "ring-1 ring-[#044ce2]/30",
           disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
           triggerClassName,
         )}
@@ -198,7 +205,7 @@ export function SoftTimePicker({
         type="button"
         onClick={() => {
           if (disabled) return;
-          menu.toggle();
+          toggle();
         }}
       >
         <span className="min-w-0 truncate tabular-nums">
@@ -207,10 +214,10 @@ export function SoftTimePicker({
         <Clock aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#7d8aa0]" />
       </button>
 
-      {menu.open
+      {open
         ? createPortal(
             <div
-              ref={menu.menuRef}
+              ref={menuRef}
               className={cn(
                 "fixed rounded-[12px] border border-[#e2eaf5] bg-white p-2.5 shadow-[0_12px_28px_rgba(29,43,68,0.14)]",
                 menuZIndexClassName,
@@ -218,11 +225,11 @@ export function SoftTimePicker({
               id={listId}
               role="dialog"
               style={
-                menu.menuBox
+                menuBox
                   ? {
-                      top: menu.menuBox.top,
-                      left: menu.menuBox.left,
-                      width: menu.menuBox.width,
+                      top: menuBox.top,
+                      left: menuBox.left,
+                      width: menuBox.width,
                     }
                   : { top: -9999, left: -9999, visibility: "hidden" }
               }

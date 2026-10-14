@@ -62,7 +62,15 @@ export function SoftDatePicker({
   const listId = useId();
   const selected = parseIso(value);
   const [month, setMonth] = useState<Date>(() => selected ?? new Date());
-  const menu = useSoftFloatingMenu({
+  const {
+    open,
+    menuBox,
+    rootRef,
+    triggerRef,
+    menuRef,
+    close,
+    toggle,
+  } = useSoftFloatingMenu({
     menuHeight: MENU_HEIGHT,
     minWidth: MENU_WIDTH,
   });
@@ -85,7 +93,7 @@ export function SoftDatePicker({
   }, [min, max]);
 
   return (
-    <div className={cn("relative min-w-0", className)} ref={menu.rootRef}>
+    <div className={cn("relative min-w-0", className)} ref={rootRef}>
       {hideLabel ? null : (
         <span className="mb-1 block text-[11px] font-medium text-[#7d8aa0]">
           {label}
@@ -93,16 +101,16 @@ export function SoftDatePicker({
         </span>
       )}
       <button
-        ref={menu.triggerRef}
-        aria-controls={menu.open ? listId : undefined}
+        ref={triggerRef}
+        aria-controls={open ? listId : undefined}
         aria-disabled={disabled || undefined}
-        aria-expanded={menu.open}
+        aria-expanded={open}
         aria-haspopup="dialog"
         aria-label={label}
         className={cn(
           "soft-input flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] !bg-white px-2.5 text-left text-xs font-semibold text-[#24334c] outline-none",
           !selected && "font-medium text-[#9aa8bc]",
-          menu.open && "ring-[3px] ring-[#044ce2]/25",
+          open && "ring-[3px] ring-[#044ce2]/25",
           disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
           triggerClassName,
         )}
@@ -110,18 +118,18 @@ export function SoftDatePicker({
         type="button"
         onClick={() => {
           if (disabled) return;
-          if (!menu.open) setMonth(selected ?? new Date());
-          menu.toggle();
+          if (!open) setMonth(selected ?? new Date());
+          toggle();
         }}
       >
         <span className="min-w-0 truncate tabular-nums">{display}</span>
         <CalendarDays aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#7d8aa0]" />
       </button>
 
-      {menu.open
+      {open
         ? createPortal(
             <div
-              ref={menu.menuRef}
+              ref={menuRef}
               className={cn(
                 "soft-date-picker fixed rounded-[14px] border border-[#e2eaf5] bg-white p-3 shadow-[0_1px_2px_rgba(55,65,81,0.05),0_12px_28px_rgba(29,43,68,0.14)]",
                 menuZIndexClassName,
@@ -129,11 +137,11 @@ export function SoftDatePicker({
               id={listId}
               role="dialog"
               style={
-                menu.menuBox
+                menuBox
                   ? {
-                      top: menu.menuBox.top,
-                      left: menu.menuBox.left,
-                      width: menu.menuBox.width,
+                      top: menuBox.top,
+                      left: menuBox.left,
+                      width: menuBox.width,
                     }
                   : { top: -9999, left: -9999, visibility: "hidden" }
               }
@@ -149,7 +157,7 @@ export function SoftDatePicker({
                 onMonthChange={setMonth}
                 onSelect={(date) => {
                   onChange(date ? toIso(date) : "");
-                  if (date) menu.close();
+                  if (date) close();
                 }}
                 classNames={{
                   root: "w-full",
@@ -193,7 +201,7 @@ export function SoftDatePicker({
                   type="button"
                   onClick={() => {
                     onChange("");
-                    menu.close();
+                    close();
                   }}
                 >
                   {t("clear")}
@@ -205,7 +213,7 @@ export function SoftDatePicker({
                     const today = todayIso();
                     onChange(today);
                     setMonth(parseIso(today) ?? new Date());
-                    menu.close();
+                    close();
                   }}
                 >
                   {t("today")}
