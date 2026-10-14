@@ -2,6 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { FormSheet } from "@/components/forms/form-sheet";
+import { SoftDatePicker } from "@/components/compte/soft-date-picker";
 import { TextField } from "@/components/forms/text-field";
 import { demoAccess } from "@/lib/session";
 import { owners } from "@/features/quotes/seed";
@@ -192,15 +193,18 @@ export function QuoteCreateDialog({
           <h3 className="text-[12px] font-semibold tracking-[0.06em] text-[#7a899e] uppercase">
             {t("validity")}
           </h3>
-          <TextField
-            id="quote-validity"
-            label={t("validity")}
-            type="date"
-            required
-            value={validUntil}
-            error={errors.validity}
-            onChange={setValidUntil}
-          />
+          <div>
+            <SoftDatePicker
+              label={t("validity")}
+              required
+              triggerClassName="!h-10 rounded-[10px] px-3 text-sm"
+              value={validUntil}
+              onChange={setValidUntil}
+            />
+            {errors.validity ? (
+              <p className="mt-1.5 text-[11px] text-[#c9564f]">{errors.validity}</p>
+            ) : null}
+          </div>
           <label className="block" htmlFor="quote-owner">
             <span className="mb-1.5 block text-[11px] font-medium text-[#5f6f88]">
               {t("owner")}

@@ -10,7 +10,9 @@ import {
   TOP_TABS_ACTIVE_LAYOUT_ID,
 } from "@/components/compte/animated-selection";
 import { AmountInput } from "@/components/compte/amount-input";
+import { SoftDatePicker } from "@/components/compte/soft-date-picker";
 import { SoftSelect } from "@/components/compte/soft-select";
+import { ActivityFeedItem } from "@/components/dashboard/activity-feed-item";
 import { IconTile, StatusBadge } from "@/components/dashboard/tone";
 import type { PaymentTerms } from "@/features/customers/types";
 import { Link } from "@/i18n/navigation";
@@ -540,78 +542,63 @@ export function InvoiceDetailsPanel({
         ) : null}
 
         {tab === "activity" ? (
-          <ol className="space-y-0 py-1" style={{ animation: "compte-tab-in 160ms ease-out" }}>
+          <ol
+            className="flex flex-col gap-3 py-1"
+            style={{ animation: "compte-tab-in 160ms ease-out" }}
+          >
             {invoice.activity.map((item, index) => {
               const isLatest = index === invoice.activity.length - 1;
+              const isLast = index === invoice.activity.length - 1;
               return (
-                <li
-                  className="grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)] gap-2 sm:grid-cols-[5.5rem_minmax(0,1fr)]"
+                <ActivityFeedItem
+                  dateLabel={dateTime.format(new Date(item.at)).split(",")[0] ?? ""}
+                  isFirst={index === 0}
+                  isLast={isLast}
                   key={item.id}
+                  live={isLatest}
+                  timeLabel={new Intl.DateTimeFormat(locale, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }).format(new Date(item.at))}
                 >
-                  <div className="pt-1 text-right">
-                    <p className="text-[12px] font-semibold text-[#24334c]">
-                      {dateTime.format(new Date(item.at)).split(",")[0]}
-                    </p>
-                    <p className="text-[11px] text-[#98a4b5]">
-                      {new Intl.DateTimeFormat(locale, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                      }).format(new Date(item.at))}
-                    </p>
-                  </div>
-                  <div className="relative min-w-0 pb-3 pl-3.5 sm:pl-4">
-                    {index < invoice.activity.length - 1 ? (
-                      <span
-                        aria-hidden="true"
-                        className="absolute top-3 bottom-0 left-[5px] w-0.5 bg-[#b7e0cd] sm:left-[7px]"
-                      />
-                    ) : null}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "invoice-activity-dot absolute top-2.5 left-0 h-2.5 w-2.5 rounded-full sm:h-3 sm:w-3",
-                        isLatest && "invoice-activity-dot--live",
-                      )}
-                    />
-                    <article
-                      className={cn(
-                        "min-w-0 rounded-[12px] border border-transparent px-2 py-2 transition-colors",
-                        isLatest
-                          ? "invoice-activity-card--live border-[#c6ebd9] shadow-[0_4px_14px_rgb(34_133_103/0.1)]"
-                          : "hover:bg-[#f4faf7]",
-                      )}
-                    >
-                      <div className="flex min-w-0 items-start gap-2">
-                        <IconTile className="mt-0.5" icon={ReceiptText} size="sm" tone="green" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <p
-                                className={cn(
-                                  "text-xs font-semibold",
-                                  isLatest ? "text-[#1b6b52]" : "text-[#24334c]",
-                                )}
-                              >
-                                {t(`activity.${item.kind}`, {
-                                  quote: item.quoteId ?? invoice.quoteId,
-                                })}
+                  <article
+                    className={cn(
+                      "min-w-0 rounded-[12px] border border-transparent bg-white px-2 py-2 transition-colors",
+                      isLatest
+                        ? "invoice-activity-card--live border-[#c6ebd9] shadow-[0_4px_14px_rgb(34_133_103/0.1)]"
+                        : "hover:bg-[#f4faf7]",
+                    )}
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <IconTile icon={ReceiptText} size="sm" tone="green" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <p
+                              className={cn(
+                                "text-xs font-semibold",
+                                isLatest ? "text-[#1b6b52]" : "text-[#24334c]",
+                              )}
+                            >
+                              {t(`activity.${item.kind}`, {
+                                quote: item.quoteId ?? invoice.quoteId,
+                              })}
+                            </p>
+                            {isLatest ? (
+                              <p className="mt-0.5 text-[10px] font-semibold tracking-[0.02em] text-[#2da77b] uppercase">
+                                {t("activity.latest")}
                               </p>
-                              {isLatest ? (
-                                <p className="mt-0.5 text-[10px] font-semibold tracking-[0.02em] text-[#2da77b] uppercase">
-                                  {t("activity.latest")}
-                                </p>
-                              ) : null}
-                            </div>
-                            <StatusBadge size="xs" tone={isLatest ? "green" : "slate"}>
-                              {item.actorName}
-                            </StatusBadge>
+                            ) : null}
                           </div>
+                          <StatusBadge size="xs" tone={isLatest ? "green" : "slate"}>
+                            {item.actorName}
+                          </StatusBadge>
                         </div>
                       </div>
-                    </article>
-                  </div>
-                </li>
+                    </div>
+                  </article>
+                </ActivityFeedItem>
               );
             })}
           </ol>
@@ -687,6 +674,18 @@ function Field({
   disabled?: boolean;
   readOnly?: boolean;
 }) {
+  if (type === "date" && onChange && !readOnly) {
+    return (
+      <SoftDatePicker
+        disabled={disabled}
+        label={label}
+        triggerClassName="!h-10 rounded-[10px] px-3 text-sm"
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
+
   return (
     <label className="block min-w-0">
       <span className="text-[11px] font-medium text-[#7d8aa0]">{label}</span>

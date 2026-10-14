@@ -8,6 +8,13 @@
     "fr": "FR",
     "en": "EN"
   },
+  "ui": {
+    "datePicker": {
+      "placeholder": "Choisir une date",
+      "clear": "Effacer",
+      "today": "Aujourd’hui"
+    }
+  },
   "settings": {
     "title": "Paramètres",
     "body": "Langue et contexte de société pour cet espace de travail.",
@@ -578,6 +585,36 @@
   "attention": {
     "title": "À traiter maintenant",
     "seeAll": "Tout voir",
+    "listFull": {
+      "title": "À traiter maintenant",
+      "subtitle": "Passez en revue chaque élément qui nécessite encore une action.",
+      "openAria": "Voir tous les éléments à traiter",
+      "close": "Fermer",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher un client, un document ou une action...",
+      "clearFilters": "Effacer les filtres",
+      "emptyTitle": "Aucun élément trouvé",
+      "emptyBody": "Essayez une autre recherche ou réinitialisez le filtre d’urgence.",
+      "filters": {
+        "tone": "Urgence"
+      },
+      "tone": {
+        "all": "Toutes les urgences",
+        "red": "Critique",
+        "orange": "Urgent",
+        "blue": "Suivi",
+        "purple": "Banque",
+        "green": "Résolu",
+        "slate": "Autre"
+      },
+      "pagination": {
+        "summary": "{from}–{to} sur {total} éléments",
+        "pageSize": "Lignes par page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Précédent",
+        "next": "Suivant"
+      }
+    },
     "overdueTitle": "{id} est en retard de {days} jours",
     "overdueMeta": "{customer} · {amount} restant à encaisser",
     "reconcile": "Ouvrir le rapprochement",
@@ -622,7 +659,37 @@
     "total": "Total TTC",
     "status": "Statut",
     "open": "Ouvrir {id}",
-    "empty": "Aucun devis récent"
+    "empty": "Aucun devis récent",
+    "listFull": {
+      "title": "Liste des devis",
+      "subtitle": "Parcourir et ouvrir les devis depuis l’espace de travail.",
+      "openAria": "Voir tous les devis récents",
+      "close": "Fermer",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher un devis, client, responsable ou montant...",
+      "clearFilters": "Effacer les filtres",
+      "emptyTitle": "Aucun devis trouvé",
+      "emptyBody": "Essayez une autre recherche ou réinitialisez le filtre de statut.",
+      "filters": {
+        "status": "Statut"
+      },
+      "status": {
+        "all": "Tous les statuts"
+      },
+      "columns": {
+        "action": "Action"
+      },
+      "actions": {
+        "view": "Voir"
+      },
+      "pagination": {
+        "summary": "{from}–{to} sur {total} devis",
+        "pageSize": "Lignes par page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Précédent",
+        "next": "Suivant"
+      }
+    }
   },
   "work": {
     "office": "Aménagement intérieur de bureaux",
@@ -660,6 +727,37 @@
     "open": "Ouvrir",
     "due": "Échéance {date}",
     "empty": "Aucune facture à suivre",
+    "listFull": {
+      "title": "Factures à suivre",
+      "subtitle": "Parcourir les créances ouvertes et les factures à suivre.",
+      "openAria": "Voir toutes les factures à suivre",
+      "close": "Fermer",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher une facture, un client, une échéance ou un montant...",
+      "clearFilters": "Effacer les filtres",
+      "emptyTitle": "Aucune facture trouvée",
+      "emptyBody": "Essayez une autre recherche ou réinitialisez le filtre de statut.",
+      "filters": {
+        "status": "Statut"
+      },
+      "status": {
+        "all": "Tous les statuts"
+      },
+      "columns": {
+        "number": "N° facture",
+        "customer": "Client",
+        "due": "Échéance",
+        "balance": "Solde",
+        "status": "Statut"
+      },
+      "pagination": {
+        "summary": "{from}–{to} sur {total} factures",
+        "pageSize": "Lignes par page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Précédent",
+        "next": "Suivant"
+      }
+    },
     "workspaceTitle": "Factures",
     "subtitle": "Gérez vos factures, suivez les paiements et surveillez les encours.",
     "emptyTitle": "Aucune facture",
@@ -1084,7 +1182,8 @@
         "suggested_match": "Correspondance suggérée",
         "needs_review": "À revoir",
         "matched": "Rapproché",
-        "unmatched": "Non rapproché"
+        "unmatched": "Non rapproché",
+        "cannot_match": "Non rapprochable"
       },
       "confidence": {
         "all": "Toute confiance",
@@ -1445,6 +1544,35 @@
   },
   "activity": {
     "title": "Activité",
+    "listFull": {
+      "title": "Activité",
+      "subtitle": "Parcourir les devis, factures, paiements et événements système récents.",
+      "openAria": "Voir toute l’activité",
+      "close": "Fermer",
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher un événement, une référence, un montant ou un acteur...",
+      "clearFilters": "Effacer les filtres",
+      "emptyTitle": "Aucune activité trouvée",
+      "emptyBody": "Essayez une autre recherche ou réinitialisez le filtre de type.",
+      "columns": {
+        "time": "Heure",
+        "event": "Événement",
+        "reference": "Référence",
+        "amount": "Montant",
+        "status": "Statut",
+        "action": "Action"
+      },
+      "actions": {
+        "view": "Voir"
+      },
+      "pagination": {
+        "summary": "{from}–{to} sur {total} événements",
+        "pageSize": "Lignes par page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Précédent",
+        "next": "Suivant"
+      }
+    },
     "journal": "Journal",
     "empty": "Aucune activité récente",
     "quoteAccepted": "{customer} a accepté {id}",

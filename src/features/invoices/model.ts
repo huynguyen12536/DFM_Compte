@@ -49,7 +49,11 @@ export type InvoicePayment = {
 };
 
 /** Mock imported bank lines — not an Open Banking / AI matching integration. */
-export type BankTransactionStatus = "unmatched" | "matched" | "needs_review";
+export type BankTransactionStatus =
+  | "unmatched"
+  | "matched"
+  | "needs_review"
+  | "cannot_match";
 
 export type BankMatchReasonCode =
   | "amount_exact"

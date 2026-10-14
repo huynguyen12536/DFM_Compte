@@ -56,7 +56,7 @@ export function ProductToolbar({
         <Search aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#8a97ab]" />
         <input
           aria-label={t("search")}
-          className="min-w-0 flex-1 bg-transparent text-xs text-[#24334c] outline-none placeholder:text-[#98a4b5]"
+          className="compte-search-input min-w-0 flex-1 bg-transparent text-xs text-[#24334c] outline-none placeholder:text-[#98a4b5]"
           placeholder={t("search")}
           type="search"
           value={filters.query}

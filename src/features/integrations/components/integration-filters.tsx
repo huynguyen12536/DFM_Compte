@@ -29,7 +29,7 @@ export function IntegrationFilters({
           className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#98a4b5]"
         />
         <input
-          className="h-9 w-full rounded-[10px] border border-[#dce6f3] bg-white/90 pr-3 pl-9 text-[12px] text-[#24334c] outline-none placeholder:text-[#98a4b5] focus:border-[#bad4ff] focus:ring-2 focus:ring-[#bad4ff]/45"
+          className="compte-search-input h-9 w-full rounded-[10px] border border-[#dce6f3] bg-white/90 pr-3 pl-9 text-[12px] text-[#24334c] outline-none placeholder:text-[#98a4b5]"
           placeholder={t("search")}
           type="search"
           value={search}

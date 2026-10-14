@@ -68,8 +68,9 @@ export function TemplateFiltersBar({
           className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#98a4b5]"
         />
         <input
-          className="soft-input h-9 w-full rounded-[9px] pr-3 pl-9 text-xs"
+          className="compte-search-input soft-input h-9 w-full rounded-[9px] pr-3 pl-9 text-xs outline-none"
           placeholder={t("search")}
+          type="search"
           value={filters.search}
           onChange={(event) => onFiltersChange({ search: event.target.value })}
         />

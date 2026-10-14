@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ConfirmDialog } from "@/components/compte/confirm-dialog";
+import { PageSizeSelect } from "@/components/compte/page-size-select";
 import { SoftToast } from "@/components/compte/soft-toast";
 import { FormSheet } from "@/components/forms/form-sheet";
 import {
@@ -12,6 +13,7 @@ import {
   remainingCentsFor,
 } from "@/features/invoices/model";
 import {
+  clearBankMatchSuggestion,
   matchBankTransaction,
   recordPayment,
   useBankTransactions,
@@ -400,24 +402,18 @@ export function PaymentsWorkspace() {
                     <span className="mx-1.5 text-[#c5ceda]">·</span>
                     {t("footerValue", { amount: formatMoneyFromCents(filteredTotal) })}
                   </p>
-                  <label className="inline-flex items-center gap-1.5 text-[11px] text-[#7d8aa0]">
-                    <span className="sr-only sm:not-sr-only">{t("pagination.pageSize")}</span>
-                    <select
-                      aria-label={t("pagination.pageSize")}
-                      className="h-8 rounded-[8px] border border-[#dfe6f1] bg-white px-2 text-[11px] font-semibold text-[#405069] outline-none focus:ring-[3px] focus:ring-[#044ce2]/25"
-                      value={pageSize}
-                      onChange={(event) => {
-                        setPage(0);
-                        setPageSize(Number(event.target.value));
-                      }}
-                    >
-                      {pageSizeOptions.map((size) => (
-                        <option key={size} value={size}>
-                          {t("pagination.rowsPerPage", { count: size })}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <PageSizeSelect
+                    formatOption={(count) =>
+                      t("pagination.rowsPerPage", { count })
+                    }
+                    label={t("pagination.pageSize")}
+                    options={pageSizeOptions}
+                    value={pageSize}
+                    onChange={(size) => {
+                      setPage(0);
+                      setPageSize(size);
+                    }}
+                  />
                 </div>
                 <div className="flex items-center gap-1">
                   <button
@@ -580,26 +576,53 @@ export function PaymentsWorkspace() {
         }
         cancelLabel={t("match.cancel")}
         confirmLabel={t("match.confirm")}
+        confirming={saving && matchId !== null}
         open={matchId !== null && matchInvoice !== undefined}
         title={t("match.title")}
         onCancel={() => {
           setMatchId(null);
           setMatchInvoiceId(null);
+          setFormError(null);
         }}
         onConfirm={() => {
-          if (!matchTx || !matchInvoiceId) return;
-          const manualReview = matchInvoiceId !== matchTx.suggestedInvoiceId;
-          runSave(() => {
-            const result = matchBankTransaction(matchTx.id, matchInvoiceId, {
+          if (!matchTx || !matchInvoiceId || saving) return;
+          const transactionId = matchTx.id;
+          const invoiceId = matchInvoiceId;
+          const manualReview = invoiceId !== matchTx.suggestedInvoiceId;
+          setSaving(true);
+          window.setTimeout(() => {
+            const result = matchBankTransaction(transactionId, invoiceId, {
               manualReview,
             });
-            return result.ok ? { ok: true } : { ok: false, error: result.error };
-          });
+            setSaving(false);
+            setMatchId(null);
+            setMatchInvoiceId(null);
+            if (!result.ok) {
+              if (
+                result.error === "overpayment" ||
+                result.error === "not_eligible"
+              ) {
+                clearBankMatchSuggestion(transactionId);
+              }
+              setFormError(mutationMessage(result.error ?? "failed"));
+              setNotice("");
+              return;
+            }
+            setFormError(null);
+            setNotice(t("notices.recorded"));
+          }, 280);
         }}
       />
 
       {notice ? (
         <SoftToast message={notice} tone="success" onDismiss={() => setNotice("")} />
+      ) : null}
+      {formError ? (
+        <SoftToast
+          message={formError}
+          tone="error"
+          onDismiss={() => setFormError(null)}
+        />
       ) : null}
     </main>
   );

@@ -26,13 +26,13 @@
   --soft-bg: #f3f4f6;
   --soft-surface: linear-gradient(
     145deg,
-    rgb(249 250 251 / 0.88),
-    rgb(229 231 235 / 0.8)
+    rgb(249 250 251 / 1),
+    rgb(229 231 235 / 1)
   );
   --soft-surface-strong: linear-gradient(
     145deg,
-    rgb(249 250 251 / 0.9),
-    rgb(243 244 246 / 0.82)
+    rgb(249 250 251 / 1),
+    rgb(243 244 246 / 1)
   );
   --soft-highlight: rgb(255 255 255 / 0.75);
   --soft-shadow: rgb(55 65 81 / 0.14);
@@ -42,17 +42,22 @@
   --soft-radius: 14px;
   --soft-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --shadow-surface:
-    8px 9px 22px var(--soft-shadow),
-    -7px -7px 18px rgb(255 255 255 / 0.55),
-    inset 0 1px 0 rgb(255 255 255 / 0.65);
+    0 1px 2px rgb(55 65 81 / 0.05),
+    0 8px 18px rgb(55 65 81 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.75);
   --shadow-surface-hover:
-    11px 13px 27px rgb(55 65 81 / 0.16),
-    -8px -8px 19px rgb(255 255 255 / 0.6),
-    inset 0 1px 0 rgb(255 255 255 / 0.7);
+    0 2px 4px rgb(55 65 81 / 0.06),
+    0 12px 24px rgb(55 65 81 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.8);
+  /* Soft elevation that follows card border-radius (no hard offset block). */
   --shadow-kpi:
-    6px 7px 17px rgb(55 65 81 / 0.12),
-    -5px -5px 15px rgb(255 255 255 / 0.55),
-    inset 0 1px 0 rgb(255 255 255 / 0.65);
+    0 1px 2px rgb(55 65 81 / 0.05),
+    0 6px 14px rgb(55 65 81 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.75);
+  --shadow-kpi-hover:
+    0 2px 4px rgb(55 65 81 / 0.06),
+    0 10px 20px rgb(55 65 81 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.8);
   --shadow-mini:
     2px 3px 7px rgb(55 65 81 / 0.06),
     -2px -2px 5px rgb(255 255 255 / 0.55);
@@ -140,6 +145,31 @@ input:focus-visible,
 select:focus-visible {
   outline: 3px solid rgb(4 76 226 / 0.35);
   outline-offset: 3px;
+}
+
+/* Search bars: no focus outline / glow (global rule above is too strong for pills). */
+input[type="search"]:focus,
+input[type="search"]:focus-visible,
+.compte-search-input:focus,
+.compte-search-input:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none;
+}
+
+.soft-input:has(> input[type="search"]:focus),
+.soft-input:has(> input[type="search"]:focus-visible),
+.soft-input:has(> .compte-search-input:focus),
+.soft-input:has(> .compte-search-input:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+input.soft-input[type="search"]:focus-visible,
+.soft-input.compte-search-input:focus-visible {
+  border-color: rgb(210 220 233 / 0.42);
+  outline: none;
+  box-shadow: none;
 }
 
 @keyframes dashboard-enter {
@@ -597,9 +627,7 @@ html::-webkit-scrollbar {
 }
 
 .kpi-card.interactive-surface:hover {
-  box-shadow:
-    0 0 0 1px #d3deef,
-    0 10px 24px rgb(29 43 68 / 0.08);
+  box-shadow: var(--shadow-kpi-hover);
 }
 
 .kpi-icon {
@@ -779,6 +807,20 @@ html::-webkit-scrollbar {
   box-shadow: none;
 }
 
+/* Active nav pill — drop-shadow follows border-radius (avoids square box-shadow). */
+.sidebar-active-surface {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.75);
+  filter:
+    drop-shadow(0 1px 1px rgb(55 65 81 / 0.05))
+    drop-shadow(0 6px 12px rgb(55 65 81 / 0.12));
+}
+
+.nav-rail--collapsed .sidebar-active-surface {
+  filter:
+    drop-shadow(0 1px 1px rgb(55 65 81 / 0.05))
+    drop-shadow(0 4px 10px rgb(55 65 81 / 0.12));
+}
+
 .nav-item:focus-visible {
   outline: 2px solid rgb(4 76 226 / 0.35);
   outline-offset: 2px;
@@ -788,9 +830,9 @@ html::-webkit-scrollbar {
   border: 1px solid var(--soft-border);
   background: var(--soft-surface);
   box-shadow:
-    5px 6px 14px rgb(55 65 81 / 0.12),
-    -4px -4px 12px rgb(255 255 255 / 0.55),
-    inset 0 1px 0 rgb(255 255 255 / 0.65);
+    0 1px 2px rgb(55 65 81 / 0.05),
+    0 8px 18px rgb(55 65 81 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.75);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
@@ -1618,10 +1660,14 @@ html::-webkit-scrollbar {
   box-shadow: var(--shadow-kpi);
 }
 
+.kpi-card.clickable-surface:hover {
+  box-shadow: var(--shadow-kpi-hover);
+}
+
 .kpi-icon {
   box-shadow:
-    3px 4px 8px rgb(77 101 132 / 0.1),
-    -2px -2px 5px rgb(255 255 255 / 0.85),
+    0 1px 2px rgb(77 101 132 / 0.06),
+    0 3px 8px rgb(77 101 132 / 0.1),
     inset 0 1px 1px rgb(255 255 255 / 0.72);
   transition: transform 160ms ease;
 }
@@ -2522,13 +2568,17 @@ li.dashboard-list__row {
 @media (max-width: 767.98px) {
   :root {
     --shadow-surface:
-      4px 5px 14px rgb(94 122 151 / 0.1),
-      -3px -3px 10px rgb(255 255 255 / 0.8),
+      0 1px 2px rgb(90 117 148 / 0.05),
+      0 6px 14px rgb(90 117 148 / 0.1),
       inset 0 1px 0 rgb(255 255 255 / 0.9);
     --shadow-kpi:
-      3px 4px 12px rgb(90 117 148 / 0.1),
-      -3px -3px 9px rgb(255 255 255 / 0.8),
+      0 1px 2px rgb(90 117 148 / 0.05),
+      0 5px 12px rgb(90 117 148 / 0.1),
       inset 0 1px 0 rgb(255 255 255 / 0.9);
+    --shadow-kpi-hover:
+      0 2px 4px rgb(90 117 148 / 0.06),
+      0 8px 16px rgb(90 117 148 / 0.12),
+      inset 0 1px 0 rgb(255 255 255 / 0.92);
   }
 
   .dashboard-page .text-\[8px\] {

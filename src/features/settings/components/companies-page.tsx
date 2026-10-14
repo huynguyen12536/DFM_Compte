@@ -4,6 +4,7 @@ import { Archive, Building2, Plus, RotateCcw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { PageSizeSelect } from "@/components/compte/page-size-select";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { StatusBadge } from "@/components/dashboard/tone";
 import { cn } from "@/lib/utils";
@@ -182,8 +183,9 @@ export function CompaniesPage() {
                 className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#8a97ab]"
               />
               <input
-                className="h-9 w-full rounded-[10px] border border-[#dfe6f1] bg-white pr-3 pl-9 text-[13px] text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30"
+                className="compte-search-input h-9 w-full rounded-[10px] border border-[#dfe6f1] bg-white pr-3 pl-9 text-[13px] text-[#063586] outline-none"
                 placeholder={t("search")}
+                type="search"
                 value={query}
                 onChange={(event) => {
                   setPage(0);
@@ -285,21 +287,18 @@ export function CompaniesPage() {
                   })}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <select
-                    aria-label={t("pagination.pageSize")}
-                    className="soft-input h-8 rounded-[8px] px-2 text-[11px] font-semibold text-[#405069]"
+                  <PageSizeSelect
+                    formatOption={(count) =>
+                      t("pagination.rowsPerPage", { count })
+                    }
+                    label={t("pagination.pageSize")}
+                    options={pageSizeOptions}
                     value={pageSize}
-                    onChange={(event) => {
+                    onChange={(size) => {
                       setPage(0);
-                      setPageSize(Number(event.target.value));
+                      setPageSize(size);
                     }}
-                  >
-                    {pageSizeOptions.map((size) => (
-                      <option key={size} value={size}>
-                        {t("pagination.rowsPerPage", { count: size })}
-                      </option>
-                    ))}
-                  </select>
+                  />
                   <button
                     className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
                     disabled={safePage === 0}

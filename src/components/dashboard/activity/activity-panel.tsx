@@ -4,8 +4,8 @@ import { ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 
-import { Link } from "@/i18n/navigation";
 import { formatMoneyFromCents } from "@/lib/money";
+import { ActivityListSheet } from "./activity-list-sheet";
 import {
   filterActivity,
   groupActivity,
@@ -120,6 +120,7 @@ export function ActivityPanel({
   const [preparing, setPreparing] = useState(false);
   const [animateFilter, setAnimateFilter] = useState(false);
   const [preview, setPreview] = useState<ActivityPreviewModel | null>(null);
+  const [listOpen, setListOpen] = useState(false);
   const draftTimer = useRef<number | null>(null);
 
   const events = useMemo(
@@ -203,10 +204,15 @@ export function ActivityPanel({
                 <h2 className="text-base font-semibold tracking-[-0.01em] text-[#063586]">{activity("title")}</h2>
                 <p className="mt-1 max-w-[62ch] text-sm leading-6 text-[#66758d]">{activity("feed.subtitle")}</p>
               </div>
-              <Link className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#044ce2]" href="/activite">
+              <button
+                aria-label={activity("listFull.openAria")}
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#044ce2]"
+                type="button"
+                onClick={() => setListOpen(true)}
+              >
                 {activity("feed.viewAll")}
                 <ChevronRight aria-hidden="true" className="h-3.5 w-3.5" />
-              </Link>
+              </button>
             </div>
             <div className="mt-4">
               <label className="activity-filter-select">
@@ -335,6 +341,14 @@ export function ActivityPanel({
           </div>
         </div>
       )}
+      <ActivityListSheet
+        events={events}
+        open={listOpen}
+        onClose={() => setListOpen(false)}
+        onOpenItem={(item) => {
+          setPreview(previewFromActivity(item, activity));
+        }}
+      />
       <ActivityPreview closeLabel={activity("feed.close")} model={preview} onClose={() => setPreview(null)} />
     </section>
   );

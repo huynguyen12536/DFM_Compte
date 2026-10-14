@@ -14,7 +14,8 @@ export type ReconciliationQueueStatus =
   | "suggested_match"
   | "needs_review"
   | "matched"
-  | "unmatched";
+  | "unmatched"
+  | "cannot_match";
 
 export type ReconciliationAmountFilter =
   | "all"
@@ -58,6 +59,7 @@ export const RECONCILIATION_STATUS_FILTERS: Array<ReconciliationQueueStatus | "a
   "suggested_match",
   "needs_review",
   "unmatched",
+  "cannot_match",
 ];
 
 export const RECONCILIATION_PERIOD_FILTERS: ReconciliationPeriodFilter[] = [
@@ -172,6 +174,7 @@ export function deriveQueueStatus(
   payments: InvoicePayment[],
 ): ReconciliationQueueStatus {
   if (transaction.status === "matched") return "matched";
+  if (transaction.status === "cannot_match") return "cannot_match";
   if (transaction.status === "needs_review") return "needs_review";
 
   if (!transaction.suggestedInvoiceId || !invoice) return "unmatched";
@@ -189,11 +192,14 @@ export function queueStatusPriority(status: ReconciliationQueueStatus): number {
   if (status === "needs_review") return 0;
   if (status === "suggested_match") return 1;
   if (status === "unmatched") return 2;
-  return 3;
+  if (status === "cannot_match") return 3;
+  return 4;
 }
 
 export function pendingBankTransactions(transactions: BankTransaction[]) {
-  return transactions.filter((item) => item.status !== "matched");
+  return transactions.filter(
+    (item) => item.status !== "matched" && item.status !== "cannot_match",
+  );
 }
 
 export function previewBankTransactions(

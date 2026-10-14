@@ -9,6 +9,7 @@ import {
   AnimatedSelectionGroup,
   TOP_TABS_ACTIVE_LAYOUT_ID,
 } from "@/components/compte/animated-selection";
+import { ActivityFeedItem } from "@/components/dashboard/activity-feed-item";
 import { IconTile, StatusBadge } from "@/components/dashboard/tone";
 import {
   derivePaymentStatus,
@@ -259,37 +260,37 @@ export function PaymentDetailsPanel({
         ) : null}
 
         {tab === "activity" ? (
-          <ol className="space-y-0 py-1" style={{ animation: "compte-tab-in 160ms ease-out" }}>
+          <ol
+            className="flex flex-col gap-3 py-1"
+            style={{ animation: "compte-tab-in 160ms ease-out" }}
+          >
             {activities.length === 0 ? (
               <p className="py-6 text-center text-xs text-[#7d8aa0]">{t("activity.empty")}</p>
             ) : (
               activities.map((item, index) => {
                 const isLatest = index === 0;
+                const isLast = index === activities.length - 1;
                 return (
-                  <li
-                    className="grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)] gap-2 sm:grid-cols-[5.5rem_minmax(0,1fr)]"
+                  <ActivityFeedItem
+                    dateLabel={dateTime.format(new Date(item.at)).split(",")[0] ?? ""}
+                    isFirst={index === 0}
+                    isLast={isLast}
                     key={item.id}
+                    live={isLatest}
+                    timeLabel={new Intl.DateTimeFormat(locale, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    }).format(new Date(item.at))}
                   >
-                    <div className="pt-1 text-right">
-                      <p className="text-[12px] font-semibold text-[#24334c]">
-                        {dateTime.format(new Date(item.at)).split(",")[0]}
-                      </p>
-                      <p className="text-[11px] text-[#98a4b5]">
-                        {new Intl.DateTimeFormat(locale, {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        }).format(new Date(item.at))}
-                      </p>
-                    </div>
                     <article
                       className={cn(
-                        "rounded-[10px] border border-[#edf2f8] px-3 py-2.5",
+                        "rounded-[10px] border border-[#edf2f8] bg-white px-3 py-2.5",
                         isLatest && "invoice-activity-card--live border-[#c6ebd9]",
                       )}
                     >
-                      <div className="flex min-w-0 items-start gap-2">
-                        <IconTile className="mt-0.5" icon={ReceiptText} size="sm" tone="green" />
+                      <div className="flex min-w-0 items-center gap-2">
+                        <IconTile icon={ReceiptText} size="sm" tone="green" />
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-semibold text-[#24334c]">
                             {t(`activity.${item.kind}`, {
@@ -303,7 +304,7 @@ export function PaymentDetailsPanel({
                         </div>
                       </div>
                     </article>
-                  </li>
+                  </ActivityFeedItem>
                 );
               })
             )}

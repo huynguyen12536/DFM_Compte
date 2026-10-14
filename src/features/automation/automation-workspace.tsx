@@ -346,8 +346,9 @@ export function AutomationWorkspace() {
                       className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-[#98a4b5]"
                     />
                     <input
-                      className="h-9 w-full min-w-0 rounded-[9px] border border-[#e1e7f1] bg-white pr-3 pl-8 text-xs outline-none focus:border-[#044ce2]"
+                      className="compte-search-input h-9 w-full min-w-0 rounded-[9px] border border-[#e1e7f1] bg-white pr-3 pl-8 text-xs outline-none"
                       placeholder={t("search")}
+                      type="search"
                       value={search}
                       onChange={(event) => setSearch(event.target.value)}
                     />

@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import { PageSizeSelect } from "@/components/compte/page-size-select";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { StatusBadge } from "@/components/dashboard/tone";
 import { FormSheet } from "@/components/forms/form-sheet";
@@ -117,6 +118,10 @@ export function ReconciliationQueueSheet({
       setDetailId(transaction.id);
       return;
     }
+    if (status === "cannot_match") {
+      setDetailId(transaction.id);
+      return;
+    }
     if (status === "suggested_match") {
       onMatch(transaction.id);
       return;
@@ -141,7 +146,7 @@ export function ReconciliationQueueSheet({
             <label className="min-w-0 flex-1">
               <span className="sr-only">{t("search")}</span>
               <input
-                className="soft-input h-10 w-full rounded-[9px] px-3 text-sm text-[#24334c]"
+                className="compte-search-input soft-input h-10 w-full rounded-[9px] px-3 text-sm text-[#24334c] outline-none"
                 onChange={(event) => patchFilters({ query: event.target.value })}
                 placeholder={t("searchPlaceholder")}
                 type="search"
@@ -340,7 +345,7 @@ export function ReconciliationQueueSheet({
                           </StatusBadge>
                         </td>
                         <td className="min-w-0 overflow-hidden">
-                          {canReconcile || status === "matched" ? (
+                          {canReconcile || status === "matched" || status === "cannot_match" ? (
                             <button
                               className="action-motion soft-button h-7 rounded-[8px] px-2 text-[11px] font-semibold text-[#044ce2]"
                               type="button"
@@ -349,7 +354,7 @@ export function ReconciliationQueueSheet({
                                 queueAction(transaction, status);
                               }}
                             >
-                              {status === "matched"
+                              {status === "matched" || status === "cannot_match"
                                 ? t("actions.view")
                                 : status === "suggested_match"
                                   ? queueT("match")
@@ -401,14 +406,14 @@ export function ReconciliationQueueSheet({
                         <p className="dashboard-list__secondary mt-1">{t("invoice.none")}</p>
                       )}
                     </button>
-                    {(canReconcile || status === "matched") && (
+                    {(canReconcile || status === "matched" || status === "cannot_match") && (
                       <div className="mt-2 flex justify-end">
                         <button
                           className="action-motion soft-button h-8 rounded-[8px] px-2.5 text-xs font-semibold text-[#044ce2]"
                           type="button"
                           onClick={() => queueAction(transaction, status)}
                         >
-                          {status === "matched"
+                          {status === "matched" || status === "cannot_match"
                             ? t("actions.view")
                             : status === "suggested_match"
                               ? queueT("match")
@@ -432,24 +437,18 @@ export function ReconciliationQueueSheet({
                 total: filtered.length,
               })}
             </p>
-            <label className="inline-flex items-center gap-1.5 text-[11px] text-[#7d8aa0]">
-              <span className="sr-only sm:not-sr-only">{t("pagination.pageSize")}</span>
-              <select
-                aria-label={t("pagination.pageSize")}
-                className="h-8 rounded-[8px] border border-[#dfe6f1] bg-white px-2 text-[11px] font-semibold text-[#405069] outline-none focus:ring-[3px] focus:ring-[#044ce2]/25"
-                value={pageSize}
-                onChange={(event) => {
-                  setPage(0);
-                  setPageSize(Number(event.target.value));
-                }}
-              >
-                {pageSizeOptions.map((size) => (
-                  <option key={size} value={size}>
-                    {t("pagination.rowsPerPage", { count: size })}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <PageSizeSelect
+              formatOption={(count) =>
+                t("pagination.rowsPerPage", { count })
+              }
+              label={t("pagination.pageSize")}
+              options={pageSizeOptions}
+              value={pageSize}
+              onChange={(size) => {
+                setPage(0);
+                setPageSize(size);
+              }}
+            />
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -666,7 +665,19 @@ function ReconciliationDetailSheet({
       closeLabel={t("close")}
       description={shown?.label}
       footer={
-        !shown || status === "matched" ? null : (
+        !shown || status === "matched" || status === "cannot_match" ? (
+          shown && status === "cannot_match" ? (
+            <div className="flex flex-wrap justify-end gap-2">
+              <button
+                className="action-motion soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#516078]"
+                type="button"
+                onClick={onClose}
+              >
+                {t("close")}
+              </button>
+            </div>
+          ) : null
+        ) : (
           <div className="flex flex-wrap justify-end gap-2">
             <button
               className="action-motion soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#516078]"
@@ -750,7 +761,7 @@ function ReconciliationDetailSheet({
               <span className="text-[11px] font-semibold text-[#66758d]">{reviewT("search")}</span>
               <input
                 autoFocus
-                className="soft-input mt-1 h-10 w-full rounded-[9px] px-3 text-sm text-[#24334c]"
+                className="compte-search-input soft-input mt-1 h-10 w-full rounded-[9px] px-3 text-sm text-[#24334c] outline-none"
                 placeholder={reviewT("searchPlaceholder")}
                 type="search"
                 value={query}

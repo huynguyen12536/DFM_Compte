@@ -8,6 +8,7 @@ import {
   AnimatedActiveIndicator,
   AnimatedSelectionGroup,
 } from "@/components/compte/animated-selection";
+import { PageSizeSelect } from "@/components/compte/page-size-select";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { SoftToast } from "@/components/compte/soft-toast";
 import { StatusBadge } from "@/components/dashboard/tone";
@@ -326,8 +327,9 @@ export function ProjectsWorkspace() {
                 <label className="soft-input relative flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[9px] px-2.5">
                   <Search aria-hidden="true" className="h-3.5 w-3.5 text-[#98a4b5]" />
                   <input
-                    className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[#98a4b5]"
+                    className="compte-search-input min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[#98a4b5]"
                     placeholder={t("filters.searchProjects")}
+                    type="search"
                     value={search}
                     onChange={(event) => {
                       setPage(0);
@@ -589,21 +591,18 @@ export function ProjectsWorkspace() {
                       })}
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
-                      <select
-                        aria-label={t("pagination.pageSize")}
-                        className="soft-input h-8 rounded-[8px] px-2 text-[11px] font-semibold text-[#405069]"
+                      <PageSizeSelect
+                        formatOption={(count) =>
+                          t("pagination.rowsPerPage", { count })
+                        }
+                        label={t("pagination.pageSize")}
+                        options={pageSizeOptions}
                         value={pageSize}
-                        onChange={(event) => {
+                        onChange={(size) => {
                           setPage(0);
-                          setPageSize(Number(event.target.value));
+                          setPageSize(size);
                         }}
-                      >
-                        {pageSizeOptions.map((size) => (
-                          <option key={size} value={size}>
-                            {t("pagination.rowsPerPage", { count: size })}
-                          </option>
-                        ))}
-                      </select>
+                      />
                       <button
                         className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
                         disabled={safePage === 0}
@@ -660,9 +659,10 @@ export function ProjectsWorkspace() {
                 <div className="mt-3 flex shrink-0 min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
                   <label className="soft-input relative flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[9px] px-2.5">
                     <Search aria-hidden="true" className="h-3.5 w-3.5 text-[#98a4b5]" />
-                    <input
-                      className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[#98a4b5]"
+                      <input
+                      className="compte-search-input min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[#98a4b5]"
                       placeholder={t("filters.searchExpenses")}
+                      type="search"
                       value={expenseSearch}
                       onChange={(event) => {
                         setExpensePage(0);
@@ -906,21 +906,18 @@ export function ProjectsWorkspace() {
                         })}
                       </p>
                       <div className="flex flex-wrap items-center gap-2">
-                        <select
-                          aria-label={t("pagination.pageSize")}
-                          className="soft-input h-8 rounded-[8px] px-2 text-[11px] font-semibold text-[#405069]"
+                        <PageSizeSelect
+                          formatOption={(count) =>
+                            t("pagination.rowsPerPage", { count })
+                          }
+                          label={t("pagination.pageSize")}
+                          options={pageSizeOptions}
                           value={expensePageSize}
-                          onChange={(event) => {
+                          onChange={(size) => {
                             setExpensePage(0);
-                            setExpensePageSize(Number(event.target.value));
+                            setExpensePageSize(size);
                           }}
-                        >
-                          {pageSizeOptions.map((size) => (
-                            <option key={size} value={size}>
-                              {t("pagination.rowsPerPage", { count: size })}
-                            </option>
-                          ))}
-                        </select>
+                        />
                         <button
                           className="soft-button h-8 rounded-[8px] px-2.5 text-[11px] font-semibold disabled:opacity-40"
                           disabled={safeExpensePage === 0}

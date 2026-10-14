@@ -6,6 +6,7 @@ import type { ComponentProps, ReactNode } from "react";
 import {
   AnimatedActiveIndicator,
   SIDEBAR_ACTIVE_LAYOUT_ID,
+  SIDEBAR_ACTIVE_SURFACE_CLASS,
 } from "@/components/compte/animated-selection";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -84,7 +85,10 @@ export function SidebarLink({
           // Static square — no shared layoutId, so collapse never morphs/slides the pill.
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-0 rounded-[14px] border border-white/55 bg-[linear-gradient(145deg,rgb(249_250_251/0.88),rgb(229_231_235/0.8))] shadow-[5px_6px_14px_rgba(55,65,81,0.12),-4px_-4px_11px_rgba(255,255,255,0.55),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-md"
+            className={cn(
+              "pointer-events-none absolute inset-0 z-0",
+              SIDEBAR_ACTIVE_SURFACE_CLASS,
+            )}
           />
         ) : (
           <AnimatedActiveIndicator

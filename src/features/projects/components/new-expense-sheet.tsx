@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { SoftDatePicker } from "@/components/compte/soft-date-picker";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { FormSheet } from "@/components/forms/form-sheet";
 import { parseAmount } from "@/lib/money";
@@ -150,14 +151,12 @@ export function NewExpenseSheet({
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label={`${t("expense.date")} *`}>
-            <input
-              className="h-9 w-full rounded-[9px] border border-[#e1e7f1] px-2.5 text-xs outline-none focus:border-[#044ce2]"
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-            />
-          </Field>
+          <SoftDatePicker
+            label={t("expense.date")}
+            required
+            value={date}
+            onChange={setDate}
+          />
           <Field label={`${t("expense.amount")} *`}>
             <input
               className="h-9 w-full rounded-[9px] border border-[#e1e7f1] px-2.5 text-xs tabular-nums outline-none focus:border-[#044ce2]"

@@ -163,8 +163,9 @@ export function UsersPage() {
                 className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#8a97ab]"
               />
               <input
-                className="h-9 w-full rounded-[10px] border border-[#dfe6f1] bg-white pr-3 pl-9 text-[13px] text-[#063586] outline-none focus:ring-[3px] focus:ring-[#044ce2]/30"
+                className="compte-search-input h-9 w-full rounded-[10px] border border-[#dfe6f1] bg-white pr-3 pl-9 text-[13px] text-[#063586] outline-none"
                 placeholder={t("search")}
+                type="search"
                 value={query}
                 onChange={(event) => {
                   setQuery(event.target.value);

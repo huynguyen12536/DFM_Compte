@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { AmountInput } from "@/components/compte/amount-input";
+import { SoftDatePicker } from "@/components/compte/soft-date-picker";
 import { SoftSelect } from "@/components/compte/soft-select";
 import { FormSheet } from "@/components/forms/form-sheet";
 import {
@@ -199,15 +200,13 @@ export function RecordPaymentSheet({
               onValueChange={setAmount}
             />
           </label>
-          <label className="block">
-            <span className="text-[11px] font-semibold text-[#66758d]">{t("date")} *</span>
-            <input
-              className="soft-input mt-1 h-10 w-full rounded-[9px] px-3 text-sm text-[#24334c]"
-              onChange={(event) => setDate(event.target.value)}
-              type="date"
-              value={date}
-            />
-          </label>
+          <SoftDatePicker
+            label={t("date")}
+            required
+            triggerClassName="!h-10 rounded-[9px] px-3 text-sm"
+            value={date}
+            onChange={setDate}
+          />
           <SoftSelect
             label={`${t("method")} *`}
             options={PAYMENT_METHOD_ORDER.filter((item) => item !== "check").map((item) => ({
