@@ -1,23 +1,23 @@
 import { ArrowUpRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-import { ActionList } from "@/components/dashboard/action-list";
 import { ActivityPanel } from "@/components/dashboard/activity/activity-panel";
-import { InvoicesToFollow } from "@/components/dashboard/invoices-to-follow";
 import { AnnualTargetCard } from "@/components/dashboard/overview/annual-target-card";
 import { BusinessHealthRadar } from "@/components/dashboard/overview/business-health-radar";
-import { CardHeader, enterStyle } from "@/components/dashboard/overview/dashboard-card";
+import { enterStyle } from "@/components/dashboard/overview/dashboard-card";
 import { DashboardControls } from "@/components/dashboard/overview/dashboard-controls";
 import { PaymentsDonut, ReceivablesDonut } from "@/components/dashboard/overview/finance-donuts";
 import { KpiStrip } from "@/components/dashboard/overview/kpi-strip";
 import { DashboardPeriodProvider } from "@/components/dashboard/overview/period-context";
 import { QuotePipeline } from "@/components/dashboard/overview/quote-pipeline";
-import { QuoteStatusFilters } from "@/components/dashboard/overview/quote-status-filters";
+import { HeroCompanyBadge } from "@/components/dashboard/hero-company-badge";
 import { ReceivableSummary } from "@/components/dashboard/overview/receivable-summary";
 import { RevenueChart } from "@/components/dashboard/overview/revenue-chart";
-import { RecentQuotesTable } from "@/components/dashboard/recent-quotes-table";
+import { DashboardAttentionLive } from "@/components/dashboard/dashboard-attention-live";
+import { DashboardInvoicesLive } from "@/components/dashboard/dashboard-invoices-live";
+import { DashboardQuotesLive } from "@/components/dashboard/dashboard-quotes-live";
 import { StatusBadge } from "@/components/dashboard/tone";
-import { actionItems, invoicesToFollow, recentQuotes } from "@/mocks/dashboard";
+import { actionItems, invoicesToFollow } from "@/mocks/dashboard";
 
 export default async function Home() {
   const t = await getTranslations();
@@ -41,9 +41,7 @@ export default async function Home() {
                     <StatusBadge size="sm" tone="green">
                       {t("hero.active")}
                     </StatusBadge>
-                    <StatusBadge size="sm" tone="blue">
-                      DFM-Europe
-                    </StatusBadge>
+                    <HeroCompanyBadge />
                   </div>
                   <h2
                     className="hero-piece mt-1.5 max-w-[450px] text-[22px] leading-[1.12] font-bold tracking-[-0.025em] text-balance"
@@ -120,19 +118,7 @@ export default async function Home() {
               id="dashboard-quotes"
               style={enterStyle(7)}
             >
-              <div className="dashboard-list__header">
-                <CardHeader action={t("quotes.openList")} title={t("quotes.title")} titleId="recent-quotes-title" />
-                <QuoteStatusFilters
-                  labels={[
-                    t("quotes.all"),
-                    t("status.draft"),
-                    t("status.sent"),
-                    t("status.review"),
-                    t("status.accepted"),
-                  ]}
-                />
-              </div>
-              <RecentQuotesTable quotes={recentQuotes} />
+              <DashboardQuotesLive />
             </section>
 
             <QuotePipeline style={enterStyle(7.5)} />
@@ -144,10 +130,7 @@ export default async function Home() {
               className="dashboard-card dashboard-enter flex h-[300px] min-h-0 min-w-0 flex-col overflow-hidden px-3.5 py-3 md:h-[252px] lg:h-full"
               style={enterStyle(8)}
             >
-              <CardHeader action={t("attention.seeAll")} title={t("attention.title")} titleId="attention-title" />
-              <div className="mt-2 flex min-h-0 flex-1 flex-col">
-                <ActionList items={actionItems} />
-              </div>
+              <DashboardAttentionLive items={actionItems} />
             </section>
 
             <section
@@ -156,10 +139,7 @@ export default async function Home() {
               id="dashboard-invoices"
               style={enterStyle(8.5)}
             >
-              <CardHeader action={t("invoices.open")} title={t("invoices.title")} titleId="invoices-title" />
-              <div className="mt-2 flex min-h-0 flex-1 flex-col">
-                <InvoicesToFollow invoices={invoicesToFollow} />
-              </div>
+              <DashboardInvoicesLive invoices={invoicesToFollow} />
             </section>
           </div>
 

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CalendarClock,
   ChevronRight,
@@ -9,7 +11,7 @@ import {
   Reply,
   type LucideIcon,
 } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 import type { ActionIconName, ActionItem } from "@/mocks/dashboard/types";
 
@@ -28,8 +30,14 @@ const actionIcons: Record<ActionIconName, LucideIcon> = {
 
 const visibleEnter = ["enter-140", "enter-190", "enter-240"];
 
-export async function ActionList({ items }: { items: ActionItem[] }) {
-  const t = await getTranslations();
+export function ActionList({
+  items,
+  animate = true,
+}: {
+  items: ActionItem[];
+  animate?: boolean;
+}) {
+  const t = useTranslations();
 
   return (
     <DashboardScroll>
@@ -39,7 +47,9 @@ export async function ActionList({ items }: { items: ActionItem[] }) {
         <div className="space-y-1.5">
           {items.map((item, itemIndex) => {
             const Icon = actionIcons[item.icon];
-            const enterClass = visibleEnter[itemIndex] ?? "attention-settled";
+            const enterClass = animate
+              ? (visibleEnter[itemIndex] ?? "attention-settled")
+              : "attention-settled";
 
             return (
               <button
@@ -68,3 +78,5 @@ export async function ActionList({ items }: { items: ActionItem[] }) {
     </DashboardScroll>
   );
 }
+
+export { actionIcons };

@@ -60,7 +60,7 @@ export const activityEvents: ActivityEventSource[] = [
     titleKey: "feed.quoteAccepted",
     entityType: "quote",
     entityId: "DEV20260148",
-    amountCents: 1_284_000,
+    amountCents: 1_245_000,
     status: "accepted",
     actor: { name: "Jean Dupont", initials: "JD" },
     timestamp: "2026-10-02T10:42:00",

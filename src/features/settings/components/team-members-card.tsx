@@ -92,7 +92,7 @@ export function TeamMembersCard({
                 <th className="w-[16%]">{t("team.columns.companies")}</th>
                 <th className="w-[12%]">{t("team.columns.status")}</th>
                 <th className="w-[12%]">{t("team.columns.activity")}</th>
-                <th className="w-[6%]">
+                <th className="w-[116px] min-w-[116px]">
                   <span className="sr-only">{t("team.columns.actions")}</span>
                 </th>
               </tr>
@@ -144,7 +144,7 @@ export function TeamMembersCard({
                     <td>
                       <span className="dashboard-list__secondary">{member.lastActivityLabel}</span>
                     </td>
-                    <td>
+                    <td className="whitespace-nowrap">
                       <UserActionsMenu member={member} />
                     </td>
                   </tr>

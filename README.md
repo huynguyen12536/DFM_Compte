@@ -1,6 +1,6 @@
 # COMPTE Frontend
 
-Frontend foundation for COMPTE, a business management SaaS.
+Frontend for COMPTE, a business management SaaS (COMPTA-FE).
 
 ## Stack
 
@@ -27,5 +27,3 @@ npm run typecheck
 npm run format:check
 npm run build
 ```
-
-This repository currently contains foundation only. Business features, authentication, API services, and application UI are intentionally not implemented.

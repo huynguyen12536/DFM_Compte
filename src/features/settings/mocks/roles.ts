@@ -2,6 +2,9 @@ import type { PermissionId, Role } from "../types";
 
 const tenantAdminPermissions: PermissionId[] = [
   "company.read",
+  "company.create",
+  "company.update",
+  "company.archive",
   "company.manage",
   "user.read",
   "user.invite",
@@ -33,11 +36,23 @@ const tenantAdminPermissions: PermissionId[] = [
   "template.pdf.manage",
   "report.read",
   "report.export",
+  "automation.read",
+  "automation.manage",
+  "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "project.finance",
+  "expense.read",
+  "expense.create",
+  "expense.approve",
   "security.session.manage",
   "audit.read",
   // Bank is Phase 2 — catalog shows it, default tenant admin may manage when module is enabled.
   "bank.read",
   "bank.manage",
+  "integration.read",
+  "integration.manage",
 ];
 
 const businessOwnerPermissions: PermissionId[] = [
@@ -51,7 +66,19 @@ const businessOwnerPermissions: PermissionId[] = [
   "payment.read",
   "report.read",
   "report.export",
+  "automation.read",
+  "automation.manage",
+  "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "project.finance",
+  "expense.read",
+  "expense.create",
+  "expense.approve",
   "audit.read",
+  "integration.read",
+  "integration.manage",
 ];
 
 /** Accountant: invoices/payments ops. No quote create/update/send per PRD. */
@@ -68,9 +95,18 @@ const accountantPermissions: PermissionId[] = [
   "payment.manage",
   "report.read",
   "report.export",
+  "automation.read",
+  "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "project.finance",
+  "expense.read",
+  "expense.create",
+  "expense.approve",
 ];
 
-/** Sales: OWN scope defaults. No invoice.validate. */
+/** Sales: OWN scope defaults. No invoice.validate. No project cost/margin. */
 const salesPermissions: PermissionId[] = [
   "customer.read",
   "customer.create",
@@ -82,6 +118,13 @@ const salesPermissions: PermissionId[] = [
   "quote.send",
   "invoice.read",
   "report.read",
+  "automation.read",
+  "automation.approve",
+  "project.read",
+  "project.create",
+  "project.update",
+  "expense.read",
+  "expense.create",
 ];
 
 /** Viewer: read-only. */
@@ -93,6 +136,10 @@ const viewerPermissions: PermissionId[] = [
   "invoice.read",
   "payment.read",
   "report.read",
+  "automation.read",
+  "project.read",
+  "expense.read",
+  "integration.read",
 ];
 
 export const systemRoles: Role[] = [
@@ -100,6 +147,7 @@ export const systemRoles: Role[] = [
     id: "tenant-admin",
     nameKey: "roles.tenantAdmin.name",
     descriptionKey: "roles.tenantAdmin.description",
+    cardDescriptionKey: "roles.tenantAdmin.card",
     defaultScope: "TENANT",
     permissions: tenantAdminPermissions,
     system: true,
@@ -108,6 +156,7 @@ export const systemRoles: Role[] = [
     id: "business-owner",
     nameKey: "roles.businessOwner.name",
     descriptionKey: "roles.businessOwner.description",
+    cardDescriptionKey: "roles.businessOwner.card",
     defaultScope: "COMPANY",
     permissions: businessOwnerPermissions,
     system: true,
@@ -116,6 +165,7 @@ export const systemRoles: Role[] = [
     id: "accountant",
     nameKey: "roles.accountant.name",
     descriptionKey: "roles.accountant.description",
+    cardDescriptionKey: "roles.accountant.card",
     defaultScope: "COMPANY",
     permissions: accountantPermissions,
     system: true,
@@ -124,6 +174,7 @@ export const systemRoles: Role[] = [
     id: "sales",
     nameKey: "roles.sales.name",
     descriptionKey: "roles.sales.description",
+    cardDescriptionKey: "roles.sales.card",
     defaultScope: "OWN",
     permissions: salesPermissions,
     system: true,
@@ -132,6 +183,7 @@ export const systemRoles: Role[] = [
     id: "viewer",
     nameKey: "roles.viewer.name",
     descriptionKey: "roles.viewer.description",
+    cardDescriptionKey: "roles.viewer.card",
     defaultScope: "COMPANY",
     permissions: viewerPermissions,
     system: true,
@@ -143,6 +195,7 @@ export const platformSuperAdminRole: Role = {
   id: "super-admin",
   nameKey: "roles.superAdmin.name",
   descriptionKey: "roles.superAdmin.description",
+  cardDescriptionKey: "roles.superAdmin.card",
   defaultScope: "TENANT",
   permissions: [],
   system: true,
@@ -155,4 +208,10 @@ export function getTenantRoles(roles: Role[] = systemRoles): Role[] {
 
 export function getRoleById(roleId: string, roles: Role[] = systemRoles): Role | undefined {
   return roles.find((role) => role.id === roleId);
+}
+
+/** Mock-only default scope suggestion when assigning a role in the edit form. */
+export function suggestedScopeForRole(roleId: string): Role["defaultScope"] {
+  const role = getRoleById(roleId);
+  return role?.defaultScope ?? "COMPANY";
 }

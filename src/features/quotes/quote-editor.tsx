@@ -1,31 +1,66 @@
 "use client";
 
+import { AmountInput } from "@/components/compte/amount-input";
+import { SoftSelect } from "@/components/compte/soft-select";
 import { DocumentStatus } from "@/components/status/document-status";
-import { formatMoneyFromCents } from "@/lib/money";
+import { formatMoneyFromCents, parseAmount, sanitizeIntegerInput } from "@/lib/money";
 import { Link } from "@/i18n/navigation";
 import { customerName, ownerById } from "@/features/quotes/query";
 import { quoteTotals } from "@/features/quotes/model";
+import {
+  effectiveUnitPriceCents,
+} from "@/features/products/model";
+import {
+  useCustomerProductPrices,
+  useProducts,
+} from "@/features/products/store";
+import { productsForCompany } from "@/features/products/query";
+import { can } from "@/features/settings/can";
+import { useCurrentCompany } from "@/features/settings/company-store";
+import { systemRoles } from "@/features/settings/mocks/roles";
 import { hydrateLedger, updateQuote, useHydrated, useLedger } from "@/features/quotes/store";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+const editorPermissions =
+  systemRoles.find((role) => role.id === "tenant-admin")?.permissions ?? [];
 
 export function QuoteEditor({ id }: { id: string }) {
   const t = useTranslations("register");
   const work = useTranslations();
   const ledger = useLedger();
   const ready = useHydrated();
+  const { companyId } = useCurrentCompany();
+  const productsAll = useProducts();
+  const customerPrices = useCustomerProductPrices();
+  const catalog = useMemo(
+    () =>
+      productsForCompany(productsAll, companyId).filter((item) => item.status === "active"),
+    [companyId, productsAll],
+  );
 
   const lineSeq = useRef(0);
+  const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     hydrateLedger();
   }, []);
 
+  const canSend = can(editorPermissions, "quote.send");
+  const canUpdate = can(editorPermissions, "quote.update");
   const quote = ledger.quotes.find((item) => item.id === id);
   if (!ready) return <p className="p-8 text-sm text-[#728097]">{t("loading")}</p>;
   if (!quote) return <p className="p-8 text-sm text-[#728097]">{t("editor.missing")}</p>;
 
   const totals = quoteTotals(quote);
+  const catalogOptions = [
+    { value: "", label: t("editor.freeLine") },
+    ...catalog.map((item) => ({
+      value: item.id,
+      label: `${item.code} · ${item.name}`,
+    })),
+  ];
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6">
@@ -79,35 +114,102 @@ export function QuoteEditor({ id }: { id: string }) {
               {quote.lines.map((line) => (
                 <tr key={line.id} className="border-t border-[#edf1f6]">
                   <td className="px-5 py-2">
-                    <input
-                      className="h-9 w-full rounded-[8px] border border-[#dfe6f1] px-2"
-                      value={line.label}
-                      onChange={(event) =>
-                        updateQuote(quote.id, {
-                          lines: quote.lines.map((item) =>
-                            item.id === line.id ? { ...item, label: event.target.value } : item,
-                          ),
-                        })
-                      }
-                    />
+                    <div className="space-y-1.5">
+                      {canUpdate && quote.status === "draft" ? (
+                        <SoftSelect
+                          hideLabel
+                          label={t("editor.catalog")}
+                          options={catalogOptions}
+                          value={line.productId ?? ""}
+                          onChange={(value) => {
+                            if (!value) {
+                              updateQuote(quote.id, {
+                                lines: quote.lines.map((item) =>
+                                  item.id === line.id
+                                    ? { ...item, productId: undefined }
+                                    : item,
+                                ),
+                              });
+                              return;
+                            }
+                            const product = catalog.find((item) => item.id === value);
+                            if (!product) return;
+                            const unitHtCents = effectiveUnitPriceCents(
+                              product,
+                              quote.customerId,
+                              customerPrices,
+                            );
+                            updateQuote(quote.id, {
+                              lines: quote.lines.map((item) =>
+                                item.id === line.id
+                                  ? {
+                                      ...item,
+                                      productId: product.id,
+                                      label: product.description || product.name,
+                                      unitHtCents,
+                                    }
+                                  : item,
+                              ),
+                            });
+                          }}
+                        />
+                      ) : null}
+                      <input
+                        className="h-9 w-full rounded-[8px] border border-[#dfe6f1] px-2"
+                        value={line.label}
+                        onChange={(event) =>
+                          updateQuote(quote.id, {
+                            lines: quote.lines.map((item) =>
+                              item.id === line.id
+                                ? { ...item, label: event.target.value }
+                                : item,
+                            ),
+                          })
+                        }
+                      />
+                    </div>
                   </td>
                   <td className="px-3 py-2">
-                    <input
-                      className="h-9 w-16 rounded-[8px] border border-[#dfe6f1] px-2 tabular-nums"
-                      type="number"
-                      min={1}
-                      value={line.qty}
-                      onChange={(event) =>
+                    <AmountInput
+                      className="h-9 w-16 rounded-[8px] border border-[#dfe6f1] px-2 text-[#24334c]"
+                      mode="integer"
+                      value={String(line.qty)}
+                      onValueChange={(raw) => {
+                        const digits = sanitizeIntegerInput(raw);
                         updateQuote(quote.id, {
                           lines: quote.lines.map((item) =>
-                            item.id === line.id ? { ...item, qty: Number(event.target.value) || 1 } : item,
+                            item.id === line.id
+                              ? { ...item, qty: Math.max(1, Number(digits) || 1) }
+                              : item,
                           ),
-                        })
-                      }
+                        });
+                      }}
                     />
                   </td>
-                  <td className="px-5 py-2 text-right tabular-nums text-[#063586]">
-                    {formatMoneyFromCents(line.unitHtCents)}
+                  <td className="px-5 py-2 text-right">
+                    <AmountInput
+                      className="h-9 w-28 rounded-[8px] border border-[#dfe6f1] px-2 text-right text-[#24334c]"
+                      disabled={!canUpdate || quote.status !== "draft"}
+                      value={
+                        priceDrafts[line.id] ??
+                        (line.unitHtCents === 0
+                          ? ""
+                          : String(line.unitHtCents / 100).replace(".", ","))
+                      }
+                      onValueChange={(raw) => {
+                        setPriceDrafts((current) => ({ ...current, [line.id]: raw }));
+                        updateQuote(quote.id, {
+                          lines: quote.lines.map((item) =>
+                            item.id === line.id
+                              ? {
+                                  ...item,
+                                  unitHtCents: Math.round(parseAmount(raw) * 100) || 0,
+                                }
+                              : item,
+                          ),
+                        });
+                      }}
+                    />
                   </td>
                 </tr>
               ))}
@@ -120,6 +222,43 @@ export function QuoteEditor({ id }: { id: string }) {
           <div className="flex justify-between text-base font-semibold text-[#063586]"><dt>{t("preview.ttc")}</dt><dd className="tabular-nums">{formatMoneyFromCents(totals.ttcCents)}</dd></div>
         </dl>
       </section>
+      <div className="mt-4 flex flex-wrap justify-end gap-2">
+        <button
+          className="soft-button min-h-10 rounded-[10px] px-3 text-sm font-semibold text-[#405069]"
+          disabled={!canUpdate}
+          onClick={() => {
+            updateQuote(quote.id, { status: quote.status === "draft" ? "draft" : quote.status });
+            setNotice(t("editor.saved"));
+          }}
+          type="button"
+        >
+          {t("editor.saveDraft")}
+        </button>
+        <button
+          className="soft-primary min-h-10 rounded-[10px] px-3 text-sm font-semibold text-white disabled:opacity-40"
+          disabled={!canSend || quote.status !== "draft" || quote.lines.length === 0}
+          onClick={() => {
+            if (!canSend || quote.status !== "draft" || quote.lines.length === 0) return;
+            updateQuote(quote.id, {
+              status: "sent",
+              activity: [
+                {
+                  id: `${quote.id}-sent-${Date.now()}`,
+                  at: "2026-10-02",
+                  messageKey: "activity.quoteSent",
+                  values: { id: quote.id },
+                },
+                ...quote.activity,
+              ],
+            });
+            setNotice(t("editor.sent"));
+          }}
+          type="button"
+        >
+          {t("editor.send")}
+        </button>
+      </div>
+      {notice ? <p className="mt-3 text-sm text-[#0f8a5f]">{notice}</p> : null}
     </div>
   );
 }

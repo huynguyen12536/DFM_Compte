@@ -6,6 +6,8 @@ import { getMessages, getTranslations, setRequestLocale } from "next-intl/server
 import { CommandProvider } from "@/components/command/command-palette";
 import { HydrationGuard } from "@/components/hydration-guard";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { compteSans } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 import "../globals.css";
 
@@ -49,11 +51,17 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="h-full w-full overflow-hidden antialiased" suppressHydrationWarning>
-      <head>
+    <html
+      lang={locale}
+      className={cn(compteSans.variable, "h-full w-full overflow-hidden antialiased")}
+      suppressHydrationWarning
+    >
+      <body
+        className={cn(compteSans.className, "m-0 h-full w-full overflow-hidden font-sans")}
+        suppressHydrationWarning
+      >
+        {/* beforeInteractive is injected into <head> by Next regardless of placement */}
         <HydrationGuard />
-      </head>
-      <body className="m-0 h-full w-full overflow-hidden" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <CommandProvider>
           <div
@@ -61,7 +69,7 @@ export default async function LocaleLayout({
             suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html:
-                "<!-- THESIS: COMPTE opens inside the operating workspace, refusing a marketing shell and making cash, quotes, invoices, and approvals visible first. OWN-WORLD: restrained blue, white work surfaces, compact finance cards, status badges, tables, and tenant controls. STORY: the user sees what needs action, creates a quote, checks invoices, and keeps tenant boundaries visible. FIRST VIEWPORT: sidebar, topbar, priority rail, KPIs, and recent business tables. FORM: established operate screen derived from the DFM prototype. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->",
+                "<!-- THESIS: COMPTA opens inside the operating workspace, refusing a marketing shell and making cash, quotes, invoices, and approvals visible first. OWN-WORLD: restrained blue, white work surfaces, compact finance cards, status badges, tables, and tenant controls. STORY: the user sees what needs action, creates a quote, checks invoices, and keeps tenant boundaries visible. FIRST VIEWPORT: sidebar, topbar, priority rail, KPIs, and recent business tables. FORM: established operate screen derived from the DFM prototype. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->",
             }}
           />
           {children}

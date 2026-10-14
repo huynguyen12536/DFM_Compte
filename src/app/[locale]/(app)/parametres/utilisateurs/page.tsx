@@ -1,5 +1,5 @@
-import { UsersPermissionsPage } from "@/features/settings/components/users-permissions-page";
+import { UsersPage } from "@/features/settings/components/users-page";
 
-export default function UsersPermissionsRoute() {
-  return <UsersPermissionsPage />;
+export default function UsersRoute() {
+  return <UsersPage />;
 }

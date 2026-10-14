@@ -2,8 +2,13 @@ export type DataScope = "OWN" | "COMPANY" | "TENANT";
 
 export type UserStatus = "ACTIVE" | "INVITED" | "DISABLED";
 
+export type CompanyStatus = "ACTIVE" | "ARCHIVED";
+
 export type PermissionId =
   | "company.read"
+  | "company.create"
+  | "company.update"
+  | "company.archive"
   | "company.manage"
   | "user.read"
   | "user.invite"
@@ -35,10 +40,22 @@ export type PermissionId =
   | "template.pdf.manage"
   | "report.read"
   | "report.export"
+  | "automation.read"
+  | "automation.manage"
+  | "automation.approve"
+  | "project.read"
+  | "project.create"
+  | "project.update"
+  | "project.finance"
+  | "expense.read"
+  | "expense.create"
+  | "expense.approve"
   | "security.session.manage"
   | "audit.read"
   | "bank.read"
-  | "bank.manage";
+  | "bank.manage"
+  | "integration.read"
+  | "integration.manage";
 
 export type Capability =
   | "read"
@@ -60,26 +77,61 @@ export type RoleId =
   | "sales"
   | "viewer";
 
+/** Legal entity belonging to the tenant. */
 export type Company = {
   id: string;
+  /** Display name used in switcher / lists. */
   name: string;
-  /** ISO currency code shown in the sidebar switcher. */
-  currency?: string;
-  /** Short tenant / legal-entity label under the company name. */
+  legalName: string;
+  currency: string;
+  status: CompanyStatus;
+  siret?: string;
+  vatNumber?: string;
+  naf?: string;
+  iban?: string;
+  bic?: string;
+  logoUrl?: string;
+  address?: string;
   subtitle?: string;
+};
+
+/**
+ * N:N link between User and Company with a per-company role.
+ * Do not collapse this into user.roleId / user.companyId.
+ */
+export type Membership = {
+  id: string;
+  userId: string;
+  companyId: string;
+  roleId: RoleId | string;
 };
 
 export type Role = {
   id: RoleId | string;
   nameKey: string;
   descriptionKey: string;
+  cardDescriptionKey: string;
+  /** Literal display name for custom roles (no i18n key). */
+  label?: string;
+  /** Literal description for custom roles (no i18n key). */
+  description?: string;
   defaultScope: DataScope;
   permissions: PermissionId[];
   system: boolean;
-  /** Platform roles must not appear in tenant settings by default. */
   platform?: boolean;
 };
 
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  initials: string;
+  status: UserStatus;
+  lastActivityLabel: string;
+  memberships: Membership[];
+};
+
+/** @deprecated Prefer User + Membership. Kept for transitional helpers. */
 export type TeamMember = {
   id: string;
   name: string;
@@ -105,6 +157,23 @@ export type PermissionModule = {
   capabilities: PermissionCapability[];
 };
 
+export type PermissionAction = {
+  id: string;
+  labelKey: string;
+  permission: PermissionId;
+  sensitive?: boolean;
+  noteKey?: string;
+  searchTerms: string[];
+};
+
+export type PermissionGroup = {
+  id: string;
+  labelKey: string;
+  descriptionKey: string;
+  phase?: 2;
+  actions: PermissionAction[];
+};
+
 export type ApprovalRulesConfig = {
   quoteApprovalThresholdEuro: number;
   requireApprovalAboveThreshold: boolean;
@@ -121,16 +190,23 @@ export type SecuritySettingsConfig = {
   preferredLanguage: "fr" | "en" | "vi";
 };
 
+export type RoleDetailTab = "matrix" | "settings" | "description";
+
+export type CompanyDraft = {
+  name: string;
+  legalName: string;
+  currency: string;
+  siret: string;
+  vatNumber: string;
+  naf: string;
+  iban: string;
+  bic: string;
+  address: string;
+  logoUrl: string;
+};
+
 export type SettingsNavItemId =
   | "general"
-  | "company"
+  | "companies"
   | "users"
-  | "billing"
-  | "documents"
-  | "payments"
-  | "integrations"
-  | "automation"
-  | "templates"
-  | "notifications"
-  | "security"
-  | "audit";
+  | "roles";

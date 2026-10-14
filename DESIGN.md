@@ -41,51 +41,51 @@ colors:
   dashboard-notice-bg: "#f2edff"
 typography:
   display:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "38px"
     fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "-0.035em"
   headline:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "26px"
     fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "-0.025em"
   metric:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "26px"
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: "-0.03em"
     fontVariantNumeric: "tabular-nums"
   money:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "14px"
     fontWeight: 600
     lineHeight: 1.4
     letterSpacing: "-0.02em"
     fontVariantNumeric: "tabular-nums"
   title:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "16px"
     fontWeight: 600
     lineHeight: 1.4
     letterSpacing: "-0.01em"
   body:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
     letterSpacing: "normal"
   label:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "12px"
     fontWeight: 500
     lineHeight: 1.4
     letterSpacing: "normal"
   eyebrow:
-    fontFamily: "Segoe UI, Arial, Helvetica, sans-serif"
+    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "11px"
     fontWeight: 700
     lineHeight: 1.3

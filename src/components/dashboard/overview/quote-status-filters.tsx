@@ -11,10 +11,14 @@ import { cn } from "@/lib/utils";
 
 type QuoteStatusFiltersProps = {
   labels: string[];
+  value?: number;
+  onChange?: (index: number) => void;
 };
 
-export function QuoteStatusFilters({ labels }: QuoteStatusFiltersProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+export function QuoteStatusFilters({ labels, value, onChange }: QuoteStatusFiltersProps) {
+  const [uncontrolled, setUncontrolled] = useState(0);
+  const activeIndex = value ?? uncontrolled;
+  const setActiveIndex = onChange ?? setUncontrolled;
 
   return (
     <AnimatedSelectionGroup

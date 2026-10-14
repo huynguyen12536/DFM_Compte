@@ -5,8 +5,6 @@ import { useSyncExternalStore } from "react";
 import { owners, seedCustomers, seedQuotes } from "./seed";
 import type { CustomerRecord, QuoteRecord, SavedView } from "./model";
 
-const storageKey = "compte.quote-ledger";
-
 type LedgerState = {
   quotes: QuoteRecord[];
   customers: CustomerRecord[];
@@ -25,29 +23,13 @@ const listeners = new Set<() => void>();
 
 function emit() {
   listeners.forEach((listener) => listener());
-  if (typeof window !== "undefined") {
-    window.sessionStorage.setItem(storageKey, JSON.stringify(state));
-  }
 }
 
+/** Ephemeral mock ledger — no persistence; F5 restores seed. */
 export function hydrateLedger() {
   if (typeof window === "undefined" || hydrated) return;
   hydrated = true;
-  const raw = window.sessionStorage.getItem(storageKey);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw) as LedgerState;
-      if (Array.isArray(parsed.quotes) && Array.isArray(parsed.customers)) {
-        state = {
-          quotes: parsed.quotes,
-          customers: parsed.customers,
-          customViews: Array.isArray(parsed.customViews) ? parsed.customViews : [],
-        };
-      }
-    } catch {
-      window.sessionStorage.removeItem(storageKey);
-    }
-  }
+  window.sessionStorage.removeItem("compte.quote-ledger");
   emit();
 }
 
@@ -75,6 +57,28 @@ export function useHydrated() {
 export function addCustomer(name: string) {
   const id = `customer-${Date.now()}`;
   const customer = { id, name: name.trim() };
+  state = { ...state, customers: [customer, ...state.customers] };
+  emit();
+  return customer;
+}
+
+/** Upsert a CRM customer into the quote ledger so cross-module links resolve. */
+export function ensureCustomer(input: { id: string; name: string }) {
+  const name = input.name.trim() || input.id;
+  const existing = state.customers.find((customer) => customer.id === input.id);
+  if (existing) {
+    if (existing.name === name) return existing;
+    const next = { ...existing, name };
+    state = {
+      ...state,
+      customers: state.customers.map((customer) =>
+        customer.id === input.id ? next : customer,
+      ),
+    };
+    emit();
+    return next;
+  }
+  const customer = { id: input.id, name };
   state = { ...state, customers: [customer, ...state.customers] };
   emit();
   return customer;
@@ -122,6 +126,17 @@ export function updateQuote(id: string, patch: Partial<QuoteRecord>) {
     ...state,
     quotes: state.quotes.map((quote) => (quote.id === id ? { ...quote, ...patch } : quote)),
   };
+  emit();
+}
+
+export function insertQuote(quote: QuoteRecord) {
+  if (state.quotes.some((item) => item.id === quote.id)) return;
+  state = { ...state, quotes: [quote, ...state.quotes] };
+  emit();
+}
+
+export function removeQuote(id: string) {
+  state = { ...state, quotes: state.quotes.filter((quote) => quote.id !== id) };
   emit();
 }
 

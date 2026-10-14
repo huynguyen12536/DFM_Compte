@@ -1,5 +1,10 @@
 import Script from "next/script";
 
+/**
+ * Early bootstrap in the root layout via next/script beforeInteractive.
+ * Raw <script> in a React tree triggers a React 19 / Next 16 console error
+ * (client render never executes those tags).
+ */
 const stripInjectedAttributes = `
 (function () {
   function strip(node) {
@@ -19,6 +24,17 @@ const stripInjectedAttributes = `
     for (var i = 0; i < all.length; i += 1) strip(all[i]);
   }
   walk(document.documentElement);
+  // Keep localStorage sidebar preference mirrored to a cookie for the next SSR paint.
+  try {
+    var key = "compte.sidebar.desktopOpen";
+    var value = window.localStorage.getItem(key);
+    if (value === "0" || value === "1") {
+      var cookie = document.cookie || "";
+      if (cookie.indexOf(key + "=" + value) === -1) {
+        document.cookie = key + "=" + value + ";path=/;max-age=31536000;SameSite=Lax";
+      }
+    }
+  } catch (e) {}
   if (typeof MutationObserver === "undefined") return;
   var observer = new MutationObserver(function (records) {
     for (var i = 0; i < records.length; i += 1) {
