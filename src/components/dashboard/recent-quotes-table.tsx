@@ -10,7 +10,13 @@ import { StatusBadge } from "./tone";
 const columnWidths: Array<number | undefined> = [undefined, 240, 64, undefined, undefined];
 const cell = "min-w-0 overflow-hidden";
 
-export function RecentQuotesTable({ quotes }: { quotes: Quote[] }) {
+export function RecentQuotesTable({
+  quotes,
+  onOpenQuote,
+}: {
+  quotes: Quote[];
+  onOpenQuote?: (id: string) => void;
+}) {
   const t = useTranslations();
 
   return (
@@ -64,6 +70,7 @@ export function RecentQuotesTable({ quotes }: { quotes: Quote[] }) {
                       className="dashboard-list__primary dashboard-list__link max-w-full text-left tabular-nums"
                       title={quote.id}
                       type="button"
+                      onClick={() => onOpenQuote?.(quote.id)}
                     >
                       {quote.id}
                     </button>

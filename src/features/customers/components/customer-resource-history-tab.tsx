@@ -4,6 +4,7 @@ import { FileText, MoreHorizontal, Plus, ReceiptText, WalletCards } from "lucide
 import { useTranslations } from "next-intl";
 import { useMemo, useState, type ReactNode } from "react";
 
+import { PageSizeSelect } from "@/components/compte/page-size-select";
 import { StatusBadge } from "@/components/dashboard/tone";
 import {
   invoiceDisplayNumber,
@@ -83,18 +84,16 @@ function ResourcePagination({
         })}
       </p>
       <div className="flex flex-wrap items-center gap-1.5">
-        <select
-          aria-label={t("pagination.pageSize")}
-          className="soft-input h-7 rounded-[7px] px-1.5 text-[10px] font-semibold text-[#405069]"
+        <PageSizeSelect
+          formatOption={(count) =>
+            t("pagination.rowsPerPage", { count })
+          }
+          label={t("pagination.pageSize")}
+          options={PAGE_SIZE_OPTIONS}
+          triggerClassName="!h-7 min-w-[6.5rem] rounded-[7px] px-1.5 text-[10px]"
           value={pageSize}
-          onChange={(event) => onPageSizeChange(Number(event.target.value))}
-        >
-          {PAGE_SIZE_OPTIONS.map((size) => (
-            <option key={size} value={size}>
-              {t("pagination.rowsPerPage", { count: size })}
-            </option>
-          ))}
-        </select>
+          onChange={onPageSizeChange}
+        />
         <button
           className="h-7 rounded-[7px] px-2 text-[10px] font-semibold text-[#044ce2] disabled:text-[#b7c3d6]"
           disabled={safePage <= 0}

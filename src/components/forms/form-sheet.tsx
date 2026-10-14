@@ -4,9 +4,16 @@ import { X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
+import {
+  SIDEBAR_COLLAPSED_WIDTH,
+  SIDEBAR_EXPANDED_WIDTH,
+  useSidebarOptional,
+} from "@/components/shell/sidebar";
 import { cn } from "@/lib/utils";
 
 const EXIT_MS = 200;
+/** Collapsed rail uses `ml-2` (8px) outside the animated width. */
+const SIDEBAR_COLLAPSED_GUTTER = 8;
 
 /**
  * Canonical COMPTE data-entry surface: full-height sheet from the right.
@@ -25,6 +32,8 @@ export function FormSheet({
   zIndexClassName = "z-[100]",
   showHeader = true,
   contentClassName,
+  /** Desktop: panel width = viewport − sidebar (no gap between rail and sheet). */
+  fillBesideSidebar = false,
 }: {
   open: boolean;
   title: string;
@@ -38,10 +47,19 @@ export function FormSheet({
   /** When false, chrome header is omitted — detail panels own title + close. */
   showHeader?: boolean;
   contentClassName?: string;
+  fillBesideSidebar?: boolean;
 }) {
+  const sidebar = useSidebarOptional();
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [exiting, setExiting] = useState(false);
+
+  const sidebarWidth =
+    sidebar?.isDesktop
+      ? sidebar.open
+        ? SIDEBAR_EXPANDED_WIDTH
+        : SIDEBAR_COLLAPSED_WIDTH + SIDEBAR_COLLAPSED_GUTTER
+      : 0;
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setMounted(true));
@@ -82,12 +100,14 @@ export function FormSheet({
 
   if (!mounted || !visible) return null;
 
+  const fillDesktop = fillBesideSidebar && sidebarWidth > 0;
+
   return createPortal(
     <div className={cn("fixed inset-0 flex justify-end", zIndexClassName)}>
       <button
         aria-label={closeLabel}
         className={cn(
-          "absolute inset-0 cursor-default bg-black/80",
+          "absolute inset-0 cursor-default bg-[rgb(55_65_81/0.8)] backdrop-blur-[12px]",
           exiting ? "form-sheet-backdrop-exit" : "form-sheet-backdrop-enter",
         )}
         type="button"
@@ -100,9 +120,14 @@ export function FormSheet({
           "relative z-10 flex h-full w-full flex-col bg-white shadow-[-18px_0_48px_rgb(29_43_68/0.14)]",
           "max-sm:fixed max-sm:inset-0",
           exiting ? "form-sheet-panel-exit" : "form-sheet-panel-enter",
-          widthClassName,
+          fillDesktop ? "max-w-none" : widthClassName,
         )}
         role="dialog"
+        style={
+          fillDesktop
+            ? { width: `calc(100% - ${sidebarWidth}px)`, maxWidth: "none" }
+            : undefined
+        }
       >
         {showHeader ? (
           <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[#e8eef6] px-4 py-4 sm:px-5">

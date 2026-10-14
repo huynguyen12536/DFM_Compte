@@ -11,6 +11,8 @@ export function CardHeader({
   meta,
   action,
   actionHref,
+  actionAriaLabel,
+  onActionClick,
   children,
 }: {
   title: string;
@@ -18,6 +20,8 @@ export function CardHeader({
   meta?: ReactNode;
   action?: string;
   actionHref?: string;
+  actionAriaLabel?: string;
+  onActionClick?: () => void;
   children?: ReactNode;
 }) {
   return (
@@ -36,7 +40,12 @@ export function CardHeader({
             <ChevronRight aria-hidden="true" className="h-3 w-3" />
           </a>
         ) : (
-          <button className="dashboard-link inline-flex items-center gap-0.5 text-[11px]" type="button">
+          <button
+            aria-label={actionAriaLabel}
+            className="dashboard-link inline-flex items-center gap-0.5 text-[11px]"
+            type="button"
+            onClick={onActionClick}
+          >
             {action}
             <ChevronRight aria-hidden="true" className="h-3 w-3" />
           </button>

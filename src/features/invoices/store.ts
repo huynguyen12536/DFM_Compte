@@ -421,6 +421,29 @@ export function recordPayment(
   return { ok: true, payment };
 }
 
+/** Mark a failed suggestion as not reviewable (cannot match). */
+export function clearBankMatchSuggestion(bankTransactionId: string): boolean {
+  const transaction = state.bankTransactions.find((item) => item.id === bankTransactionId);
+  if (!transaction || transaction.status === "matched") return false;
+
+  state = {
+    ...state,
+    bankTransactions: state.bankTransactions.map((item) =>
+      item.id === bankTransactionId
+        ? {
+            ...item,
+            status: "cannot_match" as const,
+            suggestedInvoiceId: undefined,
+            matchConfidence: undefined,
+            matchReasons: undefined,
+          }
+        : item,
+    ),
+  };
+  emit();
+  return true;
+}
+
 export function matchBankTransaction(
   bankTransactionId: string,
   invoiceId: string,

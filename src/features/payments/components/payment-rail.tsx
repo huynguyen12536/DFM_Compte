@@ -123,6 +123,7 @@ function ReconciliationQueue({
               : undefined;
             const status = deriveQueueStatus(item, suggested, payments);
             const needsReview = status === "needs_review" || status === "unmatched";
+            const canAct = status !== "cannot_match";
             return (
               <li
                 className="dashboard-list__row flex flex-col items-stretch gap-1.5 py-2.5"
@@ -152,7 +153,7 @@ function ReconciliationQueue({
                       <p className="mt-0.5 text-[11px] text-[#516078]">{t("noSuggestion")}</p>
                     )}
                   </div>
-                  {canReconcile ? (
+                  {canReconcile && canAct ? (
                     <button
                       className="action-motion soft-button h-7 shrink-0 rounded-[8px] px-2 text-[11px] font-semibold text-[#044ce2]"
                       onClick={() => (needsReview ? onReview(item.id) : onMatch(item.id))}

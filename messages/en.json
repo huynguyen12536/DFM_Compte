@@ -8,6 +8,13 @@
     "fr": "FR",
     "en": "EN"
   },
+  "ui": {
+    "datePicker": {
+      "placeholder": "Select a date",
+      "clear": "Clear",
+      "today": "Today"
+    }
+  },
   "settings": {
     "title": "Settings",
     "body": "Language and company context for this workspace.",
@@ -578,6 +585,36 @@
   "attention": {
     "title": "Needs attention",
     "seeAll": "See all",
+    "listFull": {
+      "title": "Needs attention",
+      "subtitle": "Review every item that still needs an action.",
+      "openAria": "View all attention items",
+      "close": "Close",
+      "search": "Search",
+      "searchPlaceholder": "Search customer, document or action...",
+      "clearFilters": "Clear filters",
+      "emptyTitle": "No items found",
+      "emptyBody": "Try another search or clear the urgency filter.",
+      "filters": {
+        "tone": "Urgency"
+      },
+      "tone": {
+        "all": "All urgencies",
+        "red": "Critical",
+        "orange": "Urgent",
+        "blue": "Follow-up",
+        "purple": "Bank",
+        "green": "Resolved",
+        "slate": "Other"
+      },
+      "pagination": {
+        "summary": "{from}–{to} of {total} items",
+        "pageSize": "Rows per page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Previous",
+        "next": "Next"
+      }
+    },
     "overdueTitle": "{id} is {days} days overdue",
     "overdueMeta": "{customer} · {amount} still to collect",
     "reconcile": "Open reconciliation",
@@ -622,7 +659,37 @@
     "total": "Total incl. tax",
     "status": "Status",
     "open": "Open {id}",
-    "empty": "No recent quotes"
+    "empty": "No recent quotes",
+    "listFull": {
+      "title": "Quotes list",
+      "subtitle": "Browse and open quotes from the operating workspace.",
+      "openAria": "View all recent quotes",
+      "close": "Close",
+      "search": "Search",
+      "searchPlaceholder": "Search quote, customer, owner or amount...",
+      "clearFilters": "Clear filters",
+      "emptyTitle": "No quotes found",
+      "emptyBody": "Try another search or clear the status filter.",
+      "filters": {
+        "status": "Status"
+      },
+      "status": {
+        "all": "All statuses"
+      },
+      "columns": {
+        "action": "Action"
+      },
+      "actions": {
+        "view": "View"
+      },
+      "pagination": {
+        "summary": "{from}–{to} of {total} quotes",
+        "pageSize": "Rows per page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Previous",
+        "next": "Next"
+      }
+    }
   },
   "work": {
     "office": "Office interior fit-out",
@@ -660,6 +727,37 @@
     "open": "Open",
     "due": "Due {date}",
     "empty": "No invoices to follow",
+    "listFull": {
+      "title": "Invoices to follow",
+      "subtitle": "Browse open receivables and follow-up invoices.",
+      "openAria": "View all invoices to follow",
+      "close": "Close",
+      "search": "Search",
+      "searchPlaceholder": "Search invoice, customer, due date or amount...",
+      "clearFilters": "Clear filters",
+      "emptyTitle": "No invoices found",
+      "emptyBody": "Try another search or clear the status filter.",
+      "filters": {
+        "status": "Status"
+      },
+      "status": {
+        "all": "All statuses"
+      },
+      "columns": {
+        "number": "Invoice no.",
+        "customer": "Customer",
+        "due": "Due",
+        "balance": "Balance",
+        "status": "Status"
+      },
+      "pagination": {
+        "summary": "{from}–{to} of {total} invoices",
+        "pageSize": "Rows per page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Previous",
+        "next": "Next"
+      }
+    },
     "workspaceTitle": "Invoices",
     "subtitle": "Manage your invoices, track payments and monitor outstanding amounts.",
     "emptyTitle": "No invoices yet",
@@ -1121,7 +1219,8 @@
         "suggested_match": "Suggested match",
         "needs_review": "Needs review",
         "matched": "Matched",
-        "unmatched": "Unmatched"
+        "unmatched": "Unmatched",
+        "cannot_match": "Cannot match"
       },
       "confidence": {
         "all": "Any confidence",
@@ -1445,6 +1544,35 @@
   },
   "activity": {
     "title": "Activity",
+    "listFull": {
+      "title": "Activity",
+      "subtitle": "Browse recent quotes, invoices, payments and system events.",
+      "openAria": "View all activity",
+      "close": "Close",
+      "search": "Search",
+      "searchPlaceholder": "Search event, reference, amount or actor...",
+      "clearFilters": "Clear filters",
+      "emptyTitle": "No activity found",
+      "emptyBody": "Try another search or clear the type filter.",
+      "columns": {
+        "time": "Time",
+        "event": "Event",
+        "reference": "Reference",
+        "amount": "Amount",
+        "status": "Status",
+        "action": "Action"
+      },
+      "actions": {
+        "view": "View"
+      },
+      "pagination": {
+        "summary": "{from}–{to} of {total} events",
+        "pageSize": "Rows per page",
+        "rowsPerPage": "{count} / page",
+        "prev": "Previous",
+        "next": "Next"
+      }
+    },
     "journal": "Log",
     "empty": "No recent activity",
     "quoteAccepted": "{customer} accepted {id}",

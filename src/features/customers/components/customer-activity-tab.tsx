@@ -11,6 +11,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ActivityFeedItem } from "@/components/dashboard/activity-feed-item";
 import { IconTile, StatusBadge } from "@/components/dashboard/tone";
 import { formatMoneyFromCents } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -100,7 +101,7 @@ export function CustomerActivityTab({ customer }: { customer: CustomerRecord }) 
           title={t("historyTabs.activityEmptyTitle")}
         />
       ) : (
-        <ol className="min-h-0 flex-1 space-y-0 overflow-y-auto py-2">
+        <ol className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-2">
           {items.map((item, index) => {
             const Icon = activityIcon(item.kind);
             const tone = activityTone(item.kind);
@@ -108,59 +109,46 @@ export function CustomerActivityTab({ customer }: { customer: CustomerRecord }) 
             const amount =
               item.amountCents != null ? formatMoneyFromCents(item.amountCents) : null;
             return (
-              <li className="grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)] gap-2 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:gap-3" key={item.id}>
-                <div className="pt-1 text-right">
-                  <p className="text-[12px] font-semibold text-[#24334c]">
-                    {formatTimelineDate(item.at, locale, t("relative.today"))}
-                  </p>
-                  <p className="text-[11px] text-[#98a4b5]">
-                    {formatTimelineTime(item.at, locale)}
-                  </p>
-                </div>
-                <div className="relative min-w-0 pb-3 pl-3">
-                  {index < items.length - 1 ? (
-                    <span
-                      aria-hidden="true"
-                      className="absolute top-3 bottom-0 left-[7px] w-px bg-[#d9e3f0] sm:left-[9px]"
-                    />
-                  ) : null}
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "absolute top-2.5 left-0 h-2.5 w-2.5 rounded-full ring-2 ring-white sm:h-3 sm:w-3",
-                      tone === "purple" && "bg-[#7b61c8]",
-                      tone === "green" && "bg-[#238567]",
-                      tone === "orange" && "bg-[#b96d24]",
-                      tone === "blue" && "bg-[#044ce2]",
-                      tone === "slate" && "bg-[#98a4b5]",
-                    )}
-                  />
-                  <article className="min-w-0 rounded-[10px] px-2 py-1.5 transition-colors hover:bg-[#f7faff]">
-                    <div className="flex min-w-0 items-start gap-2">
-                      <IconTile className="mt-0.5" icon={Icon} size="sm" tone={tone} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-2 gap-y-1">
-                          <p className="min-w-0 text-xs font-semibold text-[#24334c]">
-                            {activityTitle(item)}
-                          </p>
-                          {item.actorName ? (
-                            <StatusBadge size="xs" tone="slate">
-                              {item.actorName}
-                            </StatusBadge>
-                          ) : null}
-                        </div>
-                        {description || amount || item.relatedLabel ? (
-                          <p className="mt-0.5 text-[11px] leading-4 text-[#7d8aa0]">
-                            {[amount, description, item.relatedLabel]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </p>
+              <ActivityFeedItem
+                dateLabel={formatTimelineDate(item.at, locale, t("relative.today"))}
+                dotClassName={cn(
+                  tone === "purple" && "bg-[#7b61c8]",
+                  tone === "green" && "bg-[#238567]",
+                  tone === "orange" && "bg-[#b96d24]",
+                  tone === "blue" && "bg-[#044ce2]",
+                  tone === "slate" && "bg-[#98a4b5]",
+                )}
+                isFirst={index === 0}
+                isLast={index === items.length - 1}
+                key={item.id}
+                lineClassName="bg-[#d9e3f0]"
+                timeLabel={formatTimelineTime(item.at, locale)}
+              >
+                <article className="min-w-0 rounded-[10px] bg-white px-2 py-1.5 transition-colors hover:bg-[#f7faff]">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <IconTile icon={Icon} size="sm" tone={tone} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                        <p className="min-w-0 text-xs font-semibold text-[#24334c]">
+                          {activityTitle(item)}
+                        </p>
+                        {item.actorName ? (
+                          <StatusBadge size="xs" tone="slate">
+                            {item.actorName}
+                          </StatusBadge>
                         ) : null}
                       </div>
+                      {description || amount || item.relatedLabel ? (
+                        <p className="mt-0.5 text-[11px] leading-4 text-[#7d8aa0]">
+                          {[amount, description, item.relatedLabel]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      ) : null}
                     </div>
-                  </article>
-                </div>
-              </li>
+                  </div>
+                </article>
+              </ActivityFeedItem>
             );
           })}
         </ol>

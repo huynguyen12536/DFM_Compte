@@ -1,17 +1,21 @@
+"use client";
+
 import { ReceiptText } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 import type { Invoice } from "@/mocks/dashboard/types";
 
 import { DashboardScroll } from "./dashboard-scroll";
 import { IconTile, StatusBadge } from "./tone";
 
-export async function InvoicesToFollow({
+export function InvoicesToFollow({
   invoices,
+  onOpenInvoice,
 }: {
   invoices: Invoice[];
+  onOpenInvoice?: (id: string) => void;
 }) {
-  const t = await getTranslations();
+  const t = useTranslations();
 
   return (
     <DashboardScroll>
@@ -24,6 +28,7 @@ export async function InvoicesToFollow({
               className="interactive-row soft-list-item flex min-h-[42px] w-full items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-left"
               key={invoice.id}
               type="button"
+              onClick={() => onOpenInvoice?.(invoice.id)}
             >
               <IconTile size="xs" tone={invoice.tone} icon={ReceiptText} />
               <span className="min-w-0 flex-1">

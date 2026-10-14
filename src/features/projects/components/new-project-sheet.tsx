@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { SoftDatePicker } from "@/components/compte/soft-date-picker";
 import { FormSheet } from "@/components/forms/form-sheet";
 import { seedCustomers } from "@/features/quotes/seed";
 import { mockCompanies } from "@/features/settings/mocks/companies";
@@ -180,32 +181,28 @@ export function NewProjectSheet({
             {t("form.sectionDates")}
           </h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label={t("form.startDate")}>
-              <input
-                className="h-9 w-full rounded-[9px] border border-[#e1e7f1] px-2.5 text-xs outline-none focus:border-[#044ce2]"
-                type="date"
-                value={startDate}
-                onChange={(event) => {
-                  setStartDate(event.target.value);
-                  if (fieldErrors.dates) {
-                    setFieldErrors((current) => ({ ...current, dates: undefined }));
-                  }
-                }}
-              />
-            </Field>
-            <Field label={t("form.endDate")}>
-              <input
-                className="h-9 w-full rounded-[9px] border border-[#e1e7f1] px-2.5 text-xs outline-none focus:border-[#044ce2]"
-                type="date"
-                value={endDate}
-                onChange={(event) => {
-                  setEndDate(event.target.value);
-                  if (fieldErrors.dates) {
-                    setFieldErrors((current) => ({ ...current, dates: undefined }));
-                  }
-                }}
-              />
-            </Field>
+            <SoftDatePicker
+              label={t("form.startDate")}
+              max={endDate || undefined}
+              value={startDate}
+              onChange={(next) => {
+                setStartDate(next);
+                if (fieldErrors.dates) {
+                  setFieldErrors((current) => ({ ...current, dates: undefined }));
+                }
+              }}
+            />
+            <SoftDatePicker
+              label={t("form.endDate")}
+              min={startDate || undefined}
+              value={endDate}
+              onChange={(next) => {
+                setEndDate(next);
+                if (fieldErrors.dates) {
+                  setFieldErrors((current) => ({ ...current, dates: undefined }));
+                }
+              }}
+            />
           </div>
           {fieldErrors.dates ? (
             <p className="text-[11px] text-[#c9564f]">{fieldErrors.dates}</p>

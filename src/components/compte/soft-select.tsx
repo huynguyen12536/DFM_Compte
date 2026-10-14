@@ -19,7 +19,7 @@ const MENU_MAX_CAP = 240;
 
 /**
  * Soft-UI select — custom listbox (native <select> popups cannot be styled).
- * Opens downward; list scrolls when content exceeds available space.
+ * Opens downward by default; flips upward when space below is tight (e.g. pagination).
  * Closes on outside click / Escape / when another SoftSelect opens.
  */
 export function SoftSelect({
@@ -31,6 +31,7 @@ export function SoftSelect({
   triggerClassName,
   hideLabel = false,
   disabled = false,
+  activeTone = "soft",
   /** Above FormSheet (z-60–100) so the list stays clickable inside sheets. */
   menuZIndexClassName = "z-[110]",
 }: {
@@ -42,6 +43,8 @@ export function SoftSelect({
   triggerClassName?: string;
   hideLabel?: boolean;
   disabled?: boolean;
+  /** `solid` matches page-size menus (blue selected row). */
+  activeTone?: "soft" | "solid";
   menuZIndexClassName?: string;
 }) {
   const listId = useId();
@@ -78,12 +81,21 @@ export function SoftSelect({
       const trigger = triggerRef.current;
       if (!trigger) return;
       const rect = trigger.getBoundingClientRect();
-      const width = rect.width;
-      const spaceBelow = Math.max(72, window.innerHeight - rect.bottom - MENU_GAP - MENU_EDGE);
-      const maxHeight = Math.min(MENU_MAX_CAP, spaceBelow);
+      const width = Math.max(rect.width, 120);
+      const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - MENU_GAP - MENU_EDGE);
+      const spaceAbove = Math.max(0, rect.top - MENU_GAP - MENU_EDGE);
+      const openUp = spaceBelow < 140 && spaceAbove > spaceBelow;
+      const maxHeight = Math.min(
+        MENU_MAX_CAP,
+        openUp ? Math.max(72, spaceAbove) : Math.max(72, spaceBelow),
+      );
+      const estimatedHeight = Math.min(maxHeight, options.length * 36 + 8);
+      const top = openUp
+        ? Math.max(MENU_EDGE, rect.top - MENU_GAP - estimatedHeight)
+        : rect.bottom + MENU_GAP;
       const maxLeft = Math.max(MENU_EDGE, window.innerWidth - width - MENU_EDGE);
       setMenuBox({
-        top: rect.bottom + MENU_GAP,
+        top,
         left: Math.min(Math.max(MENU_EDGE, rect.left), maxLeft),
         width,
         maxHeight,
@@ -136,7 +148,7 @@ export function SoftSelect({
         aria-label={label}
         className={cn(
           "soft-input flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] !bg-white px-2.5 text-left text-xs font-semibold text-[#24334c] outline-none",
-          open && "ring-1 ring-[#044ce2]/30",
+          open && "ring-[3px] ring-[#044ce2]/25",
           disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
           triggerClassName,
         )}
@@ -167,7 +179,7 @@ export function SoftSelect({
               ref={menuRef}
               aria-label={label}
               className={cn(
-                "soft-select-scroll fixed overflow-y-auto overscroll-contain rounded-[10px] border border-[#e2eaf5] bg-white py-1 shadow-[0_12px_28px_rgba(29,43,68,0.14)]",
+                "soft-select-scroll fixed overflow-y-auto overscroll-contain rounded-[10px] border border-[#e2eaf5] bg-white py-1 shadow-[0_1px_2px_rgba(55,65,81,0.05),0_12px_28px_rgba(29,43,68,0.14)]",
                 menuZIndexClassName,
               )}
               data-soft-select-list={instanceId}
@@ -193,7 +205,9 @@ export function SoftSelect({
                       className={cn(
                         "flex min-h-9 w-full items-center justify-between gap-2 px-2.5 text-left text-xs font-medium",
                         active
-                          ? "bg-[#eef4ff] text-[#044ce2]"
+                          ? activeTone === "solid"
+                            ? "bg-[#145be7] text-white"
+                            : "bg-[#eef4ff] text-[#044ce2]"
                           : "text-[#24334c] hover:bg-[#f5f8fd]",
                       )}
                       role="option"
@@ -209,7 +223,7 @@ export function SoftSelect({
                       }}
                     >
                       <span className="min-w-0 truncate">{option.label}</span>
-                      {active ? (
+                      {active && activeTone !== "solid" ? (
                         <Check aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                       ) : null}
                     </button>

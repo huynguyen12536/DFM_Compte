@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ConfirmDialog } from "@/components/compte/confirm-dialog";
 import { ExportCsvButton } from "@/components/compte/export-csv-button";
+import { PageSizeSelect } from "@/components/compte/page-size-select";
 import { SoftToast } from "@/components/compte/soft-toast";
 import { FormSheet } from "@/components/forms/form-sheet";
 import { Can, can } from "@/features/settings/can";
@@ -223,7 +224,7 @@ export function CustomersWorkspace() {
                   ref={searchInputRef}
                   aria-label={t("filters.searchPlaceholder")}
                   className={cn(
-                    "min-w-0 bg-transparent text-xs text-[#24334c] outline-none placeholder:text-[#98a4b5]",
+                    "compte-search-input min-w-0 bg-transparent text-xs text-[#24334c] outline-none placeholder:text-[#98a4b5]",
                     searchExpanded ? "flex-1" : "w-0 p-0 opacity-0",
                   )}
                   onBlur={() => setSearchFocused(false)}
@@ -343,24 +344,18 @@ export function CustomersWorkspace() {
                       total: filteredCustomers.length,
                     })}
                   </p>
-                  <label className="inline-flex items-center gap-1.5 text-[11px] text-[#7d8aa0]">
-                    <span className="sr-only sm:not-sr-only">{t("pagination.pageSize")}</span>
-                    <select
-                      aria-label={t("pagination.pageSize")}
-                      className="h-8 rounded-[8px] border border-[#dfe6f1] bg-white px-2 text-[11px] font-semibold text-[#405069] outline-none focus:ring-[3px] focus:ring-[#044ce2]/25"
-                      value={pageSize}
-                      onChange={(event) => {
-                        setPage(0);
-                        setPageSize(Number(event.target.value));
-                      }}
-                    >
-                      {pageSizeOptions.map((size) => (
-                        <option key={size} value={size}>
-                          {t("pagination.rowsPerPage", { count: size })}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <PageSizeSelect
+                    formatOption={(count) =>
+                      t("pagination.rowsPerPage", { count })
+                    }
+                    label={t("pagination.pageSize")}
+                    options={pageSizeOptions}
+                    value={pageSize}
+                    onChange={(size) => {
+                      setPage(0);
+                      setPageSize(size);
+                    }}
+                  />
                 </div>
                 <div className="flex items-center gap-1">
                   <button

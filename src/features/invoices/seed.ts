@@ -330,7 +330,7 @@ export const seedPayments: InvoicePayment[] = [
   },
   {
     id: "pay-2026-044",
-    invoiceId: "inv-DEV20260139",
+    invoiceId: "inv-DEV20260140",
     reference: "PAY-2026-044",
     date: "2026-09-29",
     amountCents: 175_000,
@@ -374,7 +374,7 @@ export const seedPayments: InvoicePayment[] = [
   },
   {
     id: "pay-2026-048",
-    invoiceId: "inv-DEV20260139",
+    invoiceId: "inv-DEV20260138",
     reference: "PAY-2026-048",
     date: "2026-09-21",
     amountCents: 95_000,
@@ -426,7 +426,7 @@ export const seedPayments: InvoicePayment[] = [
   },
   {
     id: "pay-2026-053",
-    invoiceId: "inv-DEV20260139",
+    invoiceId: "inv-DEV20260132",
     reference: "PAY-2026-053",
     date: "2026-09-10",
     amountCents: 125_000,

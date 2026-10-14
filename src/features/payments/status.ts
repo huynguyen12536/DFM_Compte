@@ -16,6 +16,7 @@ export const reconciliationQueueStatusTone: Record<ReconciliationQueueStatus, To
   needs_review: "orange",
   matched: "green",
   unmatched: "slate",
+  cannot_match: "red",
 };
 
 export const paymentMethodTone: Record<InvoicePaymentMethod, Tone> = {
