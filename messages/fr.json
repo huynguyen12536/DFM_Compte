@@ -514,7 +514,9 @@
       "placeholder": "Écrire un message...",
       "send": "Envoyer le message",
       "attach": "Joindre des fichiers",
-      "attachHint": "Joindre un ou plusieurs fichiers e-mail, Excel, CSV, Word, PDF et autres"
+      "attachHint": "Joindre un ou plusieurs fichiers e-mail, Excel, CSV, Word, PDF et autres",
+      "removeFile": "Retirer {name}",
+      "uploading": "Envoi des fichiers…"
     },
     "followUps": {
       "label": "Questions suggérées"

@@ -1,10 +1,19 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { resolveDemoReply } from "../demo-replies";
-import type { AssistantConversation, AssistantMessage } from "../types";
+import type {
+  AssistantAttachment,
+  AssistantConversation,
+  AssistantMessage,
+} from "../types";
+
+export type PendingAssistantFile = {
+  id: string;
+  file: File;
+};
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -29,6 +38,68 @@ function createEmptyConversation(): AssistantConversation {
   };
 }
 
+function toAttachments(files: File[]): AssistantAttachment[] {
+  return files.map((file) => ({
+    name: file.name,
+    size: file.size,
+    type: file.type || "application/octet-stream",
+  }));
+}
+
+function buildAttachmentReply(
+  attachments: AssistantAttachment[],
+  isFr: boolean,
+) {
+  const count = attachments.length;
+  const fileLines = attachments.flatMap((file, index) => {
+    const sizeKb = Math.max(1, Math.round(file.size / 1024));
+    if (isFr) {
+      return [
+        `${index + 1}. ${file.name}`,
+        `   • Taille : ${sizeKb} Ko`,
+        `   • Type : ${file.type || "inconnu"}`,
+      ];
+    }
+    return [
+      `${index + 1}. ${file.name}`,
+      `   • Size: ${sizeKb} KB`,
+      `   • Type: ${file.type || "unknown"}`,
+    ];
+  });
+
+  return isFr
+    ? [
+        count === 1
+          ? "Fichier reçu (démo)."
+          : `${count} fichiers reçus (démo).`,
+        "",
+        ...fileLines,
+        "",
+        "Aucun traitement réel n’a été lancé — confirmation mock pour tester l’UI.",
+      ].join("\n")
+    : [
+        count === 1
+          ? "File received (demo)."
+          : `${count} files received (demo).`,
+        "",
+        ...fileLines,
+        "",
+        "No real processing ran — mock confirmation for UI testing only.",
+      ].join("\n");
+}
+
+const FOLLOW_UPS_FR = [
+  "Quelles factures sont en retard ?",
+  "Résume mon pipeline de devis",
+  "Qu’est-ce qui a changé aujourd’hui ?",
+];
+
+const FOLLOW_UPS_EN = [
+  "Which invoices are overdue?",
+  "Summarize my quote pipeline",
+  "What changed today?",
+];
+
 export function useAssistantChat() {
   const locale = useLocale();
   const [conversations, setConversations] = useState<AssistantConversation[]>(
@@ -36,14 +107,41 @@ export function useAssistantChat() {
   );
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<PendingAssistantFile[]>([]);
   const [busy, setBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const progressTimerRef = useRef<number | null>(null);
 
   const resolvedActiveId = activeId ?? conversations[0]?.id ?? "";
   const active =
     conversations.find((item) => item.id === resolvedActiveId) ??
     conversations[0];
   const messages = active?.messages ?? [];
+
+  const clearProgressTimer = useCallback(() => {
+    if (progressTimerRef.current != null) {
+      window.clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearProgressTimer(), [clearProgressTimer]);
+
+  const runMockUploadProgress = useCallback(
+    (durationMs: number) => {
+      clearProgressTimer();
+      setUploadProgress(4);
+      const startedAt = Date.now();
+      progressTimerRef.current = window.setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        const next = Math.min(96, Math.round((elapsed / durationMs) * 100));
+        setUploadProgress(next);
+        if (elapsed >= durationMs) clearProgressTimer();
+      }, 80);
+    },
+    [clearProgressTimer],
+  );
 
   const patchActive = useCallback(
     (updater: (current: AssistantConversation) => AssistantConversation) => {
@@ -57,9 +155,16 @@ export function useAssistantChat() {
     [activeId],
   );
 
+  const resetComposer = useCallback(() => {
+    setDraft("");
+    setPendingFiles([]);
+    setUploadProgress(0);
+    clearProgressTimer();
+  }, [clearProgressTimer]);
+
   const startNewConversation = useCallback(() => {
     setBusy(false);
-    setDraft("");
+    resetComposer();
     setHistoryOpen(false);
     const next = createEmptyConversation();
     setConversations((list) => {
@@ -72,14 +177,17 @@ export function useAssistantChat() {
       return [next, ...kept];
     });
     setActiveId(next.id);
-  }, [activeId]);
+  }, [activeId, resetComposer]);
 
-  const selectConversation = useCallback((id: string) => {
-    setActiveId(id);
-    setDraft("");
-    setBusy(false);
-    setHistoryOpen(false);
-  }, []);
+  const selectConversation = useCallback(
+    (id: string) => {
+      setActiveId(id);
+      resetComposer();
+      setBusy(false);
+      setHistoryOpen(false);
+    },
+    [resetComposer],
+  );
 
   const deleteConversation = useCallback(
     (id: string) => {
@@ -96,145 +204,101 @@ export function useAssistantChat() {
         }
         return next;
       });
-      setDraft("");
+      resetComposer();
       setBusy(false);
     },
-    [activeId],
+    [activeId, resetComposer],
   );
+
+  const stageFiles = useCallback((files: File[]) => {
+    if (!files.length) return;
+    setPendingFiles((current) => {
+      const next = files.map((file) => ({
+        id: createId("file"),
+        file,
+      }));
+      return [...current, ...next];
+    });
+  }, []);
+
+  const removePendingFile = useCallback((id: string) => {
+    setPendingFiles((current) => current.filter((item) => item.id !== id));
+  }, []);
 
   const sendMessage = useCallback(
     async (raw: string) => {
       const content = raw.trim();
-      if (!content) return;
+      const files = pendingFiles.map((item) => item.file);
+      const hasFiles = files.length > 0;
+      if (!content && !hasFiles) return;
+
+      const isFr = locale.toLowerCase().startsWith("fr");
+      const attachments = hasFiles ? toAttachments(files) : undefined;
+      const titleSeed =
+        content ||
+        (isFr
+          ? attachments!.length === 1
+            ? `Fichier joint : ${attachments![0].name}`
+            : `${attachments!.length} fichiers joints`
+          : attachments!.length === 1
+            ? `Attached file: ${attachments![0].name}`
+            : `${attachments!.length} attached files`);
 
       const userMessage: AssistantMessage = {
         id: createId("msg"),
         role: "user",
         content,
         createdAt: Date.now(),
-      };
-
-      patchActive((current) => ({
-        ...current,
-        title: current.title ?? titleFromMessages([userMessage]),
-        messages: [...current.messages, userMessage],
-        updatedAt: Date.now(),
-      }));
-      setDraft("");
-      setBusy(true);
-      setHistoryOpen(false);
-
-      await new Promise((resolve) => window.setTimeout(resolve, 420));
-
-      const demo = resolveDemoReply(content, locale);
-      const assistantMessage: AssistantMessage = {
-        id: createId("msg"),
-        role: "assistant",
-        content: demo.reply,
-        followUps: demo.followUps,
-        createdAt: Date.now(),
-      };
-
-      patchActive((current) => ({
-        ...current,
-        messages: [...current.messages, assistantMessage],
-        updatedAt: Date.now(),
-      }));
-      setBusy(false);
-    },
-    [locale, patchActive],
-  );
-
-  const attachFiles = useCallback(
-    async (files: File[]) => {
-      if (!files.length) return;
-
-      const isFr = locale.toLowerCase().startsWith("fr");
-      const attachments = files.map((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type || "application/octet-stream",
-      }));
-      const count = attachments.length;
-      const userContent = isFr
-        ? count === 1
-          ? `Fichier joint : ${attachments[0].name}`
-          : `${count} fichiers joints`
-        : count === 1
-          ? `Attached file: ${attachments[0].name}`
-          : `${count} attached files`;
-
-      const userMessage: AssistantMessage = {
-        id: createId("msg"),
-        role: "user",
-        content: userContent,
-        createdAt: Date.now(),
         attachments,
       };
 
       patchActive((current) => ({
         ...current,
-        title: current.title ?? titleFromMessages([userMessage]),
+        title:
+          current.title ??
+          titleFromMessages([{ ...userMessage, content: titleSeed }]),
         messages: [...current.messages, userMessage],
         updatedAt: Date.now(),
       }));
+      resetComposer();
       setBusy(true);
       setHistoryOpen(false);
 
-      // Mock upload / analysis delay for UI testing.
-      await new Promise((resolve) => window.setTimeout(resolve, 4000));
+      const delayMs = hasFiles ? 4000 : 420;
+      if (hasFiles) runMockUploadProgress(delayMs);
 
-      const fileLines = attachments.flatMap((file, index) => {
-        const sizeKb = Math.max(1, Math.round(file.size / 1024));
-        if (isFr) {
-          return [
-            `${index + 1}. ${file.name}`,
-            `   • Taille : ${sizeKb} Ko`,
-            `   • Type : ${file.type || "inconnu"}`,
-          ];
-        }
-        return [
-          `${index + 1}. ${file.name}`,
-          `   • Size: ${sizeKb} KB`,
-          `   • Type: ${file.type || "unknown"}`,
-        ];
-      });
+      await new Promise((resolve) => window.setTimeout(resolve, delayMs));
 
-      const assistantMessage: AssistantMessage = {
-        id: createId("msg"),
-        role: "assistant",
-        content: isFr
-          ? [
-              count === 1
-                ? "Fichier reçu (démo)."
-                : `${count} fichiers reçus (démo).`,
-              "",
-              ...fileLines,
-              "",
-              "Aucun traitement réel n’a été lancé — confirmation mock pour tester l’UI.",
-            ].join("\n")
-          : [
-              count === 1
-                ? "File received (demo)."
-                : `${count} files received (demo).`,
-              "",
-              ...fileLines,
-              "",
-              "No real processing ran — mock confirmation for UI testing only.",
-            ].join("\n"),
-        followUps: isFr
-          ? [
-              "Quelles factures sont en retard ?",
-              "Résume mon pipeline de devis",
-              "Qu’est-ce qui a changé aujourd’hui ?",
+      clearProgressTimer();
+      if (hasFiles) setUploadProgress(100);
+
+      const assistantMessage: AssistantMessage = hasFiles
+        ? {
+            id: createId("msg"),
+            role: "assistant",
+            content: [
+              content
+                ? isFr
+                  ? `Message reçu : « ${content} »`
+                  : `Message received: “${content}”`
+                : null,
+              buildAttachmentReply(attachments!, isFr),
             ]
-          : [
-              "Which invoices are overdue?",
-              "Summarize my quote pipeline",
-              "What changed today?",
-            ],
-        createdAt: Date.now(),
-      };
+              .filter(Boolean)
+              .join("\n\n"),
+            followUps: isFr ? FOLLOW_UPS_FR : FOLLOW_UPS_EN,
+            createdAt: Date.now(),
+          }
+        : (() => {
+            const demo = resolveDemoReply(content, locale);
+            return {
+              id: createId("msg"),
+              role: "assistant" as const,
+              content: demo.reply,
+              followUps: demo.followUps,
+              createdAt: Date.now(),
+            };
+          })();
 
       patchActive((current) => ({
         ...current,
@@ -242,8 +306,16 @@ export function useAssistantChat() {
         updatedAt: Date.now(),
       }));
       setBusy(false);
+      setUploadProgress(0);
     },
-    [locale, patchActive],
+    [
+      clearProgressTimer,
+      locale,
+      patchActive,
+      pendingFiles,
+      resetComposer,
+      runMockUploadProgress,
+    ],
   );
 
   return {
@@ -252,11 +324,14 @@ export function useAssistantChat() {
     messages,
     draft,
     setDraft,
+    pendingFiles,
+    stageFiles,
+    removePendingFile,
     busy,
+    uploadProgress,
     historyOpen,
     setHistoryOpen,
     sendMessage,
-    attachFiles,
     startNewConversation,
     selectConversation,
     deleteConversation,
