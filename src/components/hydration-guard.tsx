@@ -1,7 +1,9 @@
+import Script from "next/script";
+
 /**
- * Inline early bootstrap for App Router.
- * Avoid next/script beforeInteractive — Next 16 warns that client-rendered
- * <Script> children are never executed.
+ * Early bootstrap in the root layout via next/script beforeInteractive.
+ * Raw <script> in a React tree triggers a React 19 / Next 16 console error
+ * (client render never executes those tags).
  */
 const stripInjectedAttributes = `
 (function () {
@@ -55,10 +57,8 @@ const stripInjectedAttributes = `
 
 export function HydrationGuard() {
   return (
-    <script
-      // Server-rendered inline script in <head> — runs before hydration.
-      dangerouslySetInnerHTML={{ __html: stripInjectedAttributes }}
-      id="compte-hydration-guard"
-    />
+    <Script id="compte-hydration-guard" strategy="beforeInteractive">
+      {stripInjectedAttributes}
+    </Script>
   );
 }

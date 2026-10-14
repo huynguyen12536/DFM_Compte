@@ -512,10 +512,16 @@
     "composer": {
       "label": "Message to COMPTA Assistant",
       "placeholder": "Write a message...",
-      "send": "Send message"
+      "send": "Send message",
+      "attach": "Attach files",
+      "attachHint": "Attach one or more email, Excel, CSV, Word, PDF, and other files"
     },
     "followUps": {
       "label": "Suggested next questions"
+    },
+    "attachment": {
+      "label": "Attachment",
+      "sizeKb": "{size} KB"
     },
     "busy": "Thinking…"
   },

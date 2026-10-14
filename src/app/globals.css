@@ -872,7 +872,7 @@ html::-webkit-scrollbar {
 .assistant-composer {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
   min-height: 56px;
   padding: 6px;
   border: 1.5px solid #9cbcf0;

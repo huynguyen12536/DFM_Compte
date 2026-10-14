@@ -56,13 +56,12 @@ export default async function LocaleLayout({
       className={cn(compteSans.variable, "h-full w-full overflow-hidden antialiased")}
       suppressHydrationWarning
     >
-      <head>
-        <HydrationGuard />
-      </head>
       <body
         className={cn(compteSans.className, "m-0 h-full w-full overflow-hidden font-sans")}
         suppressHydrationWarning
       >
+        {/* beforeInteractive is injected into <head> by Next regardless of placement */}
+        <HydrationGuard />
         <NextIntlClientProvider messages={messages}>
           <CommandProvider>
           <div

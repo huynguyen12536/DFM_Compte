@@ -30,6 +30,7 @@ type AssistantApi = {
   historyOpen: boolean;
   setHistoryOpen: Dispatch<SetStateAction<boolean>>;
   sendMessage: (raw: string) => Promise<void>;
+  attachFiles: (files: File[]) => Promise<void>;
   startNewConversation: () => void;
   selectConversation: (id: string) => void;
   deleteConversation: (id: string) => void;
@@ -85,6 +86,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       historyOpen: chat.historyOpen,
       setHistoryOpen: chat.setHistoryOpen,
       sendMessage: chat.sendMessage,
+      attachFiles: chat.attachFiles,
       startNewConversation: chat.startNewConversation,
       selectConversation: chat.selectConversation,
       deleteConversation: chat.deleteConversation,
@@ -110,6 +112,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       chat.historyOpen,
       chat.setHistoryOpen,
       chat.sendMessage,
+      chat.attachFiles,
       chat.startNewConversation,
       chat.selectConversation,
       chat.deleteConversation,
