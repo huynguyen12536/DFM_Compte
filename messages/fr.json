@@ -474,10 +474,50 @@
     "companyList": "Sociétés disponibles",
     "companyFallback": "Tenant",
     "assistantTitle": "Assistant COMPTA",
-    "assistantBody": "2 suggestions à valider avant envoi au client.",
-    "assistantAction": "Voir les suggestions",
+    "assistantBody": "Posez une question sur les clients, devis, factures, paiements ou rapports.",
+    "assistantAction": "Ouvrir l'assistant",
     "expand": "Développer la barre latérale",
     "collapse": "Réduire la barre latérale"
+  },
+  "assistant": {
+    "title": "Assistant COMPTA",
+    "status": "Mode démo",
+    "launcher": {
+      "open": "Ouvrir l'assistant COMPTA"
+    },
+    "actions": {
+      "new": "Nouvelle conversation",
+      "history": "Historique des conversations",
+      "close": "Fermer l'assistant"
+    },
+    "history": {
+      "title": "Historique",
+      "subtitle": "Conversations de cette session uniquement.",
+      "emptyTitle": "Aucune conversation",
+      "emptyBody": "Commencez une discussion : les fils restent ici jusqu'au rechargement de la page.",
+      "untitled": "Nouvelle conversation",
+      "meta": "{count} messages · {when}",
+      "delete": "Supprimer la conversation"
+    },
+    "welcome": {
+      "title": "Bonjour, comment puis-je vous aider ?",
+      "subtitle": "Posez une question sur les clients, devis, factures, paiements ou rapports."
+    },
+    "suggestions": {
+      "overdueInvoices": "Quelles factures sont en retard ?",
+      "quotePipeline": "Résume mon pipeline de devis",
+      "customersOwe": "Quels clients ont encore un solde dû ?",
+      "whatChanged": "Qu'est-ce qui a changé aujourd'hui ?"
+    },
+    "composer": {
+      "label": "Message à l'assistant COMPTA",
+      "placeholder": "Écrire un message...",
+      "send": "Envoyer le message"
+    },
+    "followUps": {
+      "label": "Questions suggérées"
+    },
+    "busy": "Réflexion en cours…"
   },
   "header": {
     "openMenu": "Ouvrir le menu",

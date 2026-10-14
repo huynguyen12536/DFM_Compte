@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
@@ -24,10 +24,10 @@ export function SidebarTooltip({
     null,
   );
 
-  // Drop any open tip when the host disables tooltips (e.g. company menu opens).
-  useEffect(() => {
-    if (!enabled) setCoords(null);
-  }, [enabled]);
+  // Drop stale tip coords when the host disables tooltips (e.g. company menu).
+  if (!enabled && coords !== null) {
+    setCoords(null);
+  }
 
   if (!enabled) return <>{children}</>;
 

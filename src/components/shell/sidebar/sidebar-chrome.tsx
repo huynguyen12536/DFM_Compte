@@ -3,6 +3,7 @@
 import { Bot, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useAssistantOptional } from "@/components/assistant";
 import { BrandLogo } from "@/components/brand-logo";
 import { AnimatedSelectionGroup } from "@/components/compte/animated-selection";
 import { CompanySwitcher } from "@/components/shell/company-switcher";
@@ -182,6 +183,7 @@ function SidebarNavSections({
 
 function AssistantCard({ collapsed }: { collapsed: boolean }) {
   const t = useTranslations("sidebar");
+  const assistant = useAssistantOptional();
 
   if (collapsed) {
     return (
@@ -191,6 +193,7 @@ function AssistantCard({ collapsed }: { collapsed: boolean }) {
             aria-label={t("assistantTitle")}
             className="action-motion grid h-11 w-11 place-items-center rounded-[12px] bg-[#063586] text-white"
             type="button"
+            onClick={() => assistant?.openAssistant()}
           >
             <Bot aria-hidden="true" className="h-5 w-5" />
           </button>
@@ -200,22 +203,20 @@ function AssistantCard({ collapsed }: { collapsed: boolean }) {
   }
 
   return (
-    <div className="assistant-card rounded-[15px] bg-[#063586] p-4 text-white">
-      <div className="flex items-start gap-3">
-        <span className="grid h-9 w-9 place-items-center rounded-[10px] bg-white/12">
-          <Bot aria-hidden="true" className="h-5 w-5" />
+    <button
+      className="assistant-card flex w-full items-center gap-3 rounded-[15px] bg-[#063586] p-3.5 text-left text-white transition-opacity hover:opacity-95"
+      type="button"
+      onClick={() => assistant?.openAssistant()}
+    >
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white/12">
+        <Bot aria-hidden="true" className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold">{t("assistantTitle")}</span>
+        <span className="mt-0.5 block text-xs leading-5 text-[#bec9da]">
+          {t("assistantAction")}
         </span>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold">{t("assistantTitle")}</p>
-          <p className="mt-1 text-xs leading-5 text-[#bec9da]">{t("assistantBody")}</p>
-        </div>
-      </div>
-      <button
-        className="action-motion mt-4 min-h-10 w-full rounded-[10px] bg-white text-sm font-semibold text-[#063586]"
-        type="button"
-      >
-        {t("assistantAction")}
-      </button>
-    </div>
+      </span>
+    </button>
   );
 }
