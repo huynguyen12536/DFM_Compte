@@ -1,11 +1,16 @@
 "use client";
 
+import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
 import type { AssistantMessage } from "./types";
+
+function formatSizeKb(bytes: number) {
+  return Math.max(1, Math.round(bytes / 1024));
+}
 
 export function AssistantMessages({
   messages,
@@ -37,6 +42,7 @@ export function AssistantMessages({
           !busy &&
           message.id === lastAssistantId &&
           Boolean(message.followUps?.length);
+        const attachments = message.attachments ?? [];
 
         return (
           <div key={message.id} className="flex flex-col gap-2">
@@ -45,14 +51,45 @@ export function AssistantMessages({
             >
               <div
                 className={cn(
-                  "max-w-[84%] whitespace-pre-wrap break-words text-[13px] leading-5",
+                  "min-w-0 max-w-[84%] whitespace-pre-wrap break-words text-[13px] leading-5",
                   isUser
                     ? "rounded-[16px_16px_4px_16px] bg-[#1764e8] px-3.5 py-2.5 text-white"
                     : "rounded-[16px_16px_16px_4px] border border-[#e3eaf4] bg-[#f5f8fc] px-3.5 py-2.5 text-[#263750]",
                   isUser && "max-w-[80%]",
                 )}
               >
-                {message.content}
+                {attachments.length > 0 ? (
+                  <div className="flex min-w-0 flex-col gap-2">
+                    {attachments.map((attachment, index) => (
+                      <div
+                        className="flex min-w-0 items-start gap-2.5"
+                        key={`${message.id}-file-${index}-${attachment.name}`}
+                      >
+                        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/15">
+                          <FileText aria-hidden="true" className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">
+                            {attachment.name}
+                          </p>
+                          <p
+                            className={cn(
+                              "mt-0.5 text-[11px]",
+                              isUser ? "text-white/80" : "text-[#7d8aa0]",
+                            )}
+                          >
+                            {t("attachment.label")} ·{" "}
+                            {t("attachment.sizeKb", {
+                              size: formatSizeKb(attachment.size),
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  message.content
+                )}
               </div>
             </div>
 

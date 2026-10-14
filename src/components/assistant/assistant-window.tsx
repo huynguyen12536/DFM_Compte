@@ -37,6 +37,7 @@ export function AssistantWindow() {
     setDraft,
     busy,
     sendMessage,
+    attachFiles,
     startNewConversation,
     conversations,
     activeConversationId,
@@ -207,6 +208,9 @@ export function AssistantWindow() {
                 autoFocus={open && !historyOpen}
                 disabled={busy}
                 value={draft}
+                onAttachFiles={(files) => {
+                  void attachFiles(files);
+                }}
                 onChange={setDraft}
                 onSend={() => {
                   void handleSend();

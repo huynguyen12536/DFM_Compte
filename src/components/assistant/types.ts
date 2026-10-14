@@ -1,5 +1,11 @@
 export type AssistantRole = "user" | "assistant";
 
+export type AssistantAttachment = {
+  name: string;
+  size: number;
+  type: string;
+};
+
 export type AssistantMessage = {
   id: string;
   role: AssistantRole;
@@ -7,6 +13,8 @@ export type AssistantMessage = {
   createdAt: number;
   /** Clickable next questions (assistant messages only). */
   followUps?: string[];
+  /** Mock file metadata shown on user upload messages. */
+  attachments?: AssistantAttachment[];
 };
 
 export type AssistantConversation = {

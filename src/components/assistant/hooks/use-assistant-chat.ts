@@ -145,6 +145,107 @@ export function useAssistantChat() {
     [locale, patchActive],
   );
 
+  const attachFiles = useCallback(
+    async (files: File[]) => {
+      if (!files.length) return;
+
+      const isFr = locale.toLowerCase().startsWith("fr");
+      const attachments = files.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type || "application/octet-stream",
+      }));
+      const count = attachments.length;
+      const userContent = isFr
+        ? count === 1
+          ? `Fichier joint : ${attachments[0].name}`
+          : `${count} fichiers joints`
+        : count === 1
+          ? `Attached file: ${attachments[0].name}`
+          : `${count} attached files`;
+
+      const userMessage: AssistantMessage = {
+        id: createId("msg"),
+        role: "user",
+        content: userContent,
+        createdAt: Date.now(),
+        attachments,
+      };
+
+      patchActive((current) => ({
+        ...current,
+        title: current.title ?? titleFromMessages([userMessage]),
+        messages: [...current.messages, userMessage],
+        updatedAt: Date.now(),
+      }));
+      setBusy(true);
+      setHistoryOpen(false);
+
+      // Mock upload / analysis delay for UI testing.
+      await new Promise((resolve) => window.setTimeout(resolve, 4000));
+
+      const fileLines = attachments.flatMap((file, index) => {
+        const sizeKb = Math.max(1, Math.round(file.size / 1024));
+        if (isFr) {
+          return [
+            `${index + 1}. ${file.name}`,
+            `   • Taille : ${sizeKb} Ko`,
+            `   • Type : ${file.type || "inconnu"}`,
+          ];
+        }
+        return [
+          `${index + 1}. ${file.name}`,
+          `   • Size: ${sizeKb} KB`,
+          `   • Type: ${file.type || "unknown"}`,
+        ];
+      });
+
+      const assistantMessage: AssistantMessage = {
+        id: createId("msg"),
+        role: "assistant",
+        content: isFr
+          ? [
+              count === 1
+                ? "Fichier reçu (démo)."
+                : `${count} fichiers reçus (démo).`,
+              "",
+              ...fileLines,
+              "",
+              "Aucun traitement réel n’a été lancé — confirmation mock pour tester l’UI.",
+            ].join("\n")
+          : [
+              count === 1
+                ? "File received (demo)."
+                : `${count} files received (demo).`,
+              "",
+              ...fileLines,
+              "",
+              "No real processing ran — mock confirmation for UI testing only.",
+            ].join("\n"),
+        followUps: isFr
+          ? [
+              "Quelles factures sont en retard ?",
+              "Résume mon pipeline de devis",
+              "Qu’est-ce qui a changé aujourd’hui ?",
+            ]
+          : [
+              "Which invoices are overdue?",
+              "Summarize my quote pipeline",
+              "What changed today?",
+            ],
+        createdAt: Date.now(),
+      };
+
+      patchActive((current) => ({
+        ...current,
+        messages: [...current.messages, assistantMessage],
+        updatedAt: Date.now(),
+      }));
+      setBusy(false);
+    },
+    [locale, patchActive],
+  );
+
   return {
     conversations,
     activeConversationId: active?.id ?? resolvedActiveId,
@@ -155,6 +256,7 @@ export function useAssistantChat() {
     historyOpen,
     setHistoryOpen,
     sendMessage,
+    attachFiles,
     startNewConversation,
     selectConversation,
     deleteConversation,
